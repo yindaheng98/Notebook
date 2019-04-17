@@ -22,8 +22,7 @@ RUN add-apt-repository -y ppa:ondrej/php && \
 
 ```dockerfile
 #needed for vsftpd
-RUN mkdir /var/run/vsftpd \
-  mkdir /var/run/vsftpd/empty
+RUN mkdir -p /var/run/vsftpd
 ```
 
 👆建立vsftpd的安全目录`/var/run/vsftpd/empty`
@@ -72,8 +71,8 @@ ADD supporting_files/vsftpd.conf /etc/vsftpd.conf
 
 `vsftpd.conf`👇
 
-    listen=NO
-    listen_ipv6=YES
+    listen=YES
+    listen_ipv6=NO
     anonymous_enable=NO
     local_enable=YES
     write_enable=YES
@@ -115,3 +114,7 @@ RUN chmod 755 /*.sh
     echo "${FTP_USERNAME}">>/etc/vsftpd.user_list
 
 👆用户加准入名单
+
+## TODO:
+
+目前已经可以从外网连接了，输了用户名也能验证成功然后输入密码，但是输入了密码之后会报`530 Login incorrect`目前还不清楚是自己电脑的问题还是镜像没配好
