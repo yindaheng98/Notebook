@@ -72,10 +72,17 @@ RUN chmod 755 /*.sh
 ```dockerfile
 ADD supporting_files/supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
 ADD supporting_files/supervisord-mysqld.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
+```
+
+放supervisord的配置文件。supervisord是一个nb的进程管理软件
+
+这些.conf文件里面都写了启动命令的，然后run.sh脚本里面没有明显调用这几个文件而是只有一个`exec supervisord -n`。supervisord启动时会自动搜索配置文件
+
+```dockerfile
 ADD supporting_files/mysqld_innodb.cnf /etc/mysql/conf.d/mysqld_innodb.cnf
 ```
 
-放配置文件
+放mysqld的配置文件
 
 ```dockerfile
 # Allow mysql to bind on 0.0.0.0
