@@ -1,0 +1,5 @@
+Nonparametric regression
+	Gaussian process regression or Kriging
+	Kernel regression
+	Nonparametric multiplicative regression
+	Regression trees
