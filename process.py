@@ -48,5 +48,4 @@ def processMDIR(path, meta_data):
 
 
 if __name__ == "__main__":
-    print(meta_data)
     processMDIR(path, meta_data)
