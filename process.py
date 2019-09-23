@@ -1,3 +1,4 @@
+from meta import meta_data, path
 import time
 import os
 
@@ -20,27 +21,32 @@ def appendFILE(path, content):
 def getHEAD(head):
     HEAD = "---\n"
     for k in head:
-        HEAD += "%s: %s\n" % (k, head[k])
+        if isinstance(head[k], list):
+            content = ''
+            for i in head[k]:
+                content += i+','
+            HEAD += "%s: %s\n" % (k, content[0:-1])
+        else:
+            HEAD += "%s: %s\n" % (k, head[k])
     HEAD += "---\n"
     return HEAD
 
 
-def processMD(path, tags):
-    date = getDate(path)
-    with open(path, 'r', encoding='utf-8') as f:
-        title = f.readline()[1:]
-    appendFILE(path, getHEAD({'title': title, 'date': date}))
+def processMD(path, meta):
+    appendFILE(path, getHEAD(meta))
     print('Processed file %s' % path)
 
 
-def processMDIR(path):
+def processMDIR(path, meta_data):
     for i in os.listdir(path):
         p = path+'/'+i
         if os.path.isdir(p):
-            processMDIR(p)
+            processMDIR(p, meta_data)
         elif p[-3:] == '.md' and os.path.isfile(p):
-            processMD(p, None)
+            processMD(p, meta_data[p] if p in meta_data else {})
     print('Processed directory %s' % path)
 
 
-processMDIR('./学习笔记')
+if __name__ == "__main__":
+    print(meta_data)
+    processMDIR(path, meta_data)
