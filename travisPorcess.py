@@ -22,9 +22,9 @@ def getHEAD(head):
     HEAD = "---\n"
     for k in head:
         if isinstance(head[k], list):
-            content = ''
+            content = '\n'
             for i in head[k]:
-                content += i+','
+                content += ' - '+i+'\n'
             HEAD += "%s: %s\n" % (k, content[0:-1])
         else:
             HEAD += "%s: %s\n" % (k, head[k])
