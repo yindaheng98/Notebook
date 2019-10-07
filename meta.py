@@ -43,7 +43,7 @@ def getMDMeta(filedir, filename, metas):
     if not 'date' in meta:#日期数据
         meta['date'] = getDate(filepath)
     
-    path_splitted = filedir.split('\\')[1:]
+    path_splitted = filedir.replace('/','\\').split('\\')[1:]
     if not 'tags' in meta:#tag数据
         meta['tags'] = path_splitted
     meta['categories'] = path_splitted#目录数据直接覆盖
