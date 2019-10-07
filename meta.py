@@ -2,7 +2,7 @@ import os
 import json
 import time
 path = '学习笔记'
-metas_filename = 'meta.json'
+metas_filename = '_meta.json'
 meta_data = {}
 
 #获取文件创建时间
