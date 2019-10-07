@@ -1,6 +1,7 @@
 from meta import meta_data, path
 import time
 import os
+import shutil
 
 #获取文件的创建日期
 def getDate(path):
@@ -51,4 +52,5 @@ def processMDIR(path, meta_data):
 
 
 if __name__ == "__main__":
+    shutil.copytree(path, path+'.bak')
     processMDIR(path, meta_data)
