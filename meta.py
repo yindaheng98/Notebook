@@ -2,47 +2,68 @@ import os
 import json
 import time
 path = '学习笔记'
+metas_filename = 'meta.json'
 meta_data = {}
-try:
-    with open('meta.json', 'r', encoding='utf-8') as f:
-        meta_data = json.load(f)
-except:
-    pass
 
-
+#获取文件创建时间
 def getDate(path):
     t = os.path.getmtime(path)
     t = time.localtime(t)
     t = time.strftime('%Y-%m-%d %H:%M:%S', t)
     return t
 
+#获取某个目录下的meta数据
+def getDIRMetas(filedir):
+    metas = {}
+    metasfile = os.path.join(filedir, metas_filename)
+    if (not os.path.exists(metasfile)) or os.path.isdir(metasfile):
+        with open(metasfile, 'w', encoding='utf-8') as f:
+            json.dump(metas, f)#没有此文件则创建文件
+    else:
+        with open(metasfile, 'r', encoding='utf-8') as f:
+            metas = json.load(f)#有此文件则读取文件
+    print('Meta data loaded from dir %s' % filedir)
+    return metas
 
-def processMD(path):
-    meta = meta_data[path] if path in meta_data else {}
-    date = getDate(path)
-    with open(path, 'r', encoding='utf-8') as f:
-        title = f.readline()[1:-1]
-    if not 'date' in meta:
-        meta['date'] = date
-    if not 'title' in meta:
-        meta['title'] = title
-    if not 'tags' in meta:
-        meta['tags'] = path.split('/')[1:-1]
-    meta_data[path] = meta
-    print('Meta data collected in file %s' % path)
+#设置某个目录下的meta数据
+def setDIRMetas(filedir,metas):
+    metasfile = os.path.join(filedir, metas_filename)
+    with open(metasfile, 'w', encoding='utf-8') as f:
+        json.dump(metas, f)
+    print('Meta data dumped to dir %s' % filedir)
+
+# 获取某个.md文件的meta数据
+def getMDMeta(filedir, filename, metas):
+    #先从metas里面找meta，找不到就用{}
+    meta = metas[filename] if filename in metas else {}
+    filepath = os.path.join(filedir, filename)
+
+    if not 'title' in meta:#文章标题数据
+        with open(filepath, 'r', encoding='utf-8') as f:
+            meta['title'] = f.readline()[1:-1]
+    if not 'date' in meta:#日期数据
+        meta['date'] = getDate(filepath)
+    
+    path_splitted = filedir.split('\\')[1:]
+    if not 'tags' in meta:#tag数据
+        meta['tags'] = path_splitted
+    if not 'categories' in meta:#目录数据
+        meta['categories'] = path_splitted
+
+    print('Meta data of file %s collected' % filename)
+    meta_data[filepath] = meta
+    return meta
 
 
 def processMDIR(path):
+    metas = getDIRMetas(path)
     for i in os.listdir(path):
-        p = path+'/'+i
+        p = os.path.join(path, i)
         if os.path.isdir(p):
             processMDIR(p)
         elif p[-3:] == '.md' and os.path.isfile(p):
-            processMD(p)
-    print('Meta data collected in directory %s' % path)
+            metas[i] = getMDMeta(path,i,metas)
+    setDIRMetas(path,metas)
+    print('Meta data processed in dir %s' % path)
 
-
-if __name__ == "__main__":
-    processMDIR(path)
-    with open('meta.json', 'w', encoding='utf-8') as f:
-        json.dump(meta_data, f)
+processMDIR(path)
