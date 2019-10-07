@@ -10,7 +10,7 @@ docker-compose基本就是一个操作docker image的脚本，告诉计算机要
 
 ## 安装docker-compose
 
-好像装了docker就有docker-compose了。emmm
+windows上面装了docker-desktop就有docker-compose了。Linux上面的docker-compose安装自己找教程。
 
     docker-compose -v
 

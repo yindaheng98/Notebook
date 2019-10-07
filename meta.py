@@ -18,7 +18,7 @@ def getDIRMetas(filedir):
     metasfile = os.path.join(filedir, metas_filename)
     if (not os.path.exists(metasfile)) or os.path.isdir(metasfile):
         with open(metasfile, 'w', encoding='utf-8') as f:
-            json.dump(metas, f)#没有此文件则创建文件
+            json.dump(metas, f, ensure_ascii=False, indent=4)#没有此文件则创建文件
     else:
         with open(metasfile, 'r', encoding='utf-8') as f:
             metas = json.load(f)#有此文件则读取文件
@@ -29,7 +29,7 @@ def getDIRMetas(filedir):
 def setDIRMetas(filedir,metas):
     metasfile = os.path.join(filedir, metas_filename)
     with open(metasfile, 'w', encoding='utf-8') as f:
-        json.dump(metas, f)
+        json.dump(metas, f, ensure_ascii=False, indent=4)
     print('Meta data dumped to dir %s' % filedir)
 
 # 获取某个.md文件的meta数据
