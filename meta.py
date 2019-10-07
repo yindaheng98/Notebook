@@ -38,17 +38,15 @@ def getMDMeta(filedir, filename, metas):
     meta = metas[filename] if filename in metas else {}
     filepath = os.path.join(filedir, filename)
 
-    if not 'title' in meta:#文章标题数据
-        with open(filepath, 'r', encoding='utf-8') as f:
-            meta['title'] = f.readline()[1:-1]
+    with open(filepath, 'r', encoding='utf-8') as f:
+        meta['title'] = f.readline()[1:-1]#文章标题数据直接覆盖
     if not 'date' in meta:#日期数据
         meta['date'] = getDate(filepath)
     
     path_splitted = filedir.split('\\')[1:]
     if not 'tags' in meta:#tag数据
         meta['tags'] = path_splitted
-    if not 'categories' in meta:#目录数据
-        meta['categories'] = path_splitted
+    meta['categories'] = path_splitted#目录数据直接覆盖
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
