@@ -9,7 +9,7 @@
         "categories": [
             "分布式"
         ],
-        "cover": "i/无CDN访问网站.png"
+        "cover": "/分布式/i/无CDN访问网站.png"
     },
     "Redis-distribute.md": {
         "title": "Redis中的分布式",
@@ -34,6 +34,6 @@
         "categories": [
             "分布式"
         ],
-        "cover": "i/多路复用.jpg"
+        "cover": "/分布式/i/多路复用.jpg"
     }
 }

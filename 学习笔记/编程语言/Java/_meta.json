@@ -22,7 +22,7 @@
             "编程语言",
             "Java"
         ],
-        "cover": "i/RESTful图.jpg"
+        "cover": "/编程语言/Java/i/RESTful图.jpg"
     },
     "SpringCloud.md": {
         "title": "Spring Cloud",
@@ -74,7 +74,7 @@
             "编程语言",
             "Java"
         ],
-        "cover": "i/Spring架构.png"
+        "cover": "/编程语言/Java/i/Spring架构.png"
     },
     "Spring结构.md": {
         "title": "Spring原理",

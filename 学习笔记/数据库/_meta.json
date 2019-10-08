@@ -10,7 +10,7 @@
         "categories": [
             "数据库"
         ],
-        "cover": "i/文档和关系数据库的对比.jpg"
+        "cover": "/数据库/i/文档和关系数据库的对比.jpg"
     },
     "Cassandra.md": {
         "title": "Cassandra简介",
@@ -23,6 +23,6 @@
         "categories": [
             "数据库"
         ],
-        "cover": "i/Cassandra集群.png"
+        "cover": "/数据库/i/Cassandra集群.png"
     }
 }

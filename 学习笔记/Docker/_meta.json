@@ -10,7 +10,7 @@
         "categories": [
             "Docker"
         ],
-        "cover": "i/AUFS和Docker.png"
+        "cover": "/Docker/i/AUFS和Docker.png"
     },
     "docker-compose.md": {
         "title": "docker-compose的使用方法",
@@ -84,7 +84,7 @@
         "categories": [
             "Docker"
         ],
-        "cover": "i/module_01_cluster.png"
+        "cover": "/Docker/i/module_01_cluster.png"
     },
     "Kubernetes使用.md": {
         "title": "Kubernetes(k8s)的使用方法",
@@ -119,6 +119,6 @@
         "categories": [
             "Docker"
         ],
-        "cover": "i/虚拟机架构.png"
+        "cover": "/Docker/i/虚拟机架构.png"
     }
 }

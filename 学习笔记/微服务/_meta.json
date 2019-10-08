@@ -9,7 +9,7 @@
         "categories": [
             "微服务"
         ],
-        "cover": "i/DecomposingApplications.011.jpg"
+        "cover": "/微服务/i/DecomposingApplications.011.jpg"
     },
     "领域驱动设计.md": {
         "title": "领域驱动设计",
@@ -31,7 +31,7 @@
         "categories": [
             "微服务"
         ],
-        "cover": "i/微服务框架.png"
+        "cover": "/微服务/i/微服务框架.png"
     },
     "微服务的模式语言-2-通信模式.md": {
         "title": "微服务的模式语言-2-通讯模式（Communication patterns）",
