@@ -47,6 +47,7 @@ def getMDMeta(filedir, filename, metas):
     if not 'tags' in meta:#tag数据
         meta['tags'] = path_splitted
     meta['categories'] = path_splitted#目录数据直接覆盖
+    #TODO:用正则匹配封面和标题
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
