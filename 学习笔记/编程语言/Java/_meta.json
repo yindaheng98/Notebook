@@ -1,6 +1,6 @@
 {
     "OSGi.md": {
-        "title": " OSGi",
+        "title": "OSGi",
         "date": "2019-09-12 11:43:14",
         "tags": [
             "Java",
@@ -12,7 +12,7 @@
         ]
     },
     "RESTful.md": {
-        "title": " REST和RESTful API",
+        "title": "REST和RESTful API",
         "date": "2019-09-23 14:24:22",
         "tags": [
             "Java",
@@ -21,10 +21,11 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "cover": "i/RESTful图.jpg"
     },
     "SpringCloud.md": {
-        "title": " Spring Cloud",
+        "title": "Spring Cloud",
         "date": "2019-09-12 17:57:43",
         "tags": [
             "Java",
@@ -37,7 +38,7 @@
         ]
     },
     "SpringMybatis.md": {
-        "title": " Mybatis",
+        "title": "Mybatis",
         "date": "2019-09-12 22:33:23",
         "tags": [
             "Java",
@@ -50,7 +51,7 @@
         ]
     },
     "SpringTips.md": {
-        "title": " Spring使用笔记",
+        "title": "Spring使用笔记",
         "date": "2019-09-12 22:06:42",
         "tags": [
             "Java",
@@ -62,7 +63,7 @@
         ]
     },
     "Spring基础.md": {
-        "title": " Spring结构",
+        "title": "Spring结构",
         "date": "2019-09-23 14:24:54",
         "tags": [
             "Java",
@@ -72,10 +73,11 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "cover": "i/Spring架构.png"
     },
     "Spring结构.md": {
-        "title": " Spring原理",
+        "title": "Spring原理",
         "date": "2019-09-12 23:44:20",
         "tags": [
             "Java",
@@ -88,7 +90,7 @@
         ]
     },
     "注解.md": {
-        "title": " Java注解和Java反射",
+        "title": "Java注解和Java反射",
         "date": "2019-10-06 23:05:51",
         "tags": [
             "Java",

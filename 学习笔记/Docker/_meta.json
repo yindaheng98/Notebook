@@ -1,6 +1,6 @@
 {
     "AUFS.md": {
-        "title": " AUFS技术",
+        "title": "AUFS技术",
         "date": "2019-09-23 14:21:50",
         "tags": [
             "Docker",
@@ -9,10 +9,11 @@
         ],
         "categories": [
             "Docker"
-        ]
+        ],
+        "cover": "i/AUFS和Docker.png"
     },
     "docker-compose.md": {
-        "title": " docker-compose的使用方法",
+        "title": "docker-compose的使用方法",
         "date": "2019-09-23 14:22:23",
         "tags": [
             "Docker",
@@ -24,7 +25,7 @@
         ]
     },
     "docker-vsftpd.md": {
-        "title": " 如何在mattrayner/docker-lamp的1804版里加vsftpd",
+        "title": "如何在mattrayner/docker-lamp的1804版里加vsftpd",
         "date": "2019-09-23 14:22:34",
         "tags": [
             "Docker",
@@ -37,7 +38,7 @@
         ]
     },
     "docker.md": {
-        "title": " Docker的使用方法",
+        "title": "Docker的使用方法",
         "date": "2019-09-23 14:22:02",
         "tags": [
             "Docker",
@@ -48,7 +49,7 @@
         ]
     },
     "docker_lamp.md": {
-        "title": " mattrayner/docker-lamp的1804版的dockerfile解读",
+        "title": "mattrayner/docker-lamp的1804版的dockerfile解读",
         "date": "2019-09-23 14:22:13",
         "tags": [
             "Docker",
@@ -61,7 +62,7 @@
         ]
     },
     "kubectl指令.md": {
-        "title": " kubectl指令",
+        "title": "kubectl指令",
         "date": "2019-09-23 14:22:44",
         "tags": [
             "Docker",
@@ -73,7 +74,7 @@
         ]
     },
     "Kubernetes介绍.md": {
-        "title": " Kubernetes(k8s)介绍",
+        "title": "Kubernetes(k8s)介绍",
         "date": "2019-09-23 14:22:53",
         "tags": [
             "Docker",
@@ -82,10 +83,11 @@
         ],
         "categories": [
             "Docker"
-        ]
+        ],
+        "cover": "i/module_01_cluster.png"
     },
     "Kubernetes使用.md": {
-        "title": " Kubernetes(k8s)的使用方法",
+        "title": "Kubernetes(k8s)的使用方法",
         "date": "2019-09-23 14:23:03",
         "tags": [
             "Docker",
@@ -97,7 +99,7 @@
         ]
     },
     "Linux启动过程.md": {
-        "title": " Linux系统的启动过程",
+        "title": "Linux系统的启动过程",
         "date": "2019-09-23 14:23:15",
         "tags": [
             "Docker",
@@ -109,13 +111,14 @@
         ]
     },
     "原理概述.md": {
-        "title": " Docker原理概述",
+        "title": "Docker原理概述",
         "date": "2019-09-23 14:23:50",
         "tags": [
             "Docker"
         ],
         "categories": [
             "Docker"
-        ]
+        ],
+        "cover": "i/虚拟机架构.png"
     }
 }

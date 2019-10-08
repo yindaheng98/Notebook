@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import re
 path = '学习笔记'
 metas_filename = '_meta.json'
 meta_data = {}
@@ -33,13 +34,19 @@ def setDIRMetas(filedir,metas):
     print('Meta data dumped to dir %s' % filedir)
 
 # 获取某个.md文件的meta数据
+titler = re.compile(r'#\s+(.*?)\n', re.S)
+coverr = re.compile(r'!\[.*?\]\((.*?)\)\n', re.S)
 def getMDMeta(filedir, filename, metas):
     #先从metas里面找meta，找不到就用{}
     meta = metas[filename] if filename in metas else {}
     filepath = os.path.join(filedir, filename)
-
     with open(filepath, 'r', encoding='utf-8') as f:
-        meta['title'] = f.readline()[1:-1]#文章标题数据直接覆盖
+        s = f.read()
+
+    title = re.findall(titler,s)
+    if len(title)>0:
+        meta['title'] = title[0]#文章标题数据直接覆盖
+
     if not 'date' in meta:#日期数据
         meta['date'] = getDate(filepath)
     
@@ -47,7 +54,10 @@ def getMDMeta(filedir, filename, metas):
     if not 'tags' in meta:#tag数据
         meta['tags'] = path_splitted
     meta['categories'] = path_splitted#目录数据直接覆盖
-    #TODO:用正则匹配封面和标题
+    
+    cover = re.findall(coverr,s)
+    if len(cover)>0:
+        meta['cover'] = os.path.join(cover[0])#封面数据直接覆盖
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta

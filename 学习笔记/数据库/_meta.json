@@ -1,6 +1,6 @@
 {
     "各种数据库概述.md": {
-        "title": " 各种数据库概述",
+        "title": "各种数据库概述",
         "date": "2019-09-24 13:29:36",
         "tags": [
             "数据库",
@@ -9,10 +9,11 @@
         ],
         "categories": [
             "数据库"
-        ]
+        ],
+        "cover": "i/文档和关系数据库的对比.jpg"
     },
     "Cassandra.md": {
-        "title": " Cassandra简介",
+        "title": "Cassandra简介",
         "date": "2019-09-24 16:44:09",
         "tags": [
             "数据库",
@@ -21,6 +22,7 @@
         ],
         "categories": [
             "数据库"
-        ]
+        ],
+        "cover": "i/Cassandra集群.png"
     }
 }
