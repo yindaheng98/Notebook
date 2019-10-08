@@ -57,7 +57,7 @@ def getMDMeta(filedir, filename, metas):
     
     cover = re.findall(coverr,s)
     if len(cover)>0:
-        meta['cover'] = os.path.join(cover[0])#封面数据直接覆盖
+        meta['cover'] = os.path.join('/',path_splitted[-1],cover[0])#封面数据直接覆盖
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
