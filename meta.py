@@ -2,12 +2,17 @@ import os
 import json
 import time
 import re
+from getDate import data
 path = '学习笔记'
 metas_filename = '_meta.json'
 meta_data = {}
 
 #获取文件创建时间
 def getDate(path):
+    if path in data:
+        print("%s found in commit history"%path)
+        return data[path]
+    print("%s not found in commit history"%path)
     t = os.path.getmtime(path)
     t = time.localtime(t)
     t = time.strftime('%Y-%m-%d %H:%M:%S', t)
@@ -47,8 +52,7 @@ def getMDMeta(filedir, filename, metas):
     if len(title)>0:
         meta['title'] = title[0]#文章标题数据直接覆盖
 
-    if not 'date' in meta:#日期数据
-        meta['date'] = getDate(filepath)
+    meta['date'] = getDate(filepath)#日期数据直接覆盖
     
     path_splitted = filedir.replace('\\','/').split('/')[1:]
     if not 'tags' in meta:#tag数据
