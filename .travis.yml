@@ -6,5 +6,6 @@ branches:
   only:
     - master # build master branch only
 script:
+  - pip install pygit2
   - python travisPorcess.py
   - bash deploy.sh $GH_TOKEN
