@@ -65,6 +65,7 @@ def updateData(date,diff):
 repo = pygit2.Repository('./')
 #获取commit记录
 commits=repo.walk(repo.head.target,GIT_SORT_TOPOLOGICAL|GIT_SORT_REVERSE)
+import sys
 try:
     print(list(repo.walk(repo.head.target,GIT_SORT_TOPOLOGICAL|GIT_SORT_REVERSE)))
 except:
