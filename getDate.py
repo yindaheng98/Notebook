@@ -65,11 +65,11 @@ def updateData(date,diff):
 repo = pygit2.Repository('./')
 #获取commit记录
 commits=repo.walk(repo.head.target,GIT_SORT_TOPOLOGICAL|GIT_SORT_REVERSE)
-import sys
+import traceback
 try:
     print(list(repo.walk(repo.head.target,GIT_SORT_TOPOLOGICAL|GIT_SORT_REVERSE)))
 except:
-    print("Unexpected error:", sys.exc_info()[0])
+    print("Unexpected error:", traceback.print_exc())
 
 last_tree=None
 for commit in commits:#开始遍历
