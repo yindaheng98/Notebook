@@ -2,7 +2,6 @@ import os
 import json
 import time
 import re
-from getDate import data
 path = '学习笔记'
 metas_filename = '_meta.json'
 meta_data = {}
@@ -80,4 +79,5 @@ def processMDIR(path):
     print('Meta data processed in dir %s' % path)
 
 if __name__=="__main__":
+    from getDate import data
     processMDIR(path)
