@@ -79,4 +79,5 @@ def processMDIR(path):
     setDIRMetas(path,metas)
     print('Meta data processed in dir %s' % path)
 
-processMDIR(path)
+if __name__=="__main__":
+    processMDIR(path)
