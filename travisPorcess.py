@@ -3,13 +3,6 @@ import time
 import os
 import shutil
 
-#获取文件的创建日期
-def getDate(path):
-    t = os.path.getmtime(path)
-    t = time.localtime(t)
-    t = time.strftime('%Y-%m-%d %H:%M:%S', t)
-    return t
-
 #在文件开头进行添加
 def appendFILE(path, content):
     with open(path, 'r+', encoding='utf-8') as f:
@@ -30,6 +23,7 @@ def getHEAD(head):
         else:
             HEAD += "%s: %s\n" % (k, head[k])
     HEAD += "---\n"
+    print(HEAD)
     return HEAD
 
 #处理.md文件

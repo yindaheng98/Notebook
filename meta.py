@@ -40,7 +40,7 @@ def setDIRMetas(filedir,metas):
 # 获取某个.md文件的meta数据
 titler = re.compile(r'#\s+(.*?)\n', re.S)
 coverr = re.compile(r'!\[.*?\]\((.*?)\)\n', re.S)
-def getMDMeta(filedir, filename, metas):
+def updateMDMeta(filedir, filename, metas):
     #先从metas里面找meta，找不到就用{}
     meta = metas[filename] if filename in metas else {}
     filepath = os.path.join(filedir, filename)
@@ -51,7 +51,8 @@ def getMDMeta(filedir, filename, metas):
     if len(title)>0:
         meta['title'] = title[0]#文章标题数据直接覆盖
 
-    meta['date'] = getDate(filepath)#日期数据直接覆盖
+    if __name__=="__main__":#TODO:CI系统pygit2中的Object not found问题仍未解决
+        meta['date'] = getDate(filepath)#日期数据直接覆盖
     
     path_splitted = filedir.replace('\\','/').split('/')[1:]
     if not 'tags' in meta:#tag数据
@@ -64,20 +65,21 @@ def getMDMeta(filedir, filename, metas):
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
-    return meta
 
 
 def processMDIR(path):
-    metas = getDIRMetas(path)
-    for i in os.listdir(path):
-        p = os.path.join(path, i)
-        if os.path.isdir(p):
+    metas = getDIRMetas(path)#获取该目录下文件的meta数据
+    for file in os.listdir(path):#遍历当前目录下的每个子路径
+        p = os.path.join(path, file)
+        if os.path.isdir(p):#如果是文件夹就递归
             processMDIR(p)
-        elif p[-3:] == '.md' and os.path.isfile(p):
-            metas[i] = getMDMeta(path,i,metas)
-    setDIRMetas(path,metas)
+        elif p[-3:] == '.md' and os.path.isfile(p):#是md文件就更新meta
+            updateMDMeta(path,file,metas)
+    setDIRMetas(path,metas)#最后将这个文件夹的meta数据写入到对应文件中
     print('Meta data processed in dir %s' % path)
 
+#TODO:CI系统pygit2中的Object not found问题仍未解决
 if __name__=="__main__":
     from getDate import data
-    processMDIR(path)
+
+processMDIR(path)
