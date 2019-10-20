@@ -56,8 +56,6 @@ def updateData(date,diff):
     for file in created_files:
         if not file[1] in data:
             data[file[1]]=date
-    for file in deleted_files:
-        data[file[1]]=date
     for file in modifed_files:
         data[file[1]]=date
 
