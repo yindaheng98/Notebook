@@ -161,9 +161,7 @@ func Sum(a, b int) (sum int) {
 
 ## 复杂一点的错误处理
 
-有了上面的常规错误处理和defer的铺垫，接下来可以开始学习`panic`和`recover`机制的错误处理了。
-
-如果是在goroutine中遇见错误时，前面的错误处理方法在一些情况下可能就不好用了，这时就要用到`panic`和`recover`机制：
+有了上面的常规错误处理和defer的铺垫，接下来可以开始学习`panic`和`recover`机制的错误处理了。`panic`和`recover`机制：
 
 `panic`相当于在函数返回和`defer`函数开始出栈执行之前加入一个标记然后立即让函数返回并且直接进入`defer`出栈执行阶段，而`defer`里面的`recover()`可以捕获到这个标记，并将他返给某个变量，如果`recover`没有捕获到标记就返回`nil`。例如：
 
@@ -217,7 +215,9 @@ test panic
 
 ### 要点
 
-* `panic`不会向`defer`内传递，这点和正常的变量不同，比如：
+#### `panic`不会向`defer`内传递
+
+这点和正常的变量不同，比如：
 
 ```go
 func test() {
@@ -257,9 +257,13 @@ main.main()
 
 这表明那个嵌套的`defer`里面能看到变量`a`而看不到外面的`panic`。因此，`recover`只有在和`panic`在同一函数的第一层`defer`里面才会生效。任何函数的调用都会清除`panic`（**新来的人(panic之后的函数调用)不可能造成在它来之前就存在的错误，因此是无罪的**）。
 
-* 在`defer`里面再抛出`panic`会发生什么？只有最里面的`panic`会被捕获（如果有`recover`在正确的位置的话）。按照上一条规则自己领悟。
+#### 在`defer`里面再抛出`panic`会发生什么？
 
-* `panic`不仅会导致调用它的函数退出，还会一路连带着上层调用栈一层层全部退出，这时`panic`会沿着上层调用栈里面定义的`defer`一路传播直到遇到一个`recover`。比如上面那个例子中，要捕获那个`panic`除了可以将`recover`写在第一层`func`里面之外，还可以写成这样：
+只有最里面的`panic`会被捕获（如果有`recover`在正确的位置的话）。按照上一条规则自己领悟。
+
+#### `panic`不仅会导致调用它的函数退出，还会一路连带着上层调用栈一层层全部退出
+
+这时`panic`会沿着上层调用栈里面定义的`defer`一路传播直到遇到一个`recover`。比如上面那个例子中，要捕获那个`panic`除了可以将`recover`写在第一层`func`里面之外，还可以写成这样：
 
 ```go
 func main() {
@@ -283,7 +287,13 @@ hahaha
 
 即`panic`沿着调用栈的`defer`一路传了出来，并且主函数在`test()`处就因为`panic`退出了，后面的`fmt.Println("after panic")`不会执行。（**在错误发生之前就在的人(panic之前的函数调用)都有可能是错误的元凶，都是有罪的**）
 
-* 当`panic`沿着调用栈的`defer`传出来的路上出现了新的`panic`，那么`recover`只捕获到最后的`panic`（离他最近的）。
+#### 当`panic`沿着调用栈的`defer`传出来的路上出现了新的`panic`，那么`recover`只捕获到最后的`panic`（离他最近的）。
+
+#### goroutine发生panic时，只会调用自身的defer
+
+所以即便主goroutine里写了recover逻辑，也无法拯救到其它goroutine里的panic。goroutine中的panic会直接导致整个进程退出。
+
+这也是goroutine身为go语言核心技术却在实际代码中使用不多的原因。
 
 ### 重要用途：发生错误时也能正常释放资源
 
