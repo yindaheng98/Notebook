@@ -17,12 +17,20 @@ STATUS={pygit2.GIT_DELTA_ADDED:"A",
 
 data={}
 def parseDiff(diff):
+    diff.find_similar()
     files={s:set() for s in STATUS}
     for patch in diff:
         delta=patch.delta
         files[delta.status].add(
             (delta.old_file.path,delta.new_file.path))
-    return files
+    md_files={}
+    for status in files:
+        fs=set()
+        for file in files[status]:
+            if file[0][-3:]=='.md':
+                fs.add(file)
+        md_files[status]=fs
+    return md_files
 
 def constructDiff(diff):
     files=parseDiff(diff)
@@ -50,14 +58,25 @@ def updateData(date,diff):
     modifed_files=files[pygit2.GIT_DELTA_MODIFIED]
     for file in renamed_files:
         if file[0] in data:
+            print('\trename file: %s->%s'%(file[0],file[1]))
             data[file[1]]=data[file[0]]
         else:
+            print('\t[not exists]rename file: %s->%s'%(file[0],file[1]))
             data[file[1]]=date
     for file in created_files:
         if not file[1] in data:
+            print('\tcreate file: %s'%file[1])
             data[file[1]]=date
+        else:
+            print('\t[already exists]create file: %s'%file[1])
     for file in modifed_files:
+        print('\tmodify file: %s'%file[1])
         data[file[1]]=date
+    for file in deleted_files:
+        if file[1] in data:
+            print('\tdelete file: %s'%file[1])
+        else:
+            print('\t[not exists]delete file: %s'%file[1])
 
 #获取代码库
 repo = pygit2.Repository('./')
@@ -68,14 +87,14 @@ last_tree=None
 for commit in commits:#开始遍历
     date=time.gmtime(commit.commit_time)#获取时间
     date=time.strftime('%Y-%m-%d %H:%M:%S',date)#格式化时间
-    print("scanning commit %s at %s"%(commit.message,date))
+    print("\nscanning the commit at %s: %s"%(date,commit.message))
 
     tree=commit.tree#获取文件树
     if last_tree is None:
         last_tree=tree
         continue
 
-    diff=tree.diff_to_tree(last_tree)#比较文件树
+    diff=last_tree.diff_to_tree(tree,interhunk_lines=10)#比较文件树
     updateData(date,diff)
     last_tree=tree
 
