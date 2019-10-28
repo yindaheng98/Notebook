@@ -1,4 +1,6 @@
-# Bloom Filter：布隆过滤器——检查一个元素是否在一个集合中——**可能存在**或者**一定不存在**
+# Bloom Filter：布隆过滤器
+
+## 布隆过滤器——检查一个元素是否在一个集合中——**可能存在**或者**一定不存在**
 
 ## 原理：一个bit array，多个hash函数
 
@@ -15,11 +17,15 @@
 假设一个Bloom Filter的有$k$个hash函数$H_1(\cdot)\sim H_K(\cdot)$，其bit array有$m$位$A_1\sim A_M$，要在其集合$S$插入$N$个元素$s_1\sim s_N$，则假正率$P$为：
 $$P=(1-(1-\frac{1}{M})^{KN})^K\approx(1-e^{-\frac{KN}{M}})^K$$
 
-当实际插入的元素个数$N=100000$时，上述公式图形如下：
+当实际插入的元素个数$N=10^5$时，上述公式图形如下：
 
 ![Bloom Filter性能](i/bloom_filter_性能.png)
 
-一般来说，bit array长度$M$取实际插入的元素个数$N$的10倍。
+且其中的假正率$P$和hash函数数量的关系如下图：
+
+![Bloom Filter性能](i/bloom_filter_性能1.png)
+
+一般来说，bit array长度$M$取实际插入的元素个数$N$的10倍。hash函数数量一般为5-10个。
 
 ### 规则三：最后，Bloom Filter中不允许有删除操作
 
@@ -80,11 +86,18 @@ $$
 
 ## 与其他算法的对比
 
+### 优点
+
 能够用于集合元素存在性测试的还有这些常见算法：hashmap，set，bit array。相对于这些算法布隆过滤器有这些优势：
 
 * hashmap是一个指针数组，一个指针的开销是sizeof(void *)，在64bit的系统上是64bit，在32位系统上是32bit，如果用链地址法处理冲突还要更多空间。而正如前文所述，Bloom Filter中n个bit位置理论上最多可以表示$C_n^k$个元素的可能存在性，空间利用率远比hashmap大不少
 * 对于平衡树方式实现的set，一个节点需要一个指针存储数据的位置，两个指针指向其子节点，空间开销比hashmap还大
-* 单纯的bit array相当于Bloom Filter只有一个hash函数的特殊情况，因此如果要获得和BloomFilter相同的误判率，则需要比Bloom Filter更大的存储空间
+* 单纯的bit array相当于Bloom Filter只有一个hash函数的特殊情况，因此如果要获得和BloomFilter相同的误判率，则需要比Bloom Filter更大的存储空间（见上面的图）
+
+### 缺点
+
+* hashmap和set不会出现误判的情况，而Bloom Filter有一定的假正率
+* bit array只要一次hash而Bloom Filter要多次hash
 
 ## 使用场景
 
@@ -95,3 +108,55 @@ $$
   * 先读内存中的Bloom Filter
   * 如果Bloom Filter返回不存在，则不必再读磁盘
   * 如果Bloom Filter返回可能存在，则再读磁盘确认准确的存在性
+
+## Bloom Filter和hashmap实际性能分析
+
+按照上述查询操作的过程分析Bloom Filter和hashmap的实际性能差距。
+
+### 时间复杂度
+
+假设在内存中Bloom Filter计算的时间开销为$T_0$，从硬盘中读取的开销为$T_1$，那么Bloom Filter查到元素存在和假正的开销为：
+
+$$T_{存在}=T_{假正}=T_0+T_1$$
+
+不存在的开销为：
+
+$$T_{不存在}=T_0$$
+
+再假设Bloom Filter返回元素存在的概率为$P_0$，假正率为$P$，则查询一个元素的平均开销为：
+
+$$
+\begin{aligned}
+T_{BF}&=P_{存在}T_{存在}+P_{假正}T_{假正}+P_{不存在}T_{不存在}\\
+&=(P_0-P)(T_0+T_1)+P(T_0+T_1)+(1-P_0)T_0\\
+&=T_0+P_0T_1
+\end{aligned}
+$$
+
+而对于一个hashmap，若其中存储与此Bloom Filter相同的元素，并且有相同的内存和硬盘性能开销，那么其返回一个元素存在的概率为：
+
+$$P_{存在}=P_0-P$$
+
+其查询一个元素的平均开销为：
+
+$$
+\begin{aligned}
+T_{hashmap}&=P_{存在}T_{存在}+P_{不存在}T_{不存在}\\
+&=(P_0-P)(T_0+T_1)+(1-(P_0-P))T_0\\
+&=T_0+(P_0-P)T_1
+\end{aligned}
+$$
+
+因此Bloom Filter和hashmap的性能差距为：
+
+$$\Delta T=T_{BF}-T_{hashmap}=PT_1$$
+
+### 空间复杂度
+
+而由前文的所述，Bloom Filter中bit array长度$M$取实际插入的元素个数$N$的10倍；而hashmap若存储地址则每个元素至少需要32bit的空间（32位机）或64bit空间（64位机）。其空间消耗可以表示为：
+
+$$C_{BF}=10N$$
+
+$$C_{hashmap}\in\{32N,64N\}$$
+
+可见，Bloom Filter以$\Delta T$的性能牺牲换取了3-6倍的空间利用率提升。
