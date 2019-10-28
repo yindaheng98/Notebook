@@ -39,6 +39,7 @@ def setDIRMetas(filedir,metas):
 # 获取某个.md文件的meta数据
 titler = re.compile(r'#\s+(.*?)\n', re.S)
 coverr = re.compile(r'!\[.*?\]\((.*?)\)\n', re.S)
+titletagr = re.compile(r'^\((.*?)\)', re.S)
 def updateMDMeta(filedir, filename, metas):
     #先从metas里面找meta，找不到就用{}
     meta = metas[filename] if filename in metas else {}
@@ -56,7 +57,12 @@ def updateMDMeta(filedir, filename, metas):
     path_splitted = filedir.replace('\\','/').split('/')[1:]
     if not 'tags' in meta:#tag数据
         meta['tags'] = path_splitted
+    
     meta['categories'] = path_splitted#目录数据直接覆盖
+        
+    titletag = re.findall(titletagr,meta['title']) #找文章开头的括号加入到tag中，比如“(未完成)”
+    if len(titletag)>0 and not titletag[0] in meta['tags']:
+        meta['tags'].append(titletag[0])
     
     cover = re.findall(coverr,s)
     if len(cover)>0:

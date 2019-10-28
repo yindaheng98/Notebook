@@ -1,10 +1,11 @@
 {
     "OSGi.md": {
-        "title": "OSGi",
+        "title": "(未完成)OSGi",
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Java",
-            "编程思想"
+            "编程思想",
+            "未完成"
         ],
         "categories": [
             "编程语言",
@@ -25,12 +26,13 @@
         "cover": "/编程语言/Java/i/RESTful图.jpg"
     },
     "SpringCloud.md": {
-        "title": "Spring Cloud",
+        "title": "(未完成)Spring Cloud",
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Java",
             "编程工具",
-            "Spring"
+            "Spring",
+            "未完成"
         ],
         "categories": [
             "编程语言",
@@ -38,12 +40,13 @@
         ]
     },
     "SpringMybatis.md": {
-        "title": "Mybatis",
+        "title": "(未完成)Mybatis",
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Java",
             "编程工具",
-            "Spring"
+            "Spring",
+            "未完成"
         ],
         "categories": [
             "编程语言",
@@ -100,6 +103,20 @@
         "categories": [
             "编程语言",
             "Java"
+        ]
+    },
+    "Dalvik、ART、DEX、ODEX、JIT、AOT、OAT.md": {
+        "title": "(未完成)Dalvik、ART、DEX、ODEX、JIT、AOT、OAT",
+        "date": "2019-10-28 14:23:16",
+        "tags": [
+            "编程语言",
+            "Java",
+            "未完成"
+        ],
+        "categories": [
+            "编程语言",
+            "Java",
+            "未完成"
         ]
     }
 }
