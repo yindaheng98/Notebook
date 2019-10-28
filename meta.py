@@ -9,7 +9,6 @@ meta_data = {}
 #获取文件创建时间
 def getDate(path):
     if path in data:
-        print("%s found in commit history"%path)
         return data[path]
     print("%s not found in commit history"%path)
     t = os.path.getmtime(path)
@@ -65,6 +64,7 @@ def updateMDMeta(filedir, filename, metas):
 
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
+    metas[filename] = meta
 
 
 def processMDIR(path):
