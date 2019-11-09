@@ -1,6 +1,6 @@
 # (未完成)N1QL
 
-![封面](i/Artboard&#32;1.svg)
+![封面](i/Artboard.svg)
 
 NoSQL 对于关系型世界严格的schema也有了适应。关系数据库通过SQL查询语言灵活的查询和使用数据。Couchbase最新的4.0版本，已经增加了上述的SQL“基因”的支持。在Couchbase上使用SQL语言，既保留了JSON文档灵活的数据模型，又支持了强大的SQL语言。N1QL，是目前针对JSON数据最强大的表达式语言。JSON和SQL的组合使我们在这个新的数据时代有了更简单的编程方式和快速构建企业数据应用的利器。
 
