@@ -61,8 +61,19 @@
         ]
     },
     "N1QL.md": {
-        "title": "(未完成)N1QL",
-        "date": "2019-11-08 21:44:21",
+        "title": "N1QL使用方法",
+        "date": "2019-11-11 08:22:14",
+        "tags": [
+            "数据库"
+        ],
+        "categories": [
+            "数据库"
+        ],
+        "cover": "/数据库/i/Artboard.svg"
+    },
+    "Couchbase.md": {
+        "title": "(未完成)Couchbase和N1QL原理",
+        "date": "2019-11-11 08:22:14",
         "tags": [
             "数据库",
             "未完成"
@@ -71,6 +82,6 @@
             "数据库",
             "未完成"
         ],
-        "cover": "/数据库/未完成/i/Artboard&#32;1.svg"
+        "cover": "/数据库/未完成/i/Artboard.svg"
     }
 }
