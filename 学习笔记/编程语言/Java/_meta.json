@@ -68,9 +68,10 @@
         ]
     },
     "Spring原理.md": {
-        "title": "Spring结构",
-        "date": "2019-09-23 07:37:12",
+        "title": "Spring原理",
+        "date": "2019-11-13 09:00:24",
         "tags": [
+            "编程语言",
             "Java",
             "Spring",
             "编程工具"
@@ -78,8 +79,7 @@
         "categories": [
             "编程语言",
             "Java"
-        ],
-        "cover": "/编程语言/Java/i/Spring架构.png"
+        ]
     },
     "注解.md": {
         "title": "Java注解和Java反射",
@@ -101,18 +101,6 @@
             "编程语言",
             "Java",
             "未完成"
-        ],
-        "categories": [
-            "编程语言",
-            "Java"
-        ]
-    },
-    "Spring原理.md": {
-        "title": "Spring原理",
-        "date": "2019-11-13 09:00:24",
-        "tags": [
-            "编程语言",
-            "Java"
         ],
         "categories": [
             "编程语言",
