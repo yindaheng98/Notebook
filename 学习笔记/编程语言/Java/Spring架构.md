@@ -1,4 +1,4 @@
-# Spring结构
+# Spring架构
 
 ![Spring架构](i/Spring架构.png)
 
