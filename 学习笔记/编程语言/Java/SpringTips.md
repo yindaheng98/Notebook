@@ -1,4 +1,4 @@
-# Spring使用笔记
+# (持续更新)Spring使用笔记
 
 ## application.properties和application.yml
 
