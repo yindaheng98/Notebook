@@ -1,6 +1,7 @@
-# Service Mesh 服务网格——后k8s时代的微服务
+# Service Mesh 服务网格——从何而来
 
 [参考教程](https://time.geekbang.org/article/2360)
+[参考教程](https://www.servicemesher.com/istio-handbook/intro/service-mesh-the-microservices-in-post-kubernetes-era.html)
 
 Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原生(Cloud Native)应用有着复杂的服务拓扑，Service Mesh 保证请求可以在这些拓扑中可靠地穿梭。在实际应用当中，Service Mesh 通常是由**一系列轻量级的网络代理组成的**，它们与应用程序部署在一起，但应用程序不需要知道它们的存在。
 
@@ -11,7 +12,9 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 * 应用程序无感知
 * 解耦应用程序的重试、超时、监控、追踪和服务发现
 
-## 历史来源
+## 历史
+
+### 软件开发中通信方式的演进
 
 1. 从最原始的主机之间直接使用网线相连
 2. 网络层的出现
@@ -20,7 +23,7 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 5. 应用程序的中集成服务发现和断路器
 6. 出现了专门用于服务发现和断路器的软件包/库，Twitter’s Finagle和 Facebook's Proxygen。这时候还是集成在应用程序内部
 7. 出现了专门用于服务发现和断路器的开源软件，如：NetflixOSS ecosystem
-8. 最后作为微服务的中间层Service Mesh出现
+8. 最后作为微服务的中间层Service Mesh出现以及Cloud Native概念的提出
 
 ### 阶段5->6->7->8的演进架构图
 
@@ -66,7 +69,7 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 ![解决](i/ServiceMeshvsSpringCloud8.jpg)
 ![解决](i/ServiceMeshvsSpringCloud9.jpg)
 
-## Kubernetes vs Istio Service Mesh
+## 从Kubernetes到Istio Service Mesh
 
 * Kubernetes 的本质是应用的**生命周期管理**，具体来说就是部署和管理（扩缩容、自动恢复、发布）
 * Kubernetes 为微服务提供了可扩展、高弹性的部署和管理平台
@@ -82,4 +85,4 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 从图中可以看出k8s的proxy方式和Istio Service Mesh的proxy方式的不同：
 
 * k8s架构中的proxy是每个node一个kube-proxy，一个node中所有pod的流量都经过同一个proxy，每个kube-proxy都从k8s api server中获取配置，通过设置iptables规则的方式进行代理和请求转发
-* Istio Service Mesh 中沿用了 Kubernetes 中的 service 做服务注册，通过 Control Plane 来生成数据平面的配置
+* Istio Service Mesh 中沿用了Kubernetes中的pod和node架构做服务注册，通过一个 Control Plane 来控制proxy。
