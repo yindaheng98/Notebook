@@ -41,14 +41,14 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 
 * Spring Cloud解决的痛点：在微服务应用程序的中，每个微服务里面都要手写一遍服务发现和断路器等功能，因此有很多非功能性代码，Spring Cloud把这些代码集成成为一个个库，用几行代码加几个注释就能搞定，极大地简化了开发
 * Spring Cloud自身的痛点：
-  1. 内容多，门槛高，学完很费时间：这是最大的痛点。**业务开发团队的强项不应该是技术，而应该是对业务的理解，是对整个业务体系的熟悉程度**。微服务只是手段，业务才是重点，在与业务逻辑关系不大的地方投入太多精力是业务团队的大忌。而且，高门槛还会阻碍对已有业务的微服务改造。![痛点1](i/ServiceMeshvsSpringCloud1.jpg)
-  2. 功能不够：很多功能都需要在 Spring Cloud 的基础上自己解决。![痛点2](i/ServiceMeshvsSpringCloud2.jpg)
-  3. 不能跨语言：微服务的概念刚出来的时候就说要跨语言，但是Spring Cloud居然完全不能跨语言。而且，Spring Cloud框架是侵入式的，这意味着，如果要在Spring Cloud框架下实现跨语言，那对每个语言都要实现一个Spring Cloud框架，基本是个不可能的任务。![痛点3](i/ServiceMeshvsSpringCloud3.jpg)
+  1. 内容多，门槛高，学完很费时间：这是最大的痛点。**业务开发团队的强项不应该是技术，而应该是对业务的理解，是对整个业务体系的熟悉程度**。微服务只是手段，业务才是重点，在与业务逻辑关系不大的地方投入太多精力是业务团队的大忌。而且，高门槛还会阻碍对已有业务的微服务改造。![痛点1](i/ServiceMeshvsSpringCloud/1.jpg)
+  2. 功能不够：很多功能都需要在 Spring Cloud 的基础上自己解决。![痛点2](i/ServiceMeshvsSpringCloud/2.jpg)
+  3. 不能跨语言：微服务的概念刚出来的时候就说要跨语言，但是Spring Cloud居然完全不能跨语言。而且，Spring Cloud框架是侵入式的，这意味着，如果要在Spring Cloud框架下实现跨语言，那对每个语言都要实现一个Spring Cloud框架，基本是个不可能的任务。![痛点3](i/ServiceMeshvsSpringCloud/3.jpg)
   4. 更新和兼容性问题：当某次服务端更新导致客户端也要一起更新时就会出现这个问题，因为不能保证每个用户都能按时更新，而Spring Cloud在一开始就没有考虑过多版本共存的问题，因此会出现v2.0的服务器服务v1.0的客户端，这种情况下，解决兼容性就会成为一个大问题。
 
 #### 问题在于服务间通信
 
-![总结](i/ServiceMeshvsSpringCloud4.jpg)
+![总结](i/ServiceMeshvsSpringCloud/4.jpg)
 
 * 根源：上面说的这些痛点和微服务实现了什么功能半毛钱关系都没有，问题的根源只是服务间的通信问题
 * 本质：正因为服务间的通信和服务本身的功能没有关系，所以不管服务间的通信方式如何变化，服务间通信的内容是不会变的
@@ -58,16 +58,16 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 
 #### 类比曾经的TCP协议
 
-![类比](i/ServiceMeshvsSpringCloud5.jpg)
-![类比](i/ServiceMeshvsSpringCloud6.jpg)
-![解决](i/ServiceMeshvsSpringCloud7.jpg)
+![类比](i/ServiceMeshvsSpringCloud/5.jpg)
+![类比](i/ServiceMeshvsSpringCloud/6.jpg)
+![解决](i/ServiceMeshvsSpringCloud/7.jpg)
 
 #### 微服务领域的TCP/IP协议——Sidecar和Service Mesh
 
 微服务间的通信全部通过Sidecar代理实现
 
-![解决](i/ServiceMeshvsSpringCloud8.jpg)
-![解决](i/ServiceMeshvsSpringCloud9.jpg)
+![解决](i/ServiceMeshvsSpringCloud/8.jpg)
+![解决](i/ServiceMeshvsSpringCloud/9.jpg)
 
 ## 从Kubernetes到Istio Service Mesh
 
