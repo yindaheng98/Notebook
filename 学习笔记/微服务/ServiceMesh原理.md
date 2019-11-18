@@ -8,6 +8,31 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 
 上图展示了Service Mesh框架下应用的基本架构，其中蓝色的部分是Service Mesh框架所控制的部分，绿色是开发人员需要关注的部分，灰色是基本的网络架构。Service Mesh归根结底就是一个复杂但易于控制的TCP/IP请求代理(Proxy)，将请求发送到正确的地方就是它的全部任务。
 
+## 知识图谱
+
+```mermaid
+graph TD
+CloudNative[Cloud Native]-->ServiceMesh[Service Mesh]
+CloudNative-->k8s[Kubernetes]
+CloudNative-->CanaryDeployments[Canary deployments]
+ServiceMesh-->Pattern[实现模式]
+Pattern-->Ingress[Ingress或边缘代理]
+Pattern-->RouterMesh[路由器网格]
+Pattern-->ClientDevelopKit[客户端库]
+Pattern-->ProxyperNode[Proxy per Node]
+Pattern-->Fabric[Sidecar代理/Fabric模型]
+Pattern-->Sidecar[Sidecar代理/控制平面]
+Ingress-->|演进|RouterMesh-->|演进|ClientDevelopKit-->|演进|ProxyperNode-->|演进|Fabric-->|演进|Sidecar
+ServiceMesh-->Frames[开发框架]
+Frames-->Istio
+Frames-->Linkerd
+Linkerd-->Conduit
+Istio-->Envoy
+Envoy-->xDS
+Linkerd-->Sidecar
+Istio-->Sidecar
+```
+
 ## Service Mesh基本思想
 
 Linkerd 为例讲解 Service Mesh 如何工作，Istio的工作方式和这个大差不离。

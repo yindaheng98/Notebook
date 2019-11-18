@@ -1,31 +1,51 @@
 # (未完成)RDMA介绍
 
-RDMA（Remote Direct Memory Access）技术是一种直接在内存和内存之间进行资料互传的技术，在数据传输的过程中，不需要和操作系统Kernel做沟通，完全实现了Kernel Bypass。
+RDMA（Remote Direct Memory Access）技术是一种**直接在内存和内存之间进行资料互传**的技术，在数据传输的过程中，**不需要和操作系统Kernel做沟通**，完全实现了Kernel Bypass。
 
-在TCP/IP中，从应用层生成TCP的packet，对packet添加crc，由CPU来运行TCP协议传输数据到接收端，如果是可靠连接网络，需要由CPU来进行流量的控制，在接收端需要由CPU来查询内存地址，检验crc，还原TCP packet到应用，这些操作都是在CPU内完成的，而在RDMA中，这些都在网卡中完成，CPU不参与，这就是为什么RDMA能带来低延时、高带宽和低CPU利用率的原因。
+在TCP/IP中，从应用层生成TCP的packet、对packet添加crc、运行TCP协议传输数据到接收端，如果是可靠连接网络，还有流量的控制、查询内存地址、检验crc、还原TCP packet到应用，这些操作都是在CPU内完成的，而在RDMA中，这些操作都在网卡中完成，CPU不参与，这就是为什么RDMA能带来低延时、高带宽和低CPU利用率的原因。
 
 相关资料：
 
 * [在各互联网公司中，有将 RDMA 技术用于生产环境的实例吗？](https://www.zhihu.com/question/59122163)
 * [如何评价阿里云新一代关系型数据库 PolarDB？](https://www.zhihu.com/question/63987114)
 
+## 知识图谱
+
+```mermaid
+graph LR
+RDMA(RDMA)-->技术分类(技术分类)
+技术分类-->Infiniband(Infiniband)
+技术分类-->RoCE(RoCE)
+技术分类-->iWARP(iWARP)
+RDMA-->相关应用(相关应用)
+相关应用-->PolarDB(PolarDB)
+相关应用-->PolarFS(PolarFS)
+相关应用-->GlusterFS(GlusterFS)
+```
+
 ## 技术分类
+
+主要技术公司：以色列Mellanox公司（IBM控股）
 
 ### InfiniBand
 
-这个最早是IBM和HP等一群大佬在做，现在主要交给以色列的Mellanox (IBM 控股)，但是InfiniBand从L2到L4都需要自己的专有硬件，所以成本非常高！
+* RDMA之正统协议，RDMA未来的绝对主流
+* RDMA的最佳实践方案
+* 与TCP/IP硬件完全不兼容，不支持以太网交换机，必须要有专有硬件，因此成本很高
 
 ### RoCE(RDMA over Converged Ethernet)
 
-RoCE这个东西实际上是Mellanox鉴于IB过于昂贵这个事实推出的一种低成本的产品，实际上的核心就是把IB的包架在通用Ethernet上发出去，因此对于RoCE，实际上它的二层包头已经是普通以太网的包头。
+* 因为IB过于昂贵所以出了个性能不太好的低价版RDMA方案
+* 把IB的包放到通用Ethernet上面发出去，支持以太网交换机，只需要支持RoCE协议的网卡即可使用
+* 市场上常见的RDMA大都是这个方案
 
 ### iWARP
 
-iWARP直接将RDMA实现在了TCP上，优点是成本最低，只需要采购支持iWARP的NIC即可使用RDMA，缺点是性能不好，因为TCP本身协议栈过于重量级，即便是按照一般iWARP厂商的做法将TCP offload到硬件上实现，也很难追上IB和RoCE的性能。目前在做iWARP的主要是Intel和Chelsio两家，从现在的观察Chelsio略胜一筹，而Intel则有点想放弃iWARP转投RoCE之势。
+在TCP/IP的基础上实现的RDMA，基本上算是TCP/IP向RoCE的过渡版本，因为性能太差所以正在逐渐淘汰。
 
 ### 技术本质
 
-其实不管是iWARP还是RoCE，实际上并不是自己重新发明了RDMA，而是**利用了IB的上层接口修改了下层的实现**，所以RoCE这个名字并不是很准确，比较准确的说法应该是IB over Converged Ethernet。此外，三种实现方式使用的user space api是一样的，都是libibverbs，这个东西原本也就是给IB用的，相当于IB的socket。
+其实不管是iWARP还是RoCE，实际上并不是自己重新发明了RDMA，而是**利用了IB的上层接口修改了下层的实现**，所以RoCE这个名字并不是很准确，比较准确的说法应该是IB over Converged Ethernet。此外，三种实现方式使用的user space api是一样的，都是libibverbs，这个库原本也就是给IB用的，相当于IB的socket。
 
 ## 应用领域
 
