@@ -3,7 +3,7 @@
 [教程参考](https://juejin.im/post/5b63f4506fb9a04f8856f340)
 [教程参考](https://www.huweihuang.com/article/kubernetes/kubernetes-architecture/)
 
-k8s有集群中的节点有主从之分。从节点负责运行容器，主节点负责控制从节点容器的调度和运行。
+k8s有集群中的节点有控制节点和工作节点之分。控制节点负责运行容器，工作节点负责控制工作节点容器的调度和运行。
 
 注意：
 
@@ -12,30 +12,30 @@ k8s有集群中的节点有主从之分。从节点负责运行容器，主节�
 
 ```mermaid
 graph TD
-k8s[Kubernetes]-->控制节点-->kubectl-->|控制|主节点
-k8s-->主节点
-主节点-->ETCD
-主节点-->kube-apiserver
-主节点-->kube-scheduler
+用户-->kubectl-->|控制|控制节点
+k8s[Kubernetes]-->控制节点
+控制节点-->ETCD
+控制节点-->kube-apiserver
+控制节点-->kube-scheduler
 ControllerManager-->kube-controller-manager
 ControllerManager-->cloud-controller-manager
 kube-controller-manager-->ReplicationController[Replication Controller]
 kube-controller-manager-->NodeController[Node Controller]
 kube-controller-manager-->DeploymentController[Deployment Controller]
 kube-controller-manager-->AdmissionController[Admission Controller]
-主节点-->ControllerManager[Controller Manager]-->|控制|网络化组件
-k8s-->从节点
-从节点-->容器平台
-从节点-->网络化组件
-从节点-->kube-proxy
-从节点-->kube-dns
+控制节点-->ControllerManager[Controller Manager]-->|控制|网络化组件
+k8s-->工作节点
+工作节点-->容器平台
+工作节点-->网络化组件
+工作节点-->kube-proxy
+工作节点-->kube-dns
 ```
 
 ![结构](i/K8s.png)
 
-## 主节点
+## 控制节点 Control-plane node
 
-以下介绍在主节点上运行的k8s组件。
+以下介绍在控制节点上运行的k8s组件。
 
 ### ETCD
 
@@ -110,9 +110,9 @@ cloud-controller-manager在Kubernetes启用Cloud Provider的时候才需要，�
 
 kube-scheduler负责分配调度Pod到集群内的节点上，它监听kube-apiserver，查询还未分配Node的Pod，然后根据调度策略为这些Pod分配节点。我们前面讲到的kubernetes的各种调度策略就是它实现的。
 
-## 从结点
+## 工作结点 Worker node
 
-![从节点](i/ServiceNode.png)
+![工作节点](i/ServiceNode.png)
 
 ### 一个容器平台
 
@@ -122,9 +122,9 @@ kube-scheduler负责分配调度Pod到集群内的节点上，它监听kube-apis
 
 CNI（Container Network Interface）是CNCF旗下的一个项目，由一组用于配置Linux容器的网络接口的规范和库组成，同时还包含了一些插件。CNI仅关心容器创建时的网络分配，和当容器被删除时释放网络资源。
 
-Kubernetes源码的vendor/github.com/containernetworking/cni/libcni目录中已经包含了CNI的代码，也就是说kubernetes中已经内置了CNI，只要是支持CNI的容器网络组件都可以部署在Kubernetes从节点。
+Kubernetes源码的vendor/github.com/containernetworking/cni/libcni目录中已经包含了CNI的代码，也就是说kubernetes中已经内置了CNI，只要是支持CNI的容器网络组件都可以部署在Kubernetes工作节点。
 
-k8s调度容器的方式就是从主节点调用从节点CNI接口，进而通过容器网络化组件控制每个从结点中的容器平台。
+k8s调度容器的方式就是从控制节点调用工作节点CNI接口，进而通过容器网络化组件控制每个工作节点中的容器平台。
 
 常见的兼容CNI接口的容器网络化组件有flannel，calico，weave等。
 
