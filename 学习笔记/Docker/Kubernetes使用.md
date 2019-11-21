@@ -1,5 +1,7 @@
 # Kubernetes(k8s)的使用方法
 
+## 安装
+
 ## 创建集群
 
 来自[官方互动教程](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-interactive/)和[官方教程](https://kubernetes.io/docs/tutorials/hello-minikube/)。

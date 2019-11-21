@@ -13,8 +13,6 @@ Service Mesh 是一个**基础设施层，用于处理服务间通信**。云原
 ```mermaid
 graph TD
 CloudNative[Cloud Native]-->ServiceMesh[Service Mesh]
-CloudNative-->k8s[Kubernetes]
-CloudNative-->CanaryDeployments[Canary deployments]
 ServiceMesh-->Pattern[实现模式]
 Pattern-->Ingress[Ingress或边缘代理]
 Pattern-->RouterMesh[路由器网格]
@@ -31,6 +29,7 @@ Istio-->Envoy
 Envoy-->xDS
 Linkerd-->Sidecar
 Istio-->Sidecar
+k8s[Kubernetes]-->|基础|Istio
 ```
 
 ## Service Mesh基本思想
