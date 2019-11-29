@@ -74,3 +74,10 @@ proxy-user = "user:password"
 ```
 
 然后就可以按正常的使用方法使用curl。
+
+### 系统变量设置代理
+
+```sh
+export http_proxy=proxyhost[:port]
+export https_proxy=proxyhost[:port]
+```

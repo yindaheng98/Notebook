@@ -2,6 +2,10 @@
 
 ## 安装
 
+### k8s不支持所有版本的docker，安装之前要先安装支持版本的docker
+
+[安装方法](https://kubernetes.io/docs/setup/production-environment/container-runtimes/)
+
 ### 学习环境minikube
 
 安装比较简单但是支持单节点，只能用于学习。
@@ -13,6 +17,22 @@
 [用kubeadm安装Kubernetes](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
 
 安装比较复杂，生产环境用。
+
+安装完成后启动前要先禁用Linux交换分区：
+
+```sh
+sudo swapoff -a
+sysctl -p
+```
+
+还得设置好代理翻墙：
+
+```sh
+export http_proxy=http://proxyhost[:port]
+export https_proxy=https://proxyhost[:port]
+```
+
+docker也得翻墙：[方法](https://docs.docker.com/config/daemon/systemd/#httphttps-proxy)
 
 ## 创建集群
 
