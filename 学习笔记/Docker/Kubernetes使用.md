@@ -2,6 +2,18 @@
 
 ## 安装
 
+### 学习环境minikube
+
+安装比较简单但是支持单节点，只能用于学习。
+
+### 生产环境
+
+[安装kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
+
+[用kubeadm安装Kubernetes](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
+
+安装比较复杂，生产环境用。
+
 ## 创建集群
 
 来自[官方互动教程](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-interactive/)和[官方教程](https://kubernetes.io/docs/tutorials/hello-minikube/)。
