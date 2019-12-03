@@ -139,6 +139,48 @@ CMD [ "start.sh" ]
 
 这个会让容器启动时直接`exit 0`。原因？不太懂。
 
+## 在Dockerfile的CMD里写变量
+
+这样写CMD的结果是什么？👇
+
+```Dockerfile
+FROM alpine
+ENV SOME_PATH /some/path
+CMD [ "echo", "${SOME_PATH}" ]
+```
+
+会`echo`出`SOME_PATH`的值吗？
+
+答案是不会。会echo出`"${SOME_PATH}"`这个字符串。
+
+那能把`SOME_PATH`和`echo`写在一起吗？👇
+
+```Dockerfile
+FROM alpine
+ENV SOME_PATH /some/path
+CMD [ "echo", "${SOME_PATH}" ]
+```
+
+也不行。会报错：`exec: \"echo ${SOME_PATH}\": executable file not found in $PATH`，这就是说docker不知道怎么地把`echo ${SOME_PATH}`搞成一整个指令了。
+
+那不加引号呢？👇
+
+```Dockerfile
+FROM alpine
+ENV SOME_PATH /some/path
+CMD [ echo, ${SOME_PATH} ]
+```
+
+也不行，还是报错：`sh: /some/path: unknown operand`。终于算是识别出`${SOME_PATH}`的值了，可是又不知怎的变成指令了？？？
+
+那么，正确方法是什么？请看👇
+
+```Dockerfile
+FROM alpine
+ENV SOME_PATH /some/path
+CMD echo ${SOME_PATH}
+```
+
 ## docker build的网络连接
 
 docker build镜像时，默认使用网桥(bridge)模式，容器时虚拟环境，没有自己的网卡，所以无法连接网络。
