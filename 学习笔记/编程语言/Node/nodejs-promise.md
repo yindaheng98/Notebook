@@ -205,3 +205,143 @@ const myPromise2 = function (v2,v3,v4) {
     })
 }
 ```
+
+## async/await
+
+[教程参考](https://segmentfault.com/a/1190000007535316)
+
+随着 Node 7 的发布，越来越多的人开始研究据说是异步编程终级解决方案的 async/await。async 是“异步”的简写，而 await 可以认为是 async wait 的简写。所以应该很好理解 **async 用于申明一个 function 是异步的**，而 **await 用于等待一个异步方法执行完成**。
+
+如果需要通过 await 来调用一个 async 函数，那这个调用的外面必须得再包一个 async 函数，然后……进入死循环，永无出头之日……
+
+### async
+
+一个单独的async有什么用？请看👇
+
+```javascript
+async function testAsync(i) {
+    if(i)return "hello async" + i;
+    else throw new Error("Oops!");
+}
+const result = testAsync(1);
+console.log(result);
+const another = testAsync();
+```
+
+输出👇
+
+```sh
+Promise { 'hello async' }
+```
+
+和一个错误👇
+
+```sh
+UnhandledPromiseRejectionWarning: Error: Oops!
+```
+
+看到输出就恍然大悟了—— 输出的是一个 Promise 对象。
+
+这样我们就可以理解了，async把一个函数变成了Promise，并将`return`的内容放到了`resolve`中，`throw`的内容放到了`reject`中，它就是一种更加方便而直观地定义`Promise`的方法。因此，上面这个函数就应该这样用：
+
+```javascript
+testAsync(1).then((r)=>{console.log(r)}).catch((e)=>{console.log(e)});
+testAsync().then((r)=>{console.log(r)}).catch((e)=>{console.log(e)});
+```
+
+### await
+
+await的使用分两种情况，第一种是await的表达式不是`Promise`时，这时有没有await都一样。比如下面这段代码输出3👇
+
+```javascript
+async function test(i) {
+    let res = await i + 1;
+    console.log(res);
+};
+test(2);
+```
+
+而第二种是await的表达式是`Promise`的时候，这时它会把`Promise`中`resolve`的输入作为结果返回，而将`reject`的输入作为错误抛出。比如上一节用then链调用的`async`函数的代码等效于👇
+
+```javascript
+async function test() {
+    try {
+        const r = await testAsync(1);
+        console.log(r);
+        await testAsync();
+    } catch(e) {
+        console.log(e)
+    }
+}
+test();
+```
+
+从上面可以看出，加了await的`Promise`就像一个普通的函数一样，立即返回了他的处理结果，await可以看作是一种调用`Promise`的简便方法。但是我们知道，大多数情况下，`resolve`在`Promise`中是异步调用的，即它不会立即返回，那await是怎么实现把一个`Promise`的`resolve`立即返回的呢？很简单，它阻塞了后面的代码直到`resolve`返回。这相当于把await后面的代码全部放到`then`链定义的`resolve`里面了，也就是说，上面的代码等效于👇
+
+```javascript
+function test() {
+    return new Promise((resolve,reject) => {
+        testAsync(1).then((r)=>{
+            console.log(r);
+            return testAsync().then(()=>{
+                resolve()
+                });
+        }).catch((e)=>{
+            console.log("catched!")
+            console.log(e)
+        })
+    })
+}
+test();
+```
+
+比起`async/await`代码，`Promise`代码难度不少，不是吗？
+
+关于`try/catch`的位置，此处有一个易错点，比如像这样把`try/catch`放到外面来的做法是捕捉不到我们想要的错误的👇
+
+```javascript
+async function test() {
+    const r = await testAsync(1);
+    console.log(r);
+    await testAsync();
+}
+try {
+    test();
+} catch(e) {
+    console.log("catched!")
+    console.log(e)
+}
+```
+
+为什么捕捉不到也很好理解，因为前面标了`async`的函数返回的是一个`Promise`，它的错误要在`.catch((e)=>{})`里面或者用`await`才能捕捉到，就像这样👇
+
+```javascript
+test().catch((e)=>{console.log("catched!");console.log(e)})
+```
+
+这里还有一个注意点，那就是异步代码是不能向同步代码抛出错误的，比如上面那段进入到`catch`中的错误不能再抛出到外层的同步代码中，比如这段代码也是不能正确捕捉到错误的👇
+
+```javascript
+try{
+    test().catch((e)=>{throw e})
+} catch(e) {
+    console.log("catched!")
+    console.log(e)
+}
+```
+
+即使用事件触发也是一样不能捕捉的
+
+```javascript
+const events = require("events")
+let emitter = new events.EventEmitter()
+try{
+    emitter.on("error",(e)=>{throw e})
+} catch(e) {
+    console.log("catched!")
+    console.log(e)
+}
+test().catch((e)=>{emitter.emit("error",e)})
+```
+
+异步代码的错误只能用异步代码捕捉到。
