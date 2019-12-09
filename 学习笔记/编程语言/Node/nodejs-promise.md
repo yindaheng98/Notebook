@@ -210,6 +210,8 @@ const myPromise2 = function (v2,v3,v4) {
 
 [教程参考](https://segmentfault.com/a/1190000007535316)
 
+![async/await](i/nodejs_4.png)
+
 随着 Node 7 的发布，越来越多的人开始研究据说是异步编程终级解决方案的 async/await。async 是“异步”的简写，而 await 可以认为是 async wait 的简写。所以应该很好理解 **async 用于申明一个 function 是异步的**，而 **await 用于等待一个异步方法执行完成**。
 
 如果需要通过 await 来调用一个 async 函数，那这个调用的外面必须得再包一个 async 函数，然后……进入死循环，永无出头之日……
