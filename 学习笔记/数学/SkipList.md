@@ -133,5 +133,4 @@ $\because$ 由前述条件易得，在这$N$次数据插入操作完成后，跳
 
 $\therefore$ 跳表总层数$L\geq log_CN$
 
-简单地，跳表总层数$L=\lceil log_CN\rceil$
-
+简单地，由用户输入想要的$C$值和预估的跳表元素总量$N$，即可计算跳表总层数$L=\lceil log_CN\rceil$
