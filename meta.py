@@ -31,6 +31,9 @@ def getDIRMetas(filedir):
 
 #设置某个目录下的meta数据
 def setDIRMetas(filedir,metas):
+    if metas == {}:
+        print('No meta data in %s' % filedir)
+        return
     metasfile = os.path.join(filedir, metas_filename)
     with open(metasfile, 'w', encoding='utf-8') as f:
         json.dump(metas, f, ensure_ascii=False, indent=4)
