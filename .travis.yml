@@ -1,12 +1,10 @@
 sudo: false
 language: python
 python:
-  - "3.7.2" # use nodejs v10 LTS
+  - "3.7.2"
 branches:
   only:
-    - master # build master branch only
+    - master
 script:
-  - git fetch --all
-  - pip install pygit2
   - python travisPorcess.py
   - bash deploy.sh $GH_TOKEN
