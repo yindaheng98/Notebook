@@ -20,10 +20,7 @@ def getDate(path):
 def getDIRMetas(filedir):
     metas = {}
     metasfile = os.path.join(filedir, metas_filename)
-    if (not os.path.exists(metasfile)) or os.path.isdir(metasfile):
-        with open(metasfile, 'w', encoding='utf-8') as f:
-            json.dump(metas, f, ensure_ascii=False, indent=4)#没有此文件则创建文件
-    else:
+    if os.path.exists(metasfile):
         with open(metasfile, 'r', encoding='utf-8') as f:
             metas = json.load(f)#有此文件则读取文件
     print('Meta data loaded from dir %s' % filedir)
