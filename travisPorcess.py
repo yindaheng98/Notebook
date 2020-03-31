@@ -2,6 +2,7 @@ from meta import meta_data, path
 import time
 import os
 import shutil
+import re
 
 #在文件开头进行添加
 def appendFILE(path, content):
@@ -9,7 +10,7 @@ def appendFILE(path, content):
         old = f.read()
         f.seek(0)
         f.write(content)
-        f.write(old)
+        f.write(re.sub(r"^\s*#[^#\n]+\n", "", old)) #删除标题
 
 #获取文件头信息
 def getHEAD(head):
