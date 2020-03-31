@@ -1,7 +1,7 @@
 {
     "文学编程.md": {
         "title": "文学编程（Literate Programming）",
-        "date": "2020-03-30 07:21:46",
+        "date": "2020-03-31 06:51:24",
         "tags": [
             "编程语言",
             "Tex",
@@ -10,7 +10,33 @@
         "categories": [
             "编程语言",
             "Tex"
+        ]
+    },
+    "doc.md": {
+        "title": "LATEX生态中与文学编程思想有关的工具：doc和docStrip包",
+        "date": "2020-03-31 06:51:24",
+        "tags": [
+            "编程语言",
+            "Tex",
+            "原理",
+            "框架"
         ],
-        "cover": "/编程语言/Tex/i/cweb.jpg"
+        "categories": [
+            "编程语言",
+            "Tex"
+        ]
+    },
+    "Tex历史.md": {
+        "title": "TEX历史",
+        "date": "2020-03-31 06:51:24",
+        "tags": [
+            "编程语言",
+            "Tex",
+            "原理"
+        ],
+        "categories": [
+            "编程语言",
+            "Tex"
+        ]
     }
 }
