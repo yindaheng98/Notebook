@@ -34,12 +34,12 @@ pdflatex foo.tex #pdflatex默认就载入pdflatex.fmt
 
 ## LaTeX重要文件
 
-* .cls文件
+* .cls文件：类型文件
   * 包含任意TeX和LaTeX代码
   * 用于指定整个LaTeX文档的基本格式。用于修改基本LaTeX指令或提供新的排版指令，如 \section，\tablecontents，\author等
   * 由\documentclass{...}命令载入
   * 每个LaTeX文档中只能载入一个
-* .sty文件：
+* .sty文件：样式文件
   * 包含任意TeX和LaTeX代码
   * 用于调整LaTeX文档的格式。一般会提供专用于某一类场景下的排版指令，例如专用于图片排版的graphicx
   * 由\usepackage{...}命令载入
@@ -55,6 +55,27 @@ LATEX生态系统中的doc/docStrip包虽不及ipython jupyter的设计精妙复
 
 >This way of writing TEX programs obviously has great advantages, especially when the program becomes larger than a couple of macros. There is one drawback however, and that is that such programs may take longer than expected to run because TEX is an interpreter and has to decide for each line of the program file what it has to do with it. Therefore, TEX programs may be sped up by removing all comments from them. 
 
-非结构化的文学编程方式在性能上的弊端也非常明显。这也是作者创造docStrip包的原因。用于自动将TEX包文档的代码删去，只保留TEX代码，从而在后续操作中提高性能，这一过程完全可以看作是文学编程中的Tangle过程。
+非结构化的文学编程方式在性能上的弊端非常明显。这也是作者创造docStrip包的原因。用于自动将TEX包文档的代码删去，只保留TEX代码，从而在后续操作中提高性能，这一过程完全可以看作是文学编程中的Tangle过程。
 
-doc 是个编写宏包文件的宏包，它定义了一组宏包文件编辑环境和命令；ltxdoc 是用于排版 LaTeX 源文件的类型文件包；docstrip 是个文件分解工具，定义了一组文件输入和分类创建命令。下面举例说明它们的功能与用途。
+`doc`是个编写宏包文件的宏包，它定义了一组宏包文件编辑环境和命令，其本质是一个.sty文件；`ltxdoc`是用于排版LaTeX源文件的类型文件，其本质是一个.cls文件，且其中调用了`doc`宏包；`docstrip`是个文件分解工具，定义了一组文件输入和分类创建命令，它是一个.tex“脚本”。
+
+.cls类型文件和.sty样式文件都来自于一种后缀名为.dtx的文件，这类文件按照`doc`要求的方式编写，将使用说明文档的TeX代码放在在注释中。
+
+当要生成文档时(Weave)，调用（以pdflatex为例），调用：
+```sh
+$ pdflatex [文件名].dtx
+```
+pdflatex就会像编译正常的.tex文件一样编译.dtx中的文档，生成.pdf文件。
+
+当要生成.cls或.sty文件时(Tangle)，调用：
+```sh
+$ latex docstrip
+```
+会出现一个对话窗口，让用户选择是输出.cls还是.sty以及.dtx文件名等信息，然后自动从指定的.dtx文件中剥离说明文档，摘取命令程序，创建.cls类型文件或.sty样式文件。
+
+除直接编译外，.dtx文件还可以借助.ins安装文件进行编译。.ins安装文件一般与.dtx同名，其内容非常简单：
+```TEX
+\input docstrip.tex % 调用 docstrip 工具；
+\generateFile{*.cls}{f}{\from{*.dtx}{class}} % 创建类包文件。
+```
+很多大型程序说明文件的源文件*.dtx 含有类包程序*.cls、宏包程序*.sty、说明或格式程序*.tex 和配置程序*.cfg 等多种程序，使用*.ins 安装文件的好处就在于它能够一次性自动地完成对*.dtx 文件的分类重建工作。
