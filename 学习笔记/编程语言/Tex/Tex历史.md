@@ -33,7 +33,7 @@ Knuth 开发 TeX 的那个时代，高级程序语言之神 C 还没有获得大
 
 当TUG逐渐壮大，各类包和库越来越多，TeX 需要在本地或者网络上的许多目录中找文件，需要耗费非常长的时间。因此，TUG决定抛弃仅在当前目录或者由用户声明路径的目录下面找文件的方式，转而使用统一的文件架构标准，称为 TDS(TeX Directory Structure)，并退出了一个专用于目录查找的工具kpathsea和数据库ls-R。所有 tex 相关文件按照TDS放在若干个texmf目录里面，然后所有 tex 程序比如 tex.exe，pdftex.exe，xetex.exe 在编译.tex文件的时候如果需要寻找任何文件，都通过 kpathsea.dll 运行库查询一个texmf.cnf配置文件找到文件所在的位置（当然，你也可以自己运行 kpsewhich.exe 程序手动查询某个文件所在的位置）。一个TEX系统中会有多个优先级不同的texmf.cnf，例如下面这个文件就是TeXLive 2019根目录的texmf.cnf文件：
 
-```
+```cnf
 % (Public domain.)
 % This texmf.cnf file should contain only your personal changes from the
 % original texmf.cnf (for example, as chosen in the installer).
