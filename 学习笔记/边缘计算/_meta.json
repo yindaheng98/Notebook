@@ -10,5 +10,16 @@
             "边缘计算"
         ],
         "cover": "/边缘计算/i/EVEArchit.png"
+    },
+    "CORD.md": {
+        "title": "CORD",
+        "date": "2020-05-28 15:50:26",
+        "tags": [
+            "边缘计算"
+        ],
+        "categories": [
+            "边缘计算"
+        ],
+        "cover": "/边缘计算/i/cord-1.jpg"
     }
 }
