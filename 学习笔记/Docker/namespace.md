@@ -151,6 +151,6 @@ int unshare(int flags);
 
 ### [IPC(Interprocess Communication)](./namespaces/PIDandIPC.md)
 
-### Network
+### [Network](./namespaces/Network.md)
 
 ### Cgroup
