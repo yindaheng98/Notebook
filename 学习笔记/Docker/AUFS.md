@@ -4,6 +4,10 @@
 
 AUFS是一种联合文件系统 (Union File System, UnionFS, UFS)。AUFS又叫Another UnionFS，后来叫Alternative UnionFS，后来可能觉得不够霸气，叫成Advance UnionFS。
 
+```sh
+mount -t aufs -o dirs=[被挂载目录1]:[被挂载目录2]:[...]:[被挂载目录n] none [挂载点]
+```
+
 ## 概括AUFS
 
 ### 一种分层的文件系统
@@ -39,6 +43,8 @@ AUFS是一种联合文件系统 (Union File System, UnionFS, UFS)。AUFS又叫An
 * 如果这个文件或目录只有顶层有而下层没有，正常删除，啥事没有。
 * 如果下层还有这个文件，那么原来的位置会出现一个**只读**的**Whiteout文件**：`.wh.<文件名>`
 * 如果下层还有这个目录，**那么原来的位置会出现一个**只读的**Opaque目录**：`.wh.__dir_opaque`
+
+注：如果建立了`.wh.<文件名>`或`.wh.__dir_opaque`，则会看到对应的文件或文件夹直接消失
 
 ## AUFS用来干什么
 

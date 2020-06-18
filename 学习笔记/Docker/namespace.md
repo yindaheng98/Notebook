@@ -153,4 +153,6 @@ int unshare(int flags);
 
 ### [Network](./namespaces/Network.md)
 
-### Cgroup
+### Cgroups
+
+将Cgroups进行隔离，docker中没有用到，略
