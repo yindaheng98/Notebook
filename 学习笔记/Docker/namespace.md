@@ -143,15 +143,7 @@ int unshare(int flags);
 
 ### [Mount](./namespaces/Mount.md)
 
-### User
-
-User namespace主要隔离了安全相关的标识符（identifiers）和属性（attributes），包括用户ID、用户组ID、root目录、key（指密钥）以及特殊权限。说得通俗一点，一个普通用户的进程通过clone()创建的新进程在新user namespace中可以拥有不同的用户和用户组。这意味着一个进程在容器外属于一个没有特权的普通用户，但是**他创建的容器进程却属于拥有所有权限的超级用户**，这个技术为容器提供了极大的自由。
-
-如果你要把user namespace与其他namespace混合使用，那么依旧需要root权限。解决方案可以是**先以普通用户身份创建user namespace**，然后**在新建的namespace中作为root再clone()进程加入其他类型的namespace隔离**。
-
-当使用包含User在内的多个namespace时，**内核会保证 CLONE_NEWUSER 先被执行**，然后执行剩下的其他 CLONE_NEW*，这样就使得不用 root 用户而创建新的容器成为可能。
-
-### [UTS(UNIX Time-sharing System)](./namespaces/UTS.md)
+### [UTS(UNIX Time-sharing System)和User](./namespaces/UTSandUser.md)
 
 ### PID
 
