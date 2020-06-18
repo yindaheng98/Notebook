@@ -143,17 +143,13 @@ int unshare(int flags);
 
 ### [Mount](./namespaces/Mount.md)
 
-### [UTS(UNIX Time-sharing System)和User](./namespaces/UTSandUser.md)
+### [UTS(UNIX Time-sharing System)](./namespaces/UTSandUser.md)
 
-### PID
+### [User](./namespaces/UTSandUser.md)
 
-内核为所有的PID namespace维护了一个树状结构，最顶层的是系统初始时创建的，我们称之为root namespace。他创建的新PID namespace就称之为child namespace（树的子节点），而原先的PID namespace就是新创建的PID namespace的parent namespace（树的父节点）。通过这种方式，不同的PID namespaces会形成一个等级体系。所属的**父节点可以看到子节点中的进程**，并可以通过**信号量等方式对子节点中的进程产生影响**。反过来，**子节点不能看到父节点PID namespace中的任何内容**。
+### [PID](./namespaces/PIDandIPC.md)
 
-
-
-### IPC
-
-容器中进程间通信采用的方法包括常见的信号量、消息队列和共享内存。然而与虚拟机不同的是，容器内部进程间通信对宿主机来说，实际上是具有相同PID namespace中的进程间通信，因此需要一个唯一的标识符来进行区别。申请IPC资源就申请了这样一个全局唯一的32位ID，所以IPC namespace中实际上**包含了系统IPC标识符**以及**实现POSIX消息队列的文件系统**。在同一个IPC namespace下的进程彼此可见，而与其他的IPC namespace下的进程则互相不可见。
+### [IPC(Interprocess Communication)](./namespaces/PIDandIPC.md)
 
 ### Network
 
