@@ -146,7 +146,7 @@ rmdir: failed to remove '[cgroup文件夹]/': Device or resource busy
 
 ```sh
 ls /sys/fs/cgroup/cpu
-cgroup.clone_children  cgroup.procs  cgroup.sane_behavior  notify_on_release  release_agent pids.current tasks
+cgroup.clone_children  cgroup.procs  cgroup.sane_behavior  notify_on_release  release_agent tasks
 ```
 
 * cgroup.clone_children：当该文件的内容为1时，新创建的cgroup将会继承父cgroup的配置，即从父cgroup里面拷贝配置文件来初始化新cgroup
@@ -179,3 +179,94 @@ echo [进程PID] > cgroup.procs
 如果此进程已经在同hierarchy的另一个cgroup里面了，上述操作会自动从原来的cgroup中删除。
 
 注：进程移动时，进程下的线程会随之一起移动，可以在`tasks`文件中看到
+
+## cgroup进行资源限制
+
+### 限制内存
+
+挂载一个memory subsystem，除上文所述`cgroup.*`文件外，对应目录下会有一系列与内存限制相关的文件：
+
+| 文件名                          | 用途                                                             |
+| ------------------------------- | ---------------------------------------------------------------- |
+| cgroup.event_control            | 用于eventfd的接口                                                |
+| memory.usage_in_bytes           | 显示当前已用的内存                                               |
+| memory.limit_in_bytes           | 设置/显示当前限制的内存额度                                      |
+| memory.failcnt                  | 显示内存使用量达到限制值的次数                                   |
+| memory.max_usage_in_bytes       | 历史内存最大使用量                                               |
+| memory.soft_limit_in_bytes      | 设置/显示当前限制的内存软额度                                    |
+| memory.stat                     | 显示当前cgroup的内存使用情况                                     |
+| memory.use_hierarchy            | 设置/显示是否将子cgroup的内存使用情况统计到当前cgroup里面        |
+| memory.force_empty              | 写入0时触发系统立即尽可能的回收当前cgroup中可以回收的内存        |
+| memory.pressure_level           | 设置内存压力的通知事件，配合cgroup.event_control一起使用         |
+| memory.swappiness               | 设置和显示当前的swappiness                                       |
+| memory.move_charge_at_immigrate | 设置当进程移动到其他cgroup中时，它所占用的内存是否也随着移动过去 |
+| memory.oom_control              | 设置/显示oom controls相关的配置                                  |
+| memory.numa_stat                | 显示numa相关的内存                                               |
+
+* memory.usage_in_bytes
+  * 读此文件获得当前使用的内存大小（正整数字符串），单位字节
+* memory.limit_in_bytes
+  * 读此文件获得当前的内存大小限制（正整数字符串），单位字节
+  * 写此文件设置内存大小限制（正整数字符串），单位字节
+  * 向此文件写入“-1”取消限制
+* memory.soft_limit_in_bytes
+  * 当系统内存充裕时，soft limit不起任何作用
+  * 当系统内存吃紧时，系统会尽量的将cgroup的内存限制在soft limit值之下（内核会尽量，但不100%保证）
+  * 正确用法：给次等重要的进程设置soft limit，当系统内存吃紧时，把机会让给其它重要的进程
+* memory.failcnt
+  * 读此文件获取物理内存使用量达到限制值的次数
+  * 当内存内容超过memory.limit_in_bytes限额时，memory.failcnt内容的值加一，超出内容放入swap分区
+  * 若物理内存已达memory.limit_in_bytes上限而swap分区容量不足，后续所有申请内存的进程操作视memory.oom_control而定
+* memory.oom_control
+  * 向此文件写入“0”，则物理内存已达memory.limit_in_bytes上限而swap分区容量不足时直接kill掉该进程
+  * 向此文件写入“1”，则物理内存已达memory.limit_in_bytes上限而swap分区容量不足时暂停该进程直到有空余的内存之后再继续运行
+  * root cgroup的memory.oom_control写“1”无效，永远采取直接kill掉该进程的策略
+* memory.use_hierarchy
+  * 该文件内容为0时，表示不使用继承，即父子cgroup之间没有关系
+  * 当该文件内容为1时，子cgroup所占用的内存会统计到所有祖先cgroup中，当一个cgroup内存吃紧时，会触发系统回收它以及它所有子孙cgroup的内存
+
+### 限制CPU使用率
+
+挂载一个memory subsystem，除上文所述`cgroup.*`文件外，对应目录下会有一系列与CPU使用率限制相关的文件：
+
+| 文件名            | 用途                             |
+| ----------------- | -------------------------------- |
+| cpu.cfs_period_us | 配置总时间周期长度               |
+| cpu.cfs_quota_us  | 当前cgroup所能使用的时间周期长度 |
+| cpu.shares        | 设置CPU的相对值                  |
+| cpu.stat          | CPU使用统计结果                  |
+
+#### CPU使用时间上限：cpu.cfs_period_us和cpu.cfs_quota_us
+
+每cfs_quota_us毫秒能使用cfs_period_us毫秒的CPU时间
+
+1. 最多只能使用1个CPU（每250ms最多能使用250ms的CPU时间）
+```sh
+# echo 250000 > cpu.cfs_quota_us /* quota = 250ms */
+# echo 250000 > cpu.cfs_period_us /* period = 250ms */
+```
+1. 最多使用2个CPU（每500ms最多能使用1000ms的CPU时间，即使用两个内核）
+```sh
+# echo 1000000 > cpu.cfs_quota_us /* quota = 1000ms */
+# echo 500000 > cpu.cfs_period_us /* period = 500ms */
+```
+3. 最多使用1个CPU的20%（每50ms最多能使用10ms的CPU时间，即使用一个CPU核心的20%）
+```sh
+# echo 10000 > cpu.cfs_quota_us /* quota = 10ms */
+# echo 50000 > cpu.cfs_period_us /* period = 50ms */
+```
+
+#### CPU使用时间相对值：cpu.shares
+
+设置cgroup获得CPU轮转时间的相对值，默认值是1024。
+
+假如系统中有两个cgroup，分别是A和B，A的shares值是1024，B的shares值是512，那么A将获得1024/(1204+512)=66%的CPU资源，而B将获得33%的CPU资源。
+
+* 如果A不忙，没有使用到66%的CPU时间，那么剩余的CPU时间将会被系统分配给B，即B的CPU使用率可以超过33%
+* 如果添加了一个新的cgroup C，且它的shares值是1024，那么A的限额变成了1024/(1204+512+1024)=40%，B的变成了20%
+
+#### CPU使用时间统计：cpu.stat
+
+* nr_periods： 表示过去了多少个cpu.cfs_period_us里面配置的时间周期
+* nr_throttled： 在上面的这些周期中，有多少次是受到了限制（即cgroup中的进程在指定的时间周期中用光了它的配额）
+* throttled_time: cgroup中的进程被限制使用CPU持续了多长时间(纳秒)
