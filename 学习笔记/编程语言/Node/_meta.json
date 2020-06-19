@@ -3,8 +3,7 @@
         "title": "nodejs模块化（类和对象）",
         "date": "2019-04-27 06:18:40",
         "tags": [
-            "Node",
-            "编程思想"
+            "Node"
         ],
         "categories": [
             "编程语言",
@@ -15,9 +14,7 @@
         "title": "nodejs-express",
         "date": "2019-04-27 06:18:40",
         "tags": [
-            "Node",
-            "编程工具",
-            "框架"
+            "Node"
         ],
         "categories": [
             "编程语言",
@@ -28,8 +25,7 @@
         "title": "nodejs重要特性",
         "date": "2019-12-06 15:24:37",
         "tags": [
-            "Node",
-            "编程工具"
+            "Node"
         ],
         "categories": [
             "编程语言",
@@ -41,8 +37,7 @@
         "title": "Nodejs学习",
         "date": "2019-04-27 06:18:40",
         "tags": [
-            "Node",
-            "编程工具"
+            "Node"
         ],
         "categories": [
             "编程语言",
@@ -53,9 +48,7 @@
         "title": "nodejs中的Promise对象",
         "date": "2019-12-09 12:10:32",
         "tags": [
-            "Node",
-            "编程工具",
-            "编程思想"
+            "Node"
         ],
         "categories": [
             "编程语言",
@@ -67,7 +60,6 @@
         "title": "nodejs补充知识",
         "date": "2019-11-29 01:30:25",
         "tags": [
-            "编程语言",
             "Node"
         ],
         "categories": [

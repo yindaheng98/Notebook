@@ -4,7 +4,6 @@
         "date": "2020-06-18 15:59:44",
         "tags": [
             "Docker",
-            "原理",
             "操作系统"
         ],
         "categories": [
@@ -17,7 +16,6 @@
         "date": "2019-10-07 13:37:55",
         "tags": [
             "Docker",
-            "实战",
             "docker-compose"
         ],
         "categories": [
@@ -29,7 +27,6 @@
         "date": "2019-04-27 06:18:40",
         "tags": [
             "Docker",
-            "实战",
             "Dockerfile",
             "服务器运维"
         ],
@@ -41,8 +38,7 @@
         "title": "Docker的使用方法",
         "date": "2019-04-27 06:18:40",
         "tags": [
-            "Docker",
-            "实战"
+            "Docker"
         ],
         "categories": [
             "Docker"
@@ -53,7 +49,6 @@
         "date": "2019-04-17 11:04:37",
         "tags": [
             "Docker",
-            "实战",
             "Dockerfile",
             "服务器运维"
         ],
@@ -66,7 +61,6 @@
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Docker",
-            "实战",
             "k8s"
         ],
         "categories": [
@@ -78,7 +72,6 @@
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Docker",
-            "实战",
             "k8s"
         ],
         "categories": [
@@ -91,7 +84,6 @@
         "date": "2019-11-29 01:30:25",
         "tags": [
             "Docker",
-            "实战",
             "k8s"
         ],
         "categories": [
@@ -103,8 +95,7 @@
         "date": "2019-09-23 07:37:12",
         "tags": [
             "Docker",
-            "操作系统",
-            "原理"
+            "Linux"
         ],
         "categories": [
             "Docker"
@@ -114,7 +105,8 @@
         "title": "Docker原理概述",
         "date": "2020-06-18 09:46:12",
         "tags": [
-            "Docker"
+            "Docker",
+            "虚拟机"
         ],
         "categories": [
             "Docker"
@@ -125,7 +117,8 @@
         "title": "Dockerfile的一些补充知识",
         "date": "2019-12-03 16:04:32",
         "tags": [
-            "Docker"
+            "Docker",
+            "Dockerfile"
         ],
         "categories": [
             "Docker"
@@ -136,7 +129,7 @@
         "date": "2020-06-19 13:46:57",
         "tags": [
             "Docker",
-            "未完成"
+            "Linux"
         ],
         "categories": [
             "Docker"
@@ -146,7 +139,8 @@
         "title": "Docker 代理总结",
         "date": "2019-12-18 03:02:42",
         "tags": [
-            "Docker"
+            "Docker",
+            "网络代理"
         ],
         "categories": [
             "Docker"
@@ -156,7 +150,8 @@
         "title": "Kubernetes(k8s)的结构",
         "date": "2019-11-21 06:34:45",
         "tags": [
-            "Docker"
+            "Docker",
+            "k8s"
         ],
         "categories": [
             "Docker"
@@ -167,7 +162,9 @@
         "title": "namespace",
         "date": "2020-06-18 15:59:44",
         "tags": [
-            "Docker"
+            "Docker",
+            "Linux",
+            "namespaces"
         ],
         "categories": [
             "Docker"
@@ -177,7 +174,8 @@
         "title": "[纯转载]下一代的CGroup",
         "date": "2020-06-19 12:23:00",
         "tags": [
-            "Docker"
+            "Docker",
+            "Linux"
         ],
         "categories": [
             "Docker"

@@ -3,9 +3,8 @@
         "title": "文学编程（Literate Programming）",
         "date": "2020-04-01 12:43:23",
         "tags": [
-            "编程语言",
             "Tex",
-            "原理"
+            "Literate Programming"
         ],
         "categories": [
             "编程语言",
@@ -30,9 +29,8 @@
         "title": "TEX历史",
         "date": "2020-04-01 19:43:06",
         "tags": [
-            "编程语言",
             "Tex",
-            "原理"
+            "Literate Programming"
         ],
         "categories": [
             "编程语言",
@@ -43,10 +41,8 @@
         "title": "TEX基础",
         "date": "2020-04-01 11:44:31",
         "tags": [
-            "编程语言",
             "Tex",
-            "实战",
-            "框架"
+            "Literate Programming"
         ],
         "categories": [
             "编程语言",
@@ -58,10 +54,7 @@
         "title": "LaTeX基础",
         "date": "2020-04-02 06:01:49",
         "tags": [
-            "编程语言",
-            "Tex",
-            "原理",
-            "框架"
+            "Tex"
         ],
         "categories": [
             "编程语言",
