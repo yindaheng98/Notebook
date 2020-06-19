@@ -1,7 +1,7 @@
 {
     "AUFS.md": {
         "title": "AUFS技术",
-        "date": "2019-09-23 07:37:12",
+        "date": "2020-06-18 15:59:44",
         "tags": [
             "Docker",
             "原理",
@@ -112,7 +112,7 @@
     },
     "原理概述.md": {
         "title": "Docker原理概述",
-        "date": "2019-09-23 07:37:12",
+        "date": "2020-06-18 09:46:12",
         "tags": [
             "Docker"
         ],
@@ -132,8 +132,8 @@
         ]
     },
     "cgroups.md": {
-        "title": "(未完成)Linux Cgroup",
-        "date": "2019-10-28 06:52:23",
+        "title": "Linux Cgroups (Control Groups)",
+        "date": "2020-06-19 13:46:57",
         "tags": [
             "Docker",
             "未完成"
@@ -162,5 +162,25 @@
             "Docker"
         ],
         "cover": "/Docker/i/K8s.png"
+    },
+    "namespace.md": {
+        "title": "namespace",
+        "date": "2020-06-18 15:59:44",
+        "tags": [
+            "Docker"
+        ],
+        "categories": [
+            "Docker"
+        ]
+    },
+    "sane_behavior.md": {
+        "title": "[纯转载]下一代的CGroup",
+        "date": "2020-06-19 12:23:00",
+        "tags": [
+            "Docker"
+        ],
+        "categories": [
+            "Docker"
+        ]
     }
 }

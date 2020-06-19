@@ -21,5 +21,26 @@
             "边缘计算"
         ],
         "cover": "/边缘计算/i/cord-1.jpg"
+    },
+    "AWSIoT.md": {
+        "title": "AWS IoT",
+        "date": "2020-05-31 15:30:10",
+        "tags": [
+            "边缘计算"
+        ],
+        "categories": [
+            "边缘计算"
+        ],
+        "cover": "/边缘计算/i/DeviceShadow.png"
+    },
+    "AzureIoT.md": {
+        "title": "Azure IoT",
+        "date": "2020-06-11 11:52:58",
+        "tags": [
+            "边缘计算"
+        ],
+        "categories": [
+            "边缘计算"
+        ]
     }
 }
