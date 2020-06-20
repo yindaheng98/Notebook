@@ -158,7 +158,6 @@ cgroup.clone_children  cgroup.procs  cgroup.sane_behavior  notify_on_release  re
 * release_agent：cgroup退出时将会执行的命令，系统调用该命令时会将相应cgroup的相对路径当作参数传进去
   * 这个文件只会存在于root cgroup文件夹下
 * cgroup.sane_behavior：与下一代CGroup中的sane_behavior有关
-* pids.current: 表示当前cgroup及其所有子孙cgroup中现有的总的进程数量
 
 除上述文件之外，还可能会有：
 
