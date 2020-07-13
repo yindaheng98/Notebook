@@ -2,17 +2,17 @@
 
 ## Linux 虚拟网络设备
 
-![Linux 虚拟网络设备](../i/Linux虚拟网络设备.png)
+![Linux 虚拟网络设备](i/Linux虚拟网络设备.png)
 
 ### TUN/TAP
 
 TUN 设备是一种虚拟网络设备，通过此设备，程序可以方便得模拟网络行为。对于物理设备，其协议栈从物理网卡中读写数据：
 
-![物理](./i/物理.png)
+![物理](i/物理.png)
 
 而TUN 设备的协议栈从文件中读写数据：
 
-![TUN](./i/TUN.png)
+![TUN](i/TUN.png)
 
 所有对这个文件的写操作会通过 TUN 设备转换成一个数据包送给内核；当内核发送一个包给 TUN 设备时，通过读这个文件可以拿到包的内容。
 
@@ -25,7 +25,7 @@ TAP 设备与 TUN 设备工作方式完全相同，区别在于：
 
 TUN/TAP设备的特性经常被用在虚拟机和VPN等应用中。例如使用 TUN 设备搭建一个基于 UDP VPN：
 
-![TUN VPN](./i/TUN-VPN.png)
+![TUN VPN](i/TUN-VPN.png)
 
 App读写/dev/tunX，可以对其流量进行各种转发或加密等操作。
 
@@ -41,7 +41,7 @@ ip link add name veth0 type veth0 peer name veth1
 
 ### Bridge-虚拟交换机
 
-![Bridge](./i/bridge.png)
+![Bridge](i/bridge.png)
 
 ```sh
 ip link add br0 type bridge # 创建Bridge br0

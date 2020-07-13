@@ -76,4 +76,4 @@ mount --make-unbindable <mount-point>
 
 默认情况下，所有挂载都是私有的。例如，为新的PID namespace挂载`/proc`文件系统（PID namespace重要机制），而不会对其他进程产生副作用；配合AUFS为用户提供单独的文件系统的视图而不影响主系统等（Docker镜像和容器文件操作重要机制）。
 
-![propagation type](../i/mountnamespace.png)
+![propagation type](i/mountnamespace.png)
