@@ -10,5 +10,5 @@ before_install:
   - docker pull python:3.7
   - docker pull node:12
 script:
-  - docker run -v $(pwd):/app python python /app/travisPorcess.py
+  - docker run -v $(pwd):/app python:3.7 sh -c "cd /app && python travisPorcess.py"
   - bash deploy.sh $GH_TOKEN
