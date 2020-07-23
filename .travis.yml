@@ -1,9 +1,14 @@
 language: python
 python:
   - "3.7.2"
+services:
+  - docker
 branches:
   only:
     - master
+before_install:
+  - docker pull python:3.7
+  - docker pull node:12
 script:
-  - python travisPorcess.py
+  - docker run -v ./:/app python python /app/travisPorcess.py
   - bash deploy.sh $GH_TOKEN
