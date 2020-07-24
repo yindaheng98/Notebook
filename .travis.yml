@@ -1,11 +1,17 @@
+language: node_js
+node_js:
+  - 12 # use nodejs v12 LTS
+cache: npm
 services:
   - docker
 branches:
   only:
     - master
 before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install tree
   - docker pull python:3.7
-  - docker pull node:12
 script:
   - docker run -v $(pwd):/app python:3.7 sh -c "cd /app && python travisPorcess.py"
+  - bash build.sh
   - bash deploy.sh $GH_TOKEN
