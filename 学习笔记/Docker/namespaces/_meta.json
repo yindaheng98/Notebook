@@ -1,7 +1,7 @@
 {
     "Mount.md": {
         "title": "Mount namespace",
-        "date": "2020-06-18 09:46:12",
+        "date": "2020-07-13 11:14:45",
         "tags": [
             "Docker",
             "namespaces",
@@ -11,11 +11,11 @@
             "Docker",
             "namespaces"
         ],
-        "cover": "/Docker/namespaces/../i/mountnamespace.png"
+        "cover": "/Docker/namespaces/i/mountnamespace.png"
     },
     "Network.md": {
         "title": "Network namespace",
-        "date": "2020-06-18 15:02:42",
+        "date": "2020-07-13 11:14:45",
         "tags": [
             "Docker",
             "namespaces",
@@ -25,7 +25,7 @@
             "Docker",
             "namespaces"
         ],
-        "cover": "/Docker/namespaces/../i/Linux虚拟网络设备.png"
+        "cover": "/Docker/namespaces/i/Linux虚拟网络设备.png"
     },
     "PIDandIPC.md": {
         "title": "PID namespace",

@@ -37,7 +37,7 @@
     },
     "AzureIoT.md": {
         "title": "Azure IoT",
-        "date": "2020-06-11 11:52:58",
+        "date": "2020-06-23 09:16:33",
         "tags": [
             "边缘计算",
             "IoT",
@@ -45,6 +45,7 @@
         ],
         "categories": [
             "边缘计算"
-        ]
+        ],
+        "cover": "/边缘计算/./i/modules-diagram.png"
     }
 }
