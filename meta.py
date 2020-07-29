@@ -71,17 +71,19 @@ def updateMDMeta(filedir, filename, metas):
     print('Meta data of file %s collected' % filename)
     meta_data[filepath] = meta
     metas[filename] = meta
+    return meta
 
 
 def processMDIR(path):
-    metas = getDIRMetas(path)#获取该目录下文件的meta数据
+    old_metas = getDIRMetas(path)#获取该目录下文件的meta数据
+    new_metas = {}
     for file in os.listdir(path):#遍历当前目录下的每个子路径
         p = os.path.join(path, file)
         if os.path.isdir(p):#如果是文件夹就递归
             processMDIR(p)
         elif p[-3:] == '.md' and os.path.isfile(p):#是md文件就更新meta
-            updateMDMeta(path,file,metas)
-    setDIRMetas(path,metas)#最后将这个文件夹的meta数据写入到对应文件中
+            new_metas[file] = updateMDMeta(path,file,old_metas)
+    setDIRMetas(path,new_metas)#最后将这个文件夹的meta数据写入到对应文件中
     print('Meta data processed in dir %s' % path)
 
 #TODO:CI系统pygit2中的Object not found问题仍未解决

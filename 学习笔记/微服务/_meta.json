@@ -1,15 +1,39 @@
 {
-    "微服务的模式语言.md": {
-        "title": "微服务的模式语言-0-核心及细节索引(Pattern language)",
-        "date": "2019-10-08 08:47:11",
+    "Istio.md": {
+        "title": "(未完成)Istio",
+        "date": "2019-11-29 01:30:25",
         "tags": [
             "微服务",
-            "翻译"
+            "Service Mesh",
+            "未完成"
+        ],
+        "categories": [
+            "微服务"
+        ]
+    },
+    "ServiceMesh历史.md": {
+        "title": "Service Mesh 服务网格——从何而来",
+        "date": "2019-11-17 12:53:26",
+        "tags": [
+            "微服务",
+            "Service Mesh"
         ],
         "categories": [
             "微服务"
         ],
-        "cover": "/微服务/i/DecomposingApplications.011.jpg"
+        "cover": "/微服务/i/ServiceMesh0.jpg"
+    },
+    "ServiceMesh原理.md": {
+        "title": "Service Mesh 服务网格——原理",
+        "date": "2019-11-21 05:43:22",
+        "tags": [
+            "微服务",
+            "Service Mesh"
+        ],
+        "categories": [
+            "微服务"
+        ],
+        "cover": "/微服务/i/serivce-mesh-control-plane.png"
     },
     "微服务的模式语言-1-服务拆分、部署与框架.md": {
         "title": "微服务的模式语言-1-服务拆分、部署与框架",
@@ -58,40 +82,16 @@
             "微服务"
         ]
     },
-    "Istio.md": {
-        "title": "(未完成)Istio",
-        "date": "2019-11-29 01:30:25",
+    "微服务的模式语言.md": {
+        "title": "微服务的模式语言-0-核心及细节索引(Pattern language)",
+        "date": "2019-10-08 08:47:11",
         "tags": [
             "微服务",
-            "Service Mesh",
-            "未完成"
-        ],
-        "categories": [
-            "微服务"
-        ]
-    },
-    "ServiceMesh历史.md": {
-        "title": "Service Mesh 服务网格——从何而来",
-        "date": "2019-11-17 12:53:26",
-        "tags": [
-            "微服务",
-            "Service Mesh"
+            "翻译"
         ],
         "categories": [
             "微服务"
         ],
-        "cover": "/微服务/i/ServiceMesh0.jpg"
-    },
-    "ServiceMesh原理.md": {
-        "title": "Service Mesh 服务网格——原理",
-        "date": "2019-11-21 05:43:22",
-        "tags": [
-            "微服务",
-            "Service Mesh"
-        ],
-        "categories": [
-            "微服务"
-        ],
-        "cover": "/微服务/i/serivce-mesh-control-plane.png"
+        "cover": "/微服务/i/DecomposingApplications.011.jpg"
     }
 }

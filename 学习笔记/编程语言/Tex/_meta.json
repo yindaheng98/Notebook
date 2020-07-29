@@ -1,10 +1,9 @@
 {
-    "文学编程.md": {
-        "title": "文学编程（Literate Programming）",
-        "date": "2020-04-01 12:43:23",
+    "LaTeX基础.md": {
+        "title": "LaTeX基础",
+        "date": "2020-04-02 06:01:49",
         "tags": [
-            "Tex",
-            "Literate Programming"
+            "Tex"
         ],
         "categories": [
             "编程语言",
@@ -48,11 +47,12 @@
         ],
         "cover": "/编程语言/Tex/i/TeXif1.png"
     },
-    "LaTeX基础.md": {
-        "title": "LaTeX基础",
-        "date": "2020-04-02 06:01:49",
+    "文学编程.md": {
+        "title": "文学编程（Literate Programming）",
+        "date": "2020-04-01 12:43:23",
         "tags": [
-            "Tex"
+            "Tex",
+            "Literate Programming"
         ],
         "categories": [
             "编程语言",

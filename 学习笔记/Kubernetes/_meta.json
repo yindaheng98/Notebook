@@ -1,0 +1,55 @@
+{
+    "kubectl指令.md": {
+        "title": "kubectl指令",
+        "date": "2019-09-23 07:37:12",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
+    "Kubernetes介绍.md": {
+        "title": "Kubernetes(k8s)介绍",
+        "date": "2019-09-23 07:37:12",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/module_01_cluster.png"
+    },
+    "Kubernetes使用.md": {
+        "title": "Kubernetes(k8s)的使用方法",
+        "date": "2019-11-29 01:30:25",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
+    "Kubernetes对象.md": {
+        "title": "Kubernetes(k8s)对象",
+        "date": "2020-07-29 14:54:27",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/module_03_pods.png"
+    },
+    "Kubernetes结构.md": {
+        "title": "Kubernetes(k8s)的结构",
+        "date": "2019-11-21 06:34:45",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/K8s.png"
+    }
+}
