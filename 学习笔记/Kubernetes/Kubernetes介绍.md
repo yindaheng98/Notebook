@@ -96,4 +96,4 @@ k8s的一种实现，可以看作是一种集群管理的服务端
 
 使用 Kubernetes API 与集群进行交互，可以看作是集群管理的客户端
 
-[下一篇](Kubernetes使用.md)
+下一篇：[Kubernetes(k8s)的安装和基本使用](./Kubernetes使用.md)
