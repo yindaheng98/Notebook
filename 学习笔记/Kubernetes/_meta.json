@@ -1,17 +1,7 @@
 {
-    "kubectl指令.md": {
-        "title": "kubectl指令",
-        "date": "2019-09-23 07:37:12",
-        "tags": [
-            "Kubernetes"
-        ],
-        "categories": [
-            "Kubernetes"
-        ]
-    },
     "Kubernetes介绍.md": {
         "title": "Kubernetes(k8s)介绍",
-        "date": "2019-09-23 07:37:12",
+        "date": "2020-07-29 13:00:23",
         "tags": [
             "Kubernetes"
         ],
@@ -21,8 +11,8 @@
         "cover": "/Kubernetes/i/module_01_cluster.png"
     },
     "Kubernetes使用.md": {
-        "title": "Kubernetes(k8s)的使用方法",
-        "date": "2019-11-29 01:30:25",
+        "title": "Kubernetes(k8s)的安装和基本使用",
+        "date": "2020-07-29 13:00:23",
         "tags": [
             "Kubernetes"
         ],
@@ -32,7 +22,7 @@
     },
     "Kubernetes对象.md": {
         "title": "Kubernetes(k8s)对象",
-        "date": "2020-07-29 14:54:27",
+        "date": "2020-07-29 13:00:23",
         "tags": [
             "Kubernetes"
         ],
@@ -51,5 +41,46 @@
             "Kubernetes"
         ],
         "cover": "/Kubernetes/i/K8s.png"
+    },
+    "Namespace.md": {
+        "title": "Namespace",
+        "date": "2020-07-29 13:00:23",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
+    "Pod.md": {
+        "title": "Pod",
+        "date": "2020-07-29 13:00:23",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/module_03_pods.png"
+    },
+    "Service.md": {
+        "title": "Service",
+        "date": "2020-07-29 17:22:44",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
+    "Volume.md": {
+        "title": "Volume",
+        "date": "2020-07-29 17:23:03",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
     }
 }

@@ -41,11 +41,12 @@ titler = re.compile(r'#\s+(.*?)\n', re.S)
 coverr = re.compile(r'!\[.*?\]\((.*?)\)\n', re.S)
 titletagr = re.compile(r'^\((.*?)\)', re.S)
 def updateMDMeta(filedir, filename, metas):
+    print('Meta data collecting: %s' % filename)
     #先从metas里面找meta，找不到就用{}
     meta = metas[filename] if filename in metas else {}
     filepath = os.path.join(filedir, filename)
     with open(filepath, 'r', encoding='utf-8') as f:
-        s = f.read()
+        s = f.read() + '\n'
 
     title = re.findall(titler,s)
     if len(title)>0:
@@ -67,8 +68,8 @@ def updateMDMeta(filedir, filename, metas):
     cover = re.findall(coverr,s)
     if len(cover)>0:
         meta['cover'] = '/'+'/'.join(path_splitted)+'/'+cover[0]#封面数据直接覆盖
-
-    print('Meta data of file %s collected' % filename)
+    print(meta)
+    print('Meta data collected : %s' % filename)
     meta_data[filepath] = meta
     metas[filename] = meta
     return meta
