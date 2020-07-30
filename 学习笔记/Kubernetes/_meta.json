@@ -8,7 +8,9 @@
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/module_01_cluster.png"
+        "cover": "/Kubernetes/i/module_01_cluster.png",
+        "created": "2019-09-23 07:37:12",
+        "updated": "2020-07-29 13:00:23"
     },
     "Kubernetes使用.md": {
         "title": "Kubernetes(k8s)的安装和基本使用",
@@ -18,7 +20,9 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "created": "2019-09-23 07:37:12",
+        "updated": "2020-07-29 13:00:23"
     },
     "Kubernetes对象.md": {
         "title": "Kubernetes(k8s)对象",
@@ -29,7 +33,9 @@
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/module_03_pods.png"
+        "cover": "/Kubernetes/i/module_03_pods.png",
+        "created": "2020-07-29 13:00:23",
+        "updated": "2020-07-29 13:00:23"
     },
     "Kubernetes结构.md": {
         "title": "Kubernetes(k8s)的结构",
@@ -40,7 +46,9 @@
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/K8s.png"
+        "cover": "/Kubernetes/i/K8s.png",
+        "created": "2019-11-21 05:43:22",
+        "updated": "2019-11-21 06:34:45"
     },
     "Namespace.md": {
         "title": "Namespace",
@@ -50,7 +58,9 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "created": "2020-07-29 13:00:23",
+        "updated": "2020-07-29 13:00:23"
     },
     "Pod.md": {
         "title": "Pod",
@@ -61,7 +71,9 @@
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/module_03_pods.png"
+        "cover": "/Kubernetes/i/module_03_pods.png",
+        "created": "2020-07-29 13:00:23",
+        "updated": "2020-07-29 13:00:23"
     },
     "Service.md": {
         "title": "Service",
@@ -71,7 +83,9 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "created": "2020-07-29 17:22:44",
+        "updated": "2020-07-29 17:22:44"
     },
     "Volume.md": {
         "title": "Volume",
@@ -81,6 +95,8 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "created": "2020-07-29 17:23:03",
+        "updated": "2020-07-29 17:23:03"
     }
 }

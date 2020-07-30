@@ -15,7 +15,8 @@ STATUS={pygit2.GIT_DELTA_ADDED:"A",
         pygit2.GIT_DELTA_UNREADABLE:"UNREADABLE",
         pygit2.GIT_DELTA_UNTRACKED:"UNTRACKED"}
 
-data={}
+created_time={}
+updated_time={}
 def parseDiff(diff):
     diff.find_similar()
     files={s:set() for s in STATUS}
@@ -57,23 +58,26 @@ def updateData(date,diff):
     deleted_files=files[pygit2.GIT_DELTA_DELETED]
     modifed_files=files[pygit2.GIT_DELTA_MODIFIED]
     for file in renamed_files:
-        if file[0] in data:
+        if file[0] in created_time:
             print('\trename file: %s->%s'%(file[0],file[1]))
-            data[file[1]]=data[file[0]]
+            created_time[file[1]]=created_time[file[0]]
+            updated_time[file[1]]=updated_time[file[0]]
         else:
             print('\t[not exists]rename file: %s->%s'%(file[0],file[1]))
-            data[file[1]]=date
+            created_time[file[1]]=date
+            updated_time[file[1]]=date
     for file in created_files:
-        if not file[1] in data:
+        if not file[1] in created_time:
             print('\tcreate file: %s'%file[1])
-            data[file[1]]=date
+            created_time[file[1]]=date
+            updated_time[file[1]]=date
         else:
             print('\t[already exists]create file: %s'%file[1])
     for file in modifed_files:
         print('\tmodify file: %s'%file[1])
-        data[file[1]]=date
+        updated_time[file[1]]=date
     for file in deleted_files:
-        if file[1] in data:
+        if file[1] in created_time:
             print('\tdelete file: %s'%file[1])
         else:
             print('\t[not exists]delete file: %s'%file[1])
@@ -98,6 +102,5 @@ for commit in commits:#开始遍历
     updateData(date,diff)
     last_tree=tree
 
-data={k.replace("/",'\\'):v for k,v in data.items()}
-
-    
+created_time={k.replace("/",'\\'):v for k,v in created_time.items()}
+updated_time={k.replace("/",'\\'):v for k,v in updated_time.items()}

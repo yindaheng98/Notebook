@@ -8,7 +8,9 @@
         "categories": [
             "编程语言",
             "Tex"
-        ]
+        ],
+        "created": "2020-04-01 15:40:02",
+        "updated": "2020-04-02 06:01:49"
     },
     "TeX公式Tips.md": {
         "title": "TEX公式知识点拾遗",
@@ -20,7 +22,9 @@
         "categories": [
             "编程语言",
             "Tex"
-        ]
+        ],
+        "created": "2020-04-01 11:44:31",
+        "updated": "2020-04-01 11:44:31"
     },
     "TeX历史.md": {
         "title": "TEX历史",
@@ -32,7 +36,9 @@
         "categories": [
             "编程语言",
             "Tex"
-        ]
+        ],
+        "created": "2020-04-01 19:43:06",
+        "updated": "2020-04-01 19:43:06"
     },
     "TeX基础.md": {
         "title": "TEX基础",
@@ -45,7 +51,9 @@
             "编程语言",
             "Tex"
         ],
-        "cover": "/编程语言/Tex/i/TeXif1.png"
+        "cover": "/编程语言/Tex/i/TeXif1.png",
+        "created": "2020-04-01 11:44:31",
+        "updated": "2020-04-01 11:44:31"
     },
     "文学编程.md": {
         "title": "文学编程（Literate Programming）",
@@ -57,6 +65,8 @@
         "categories": [
             "编程语言",
             "Tex"
-        ]
+        ],
+        "created": "2020-03-30 07:21:46",
+        "updated": "2020-04-01 12:43:23"
     }
 }

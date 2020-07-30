@@ -8,7 +8,9 @@
         "categories": [
             "分布式"
         ],
-        "cover": "/分布式/i/无CDN访问网站.png"
+        "cover": "/分布式/i/无CDN访问网站.png",
+        "created": "2019-08-20 14:51:33",
+        "updated": "2019-08-20 14:51:33"
     },
     "Redis-distribute.md": {
         "title": "Redis中的分布式",
@@ -19,7 +21,9 @@
         ],
         "categories": [
             "分布式"
-        ]
+        ],
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-09-23 07:37:12"
     },
     "Redis.md": {
         "title": "Redis",
@@ -31,6 +35,8 @@
         "categories": [
             "分布式"
         ],
-        "cover": "/分布式/i/多路复用.jpg"
+        "cover": "/分布式/i/多路复用.jpg",
+        "created": "2019-08-20 14:51:33",
+        "updated": "2019-08-20 14:51:33"
     }
 }

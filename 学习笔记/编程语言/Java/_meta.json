@@ -9,7 +9,9 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-10-28 06:52:23",
+        "updated": "2019-10-28 06:52:23"
     },
     "OSGi.md": {
         "title": "(未完成)OSGi",
@@ -21,7 +23,9 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-10-28 06:52:23"
     },
     "RESTful.md": {
         "title": "REST和RESTful API",
@@ -33,7 +37,9 @@
             "编程语言",
             "Java"
         ],
-        "cover": "/编程语言/Java/i/RESTful图.jpg"
+        "cover": "/编程语言/Java/i/RESTful图.jpg",
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-09-23 07:37:12"
     },
     "SpringCloud.md": {
         "title": "Spring Cloud",
@@ -46,7 +52,9 @@
             "编程语言",
             "Java"
         ],
-        "cover": "/编程语言/Java/i/SpringCloud1.webp"
+        "cover": "/编程语言/Java/i/SpringCloud1.webp",
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-11-13 08:55:07"
     },
     "SpringMybatis.md": {
         "title": "(未完成)Mybatis",
@@ -59,7 +67,9 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-10-28 06:52:23"
     },
     "SpringTips.md": {
         "title": "(持续更新)Spring使用笔记",
@@ -72,7 +82,9 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-11-13 08:55:07"
     },
     "Spring原理.md": {
         "title": "Spring原理",
@@ -84,7 +96,9 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-11-13 09:00:24",
+        "updated": "2019-11-13 09:00:24"
     },
     "Spring架构.md": {
         "title": "Spring架构",
@@ -97,7 +111,9 @@
             "编程语言",
             "Java"
         ],
-        "cover": "/编程语言/Java/i/Spring架构.png"
+        "cover": "/编程语言/Java/i/Spring架构.png",
+        "created": "2019-09-23 07:37:12",
+        "updated": "2019-11-13 09:00:24"
     },
     "注解.md": {
         "title": "Java注解和Java反射",
@@ -109,6 +125,8 @@
         "categories": [
             "编程语言",
             "Java"
-        ]
+        ],
+        "created": "2019-10-06 15:07:24",
+        "updated": "2019-10-06 15:07:24"
     }
 }

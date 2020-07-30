@@ -10,7 +10,9 @@
         "categories": [
             "边缘计算"
         ],
-        "cover": "/边缘计算/i/DeviceShadow.png"
+        "cover": "/边缘计算/i/DeviceShadow.png",
+        "created": "2020-05-31 15:30:10",
+        "updated": "2020-05-31 15:30:10"
     },
     "AzureIoT.md": {
         "title": "Azure IoT",
@@ -23,7 +25,9 @@
         "categories": [
             "边缘计算"
         ],
-        "cover": "/边缘计算/./i/modules-diagram.png"
+        "cover": "/边缘计算/./i/modules-diagram.png",
+        "created": "2020-06-11 11:52:58",
+        "updated": "2020-06-23 09:16:33"
     },
     "CORD.md": {
         "title": "CORD",
@@ -34,7 +38,9 @@
         "categories": [
             "边缘计算"
         ],
-        "cover": "/边缘计算/i/cord-1.jpg"
+        "cover": "/边缘计算/i/cord-1.jpg",
+        "created": "2020-05-28 15:50:26",
+        "updated": "2020-05-28 15:50:26"
     },
     "EVE.md": {
         "title": "EVE (Edge Virtualization Engine)",
@@ -46,6 +52,8 @@
         "categories": [
             "边缘计算"
         ],
-        "cover": "/边缘计算/i/EVEArchit.png"
+        "cover": "/边缘计算/i/EVEArchit.png",
+        "created": "2020-05-28 14:32:23",
+        "updated": "2020-05-28 14:32:23"
     }
 }

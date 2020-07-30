@@ -7,9 +7,19 @@ metas_filename = '_meta.json'
 meta_data = {}
 
 #获取文件创建时间
-def getDate(path):
-    if path in data:
-        return data[path]
+def getCreatedTime(path):
+    if path in created_time:
+        return created_time[path]
+    print("%s not found in commit history"%path)
+    t = os.path.getmtime(path)
+    t = time.localtime(t)
+    t = time.strftime('%Y-%m-%d %H:%M:%S', t)
+    return t
+
+#获取文件修改时间
+def getLastUpdated(path):
+    if path in updated_time:
+        return updated_time[path]
     print("%s not found in commit history"%path)
     t = os.path.getmtime(path)
     t = time.localtime(t)
@@ -53,7 +63,11 @@ def updateMDMeta(filedir, filename, metas):
         meta['title'] = title[0]#文章标题数据直接覆盖
 
     if __name__=="__main__":#TODO:CI系统pygit2中的Object not found问题仍未解决
-        meta['date'] = getDate(filepath)#日期数据直接覆盖
+        meta['created'] = getCreatedTime(filepath)#日期数据直接覆盖
+        meta['updated'] = getLastUpdated(filepath)#日期数据直接覆盖
+        meta['date'] = meta['updated']
+        if 'lastUpdated' in meta:
+            del meta['lastUpdated']
     
     path_splitted = filedir.replace('\\','/').split('/')[1:]
     if not 'tags' in meta:#tag数据
@@ -89,6 +103,6 @@ def processMDIR(path):
 
 #TODO:CI系统pygit2中的Object not found问题仍未解决
 if __name__=="__main__":
-    from getDate import data
+    from getDate import created_time,updated_time
 
 processMDIR(path)
