@@ -235,7 +235,7 @@ spec:
         ...
 ```
 
-## 初始化容器
+## 初始化容器`initContainers`
 
 顾名思义，初始化容器用于Pod的初始化操作，比如向某个文件夹（volumes）中写入重要的运行时文件。初始化容器的配置由`initContainers`字段指定，主要用处：
 
@@ -285,11 +285,11 @@ spec:
 
 ## Pod调度
 
-### 简单的方式：选择节点（nodeSelector）
+### 简单的方式：选择节点 - `nodeSelector`
 
-nodeSelector是目前最为简单的一种pod运行时调度限制，Pod.spec.nodeSelector**通过kubernetes的label-selector机制选择节点**，由调度器调度策略匹配label，而后调度pod到目标节点，该匹配规则属于强制约束。
+nodeSelector是目前最为简单的一种pod运行时调度限制，Pod.spec.nodeSelector通过kubernetes的label-selector机制选择节点，**由调度器调度策略匹配label，而后调度pod到目标节点**，该匹配规则属于强制约束。
 
-#### 节点（Node）的label
+#### 节点（Node）的标签（label）是什么
 
 节点的label是节点的一个标签，以键值对的形式存在。一个节点可以有多个label，一种label也可以关联到多个节点。
 
@@ -350,12 +350,48 @@ spec:
         ...
 ```
 
-### 复杂的方式：亲和性（Affinity）与非亲和性（anti-affinity）
+### 复杂的方式：亲和性 - `affinity`
+
+`nodeSelector`的缺点：强制约束，Pod只能在固定的一批节点中进行调度，若找不到指定的标签，直接调度失败。
+
+使用亲和性的优点：
+
+* 表述语法更加多样化，不再仅受限于强制约束与匹配
+* 调度规则不再是强制约束（hard），取而代之的是软限（soft）或偏好（preference）
+* 指定pod可以和哪些pod部署在同一个/不同拓扑结构下
+
+#### 在调度期间的Pod调度和在运行过程中的Pod调度
+
+在亲和性调度方案中，所有的节点匹配条件均可以定义为软策略或硬策略。
+
+* `requiredDuringSchedulingRequiredDuringExecution`
+  * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
+  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除（现在版本还不支持）
+
+* `requiredDuringSchedulingIgnoredDuringExecution`
+  * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
+  * 在之后的运行过程中，系统不会再检查这些规则是否满足
+
+* `preferredDuringSchedulingIgnoredDuringExecution`
+  * 在调度期间尽量满足规则，如果不能满足规则，Pod也有可能被调度到对应的主机上
+  * 在之后的运行过程中，系统不会再检查这些规则是否满足
+
+>这命名不觉得有点反人类吗？有点无语......
+
+##### 硬策略：必须满足条件（required）
+
+对于一个定义为硬策略的节点匹配条件，如果集群（Cluster）中没有满足条件的节点（Node），那么调度失败（一直重试直到有节点满足条件）。
+
+**硬策略实际上可以看作一种复杂的`nodeSelector`，只有条件全部满足才有调度到这个节点的可能**
+
+##### 软策略：尽量满足条件（preferred）
+
+对于一个定义为软策略的节点匹配条件，如果集群（Cluster）中没有满足规则的节点（Node），那么直接忽略这个条件；若有，则调度到满足条件的节点。
+
+#### Node亲和性`nodeAffinity`：这个Pod应该部署在这个Node上
 
 
 
-#### 节点亲和性（Node affinity）
-
-#### pod亲和性（Inter-pod affinity）与反亲和性（anti-affinity）
+#### Pod亲和性（Inter-pod affinity）与反亲和性（anti-affinity）：这个Pod能/不能和那个Pod部署在一起
 
 #### 污点（Taints）与容忍（tolerations）
