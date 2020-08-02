@@ -332,7 +332,6 @@ minikube   Ready     <none>    23m       v1.10.0 beta.kubernetes.io/arch=amd64,b
 #### 用`nodeSelector`字段通过标签选择部署节点
 
 ```yml
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -350,48 +349,6 @@ spec:
         ...
 ```
 
-### 复杂的方式：亲和性 - `affinity`
+### [复杂的方式一：亲和性 - `affinity`](./Pod亲和性调度.md)
 
-`nodeSelector`的缺点：强制约束，Pod只能在固定的一批节点中进行调度，若找不到指定的标签，直接调度失败。
-
-使用亲和性的优点：
-
-* 表述语法更加多样化，不再仅受限于强制约束与匹配
-* 调度规则不再是强制约束（hard），取而代之的是软限（soft）或偏好（preference）
-* 指定pod可以和哪些pod部署在同一个/不同拓扑结构下
-
-#### 在调度期间的Pod调度和在运行过程中的Pod调度
-
-在亲和性调度方案中，所有的节点匹配条件均可以定义为软策略或硬策略。
-
-* `requiredDuringSchedulingRequiredDuringExecution`
-  * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
-  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除（现在版本还不支持）
-
-* `requiredDuringSchedulingIgnoredDuringExecution`
-  * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
-  * 在之后的运行过程中，系统不会再检查这些规则是否满足
-
-* `preferredDuringSchedulingIgnoredDuringExecution`
-  * 在调度期间尽量满足规则，如果不能满足规则，Pod也有可能被调度到对应的主机上
-  * 在之后的运行过程中，系统不会再检查这些规则是否满足
-
->这命名不觉得有点反人类吗？有点无语......
-
-##### 硬策略：必须满足条件（required）
-
-对于一个定义为硬策略的节点匹配条件，如果集群（Cluster）中没有满足条件的节点（Node），那么调度失败（一直重试直到有节点满足条件）。
-
-**硬策略实际上可以看作一种复杂的`nodeSelector`，只有条件全部满足才有调度到这个节点的可能**
-
-##### 软策略：尽量满足条件（preferred）
-
-对于一个定义为软策略的节点匹配条件，如果集群（Cluster）中没有满足规则的节点（Node），那么直接忽略这个条件；若有，则调度到满足条件的节点。
-
-#### Node亲和性`nodeAffinity`：这个Pod应该部署在这个Node上
-
-
-
-#### Pod亲和性（Inter-pod affinity）与反亲和性（anti-affinity）：这个Pod能/不能和那个Pod部署在一起
-
-#### 污点（Taints）与容忍（tolerations）
+### [复杂的方式二：污点（`taints`）与容忍（`tolerations`）](./Pod容忍与Node污点.md)
