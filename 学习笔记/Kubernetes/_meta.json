@@ -51,8 +51,8 @@
         "updated": "2019-11-21 06:34:45"
     },
     "Namespace.md": {
-        "title": "Namespace",
-        "date": "2020-07-29 13:00:23",
+        "title": "K8S中的Namespaces",
+        "date": "2020-08-03 07:44:52",
         "tags": [
             "Kubernetes"
         ],
@@ -60,11 +60,11 @@
             "Kubernetes"
         ],
         "created": "2020-07-29 13:00:23",
-        "updated": "2020-07-29 13:00:23"
+        "updated": "2020-08-03 07:44:52"
     },
     "Pod.md": {
         "title": "Pod",
-        "date": "2020-07-29 13:00:23",
+        "date": "2020-08-02 07:17:38",
         "tags": [
             "Kubernetes"
         ],
@@ -73,7 +73,31 @@
         ],
         "cover": "/Kubernetes/i/module_03_pods.png",
         "created": "2020-07-29 13:00:23",
-        "updated": "2020-07-29 13:00:23"
+        "updated": "2020-08-02 07:17:38"
+    },
+    "Pod亲和性调度.md": {
+        "title": "Pod的亲和性调度",
+        "created": "2020-08-03 10:18:43",
+        "updated": "2020-08-03 10:18:43",
+        "date": "2020-08-03 10:18:43",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
+    "Pod容忍与Node污点.md": {
+        "title": "Node污点与Pod容忍调度",
+        "created": "2020-08-02 15:18:20",
+        "updated": "2020-08-02 15:18:20",
+        "date": "2020-08-02 15:18:20",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
     },
     "Service.md": {
         "title": "Service",
