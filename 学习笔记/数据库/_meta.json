@@ -6,7 +6,9 @@
             "数据库",
             "NoSQL",
             "Cassandra",
-            "算法"
+            "算法",
+            "概念",
+            "设计思路"
         ],
         "categories": [
             "数据库"
@@ -20,7 +22,10 @@
         "date": "2019-10-06 15:07:24",
         "tags": [
             "数据库",
-            "NoSQL"
+            "NoSQL",
+            "概念",
+            "Cassandra",
+            "设计思路"
         ],
         "categories": [
             "数据库"
@@ -36,7 +41,9 @@
             "数据库",
             "NoSQL",
             "Couchbase",
-            "未完成"
+            "未完成",
+            "概念",
+            "设计思路"
         ],
         "categories": [
             "数据库"
@@ -51,7 +58,9 @@
         "tags": [
             "数据库",
             "NoSQL",
-            "Couchbase"
+            "Couchbase",
+            "概念",
+            "实操"
         ],
         "categories": [
             "数据库"
@@ -69,7 +78,9 @@
             "Cassandra",
             "BigTable",
             "算法",
-            "未完成"
+            "未完成",
+            "概念",
+            "设计思路"
         ],
         "categories": [
             "数据库"
@@ -82,7 +93,8 @@
         "date": "2019-10-06 15:07:24",
         "tags": [
             "数据库",
-            "NoSQL"
+            "NoSQL",
+            "概念"
         ],
         "categories": [
             "数据库"

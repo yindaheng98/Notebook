@@ -3,7 +3,11 @@
         "title": "LaTeX基础",
         "date": "2020-04-02 06:01:49",
         "tags": [
-            "Tex"
+            "Tex",
+            "实操",
+            "概念",
+            "设计思路",
+            "编程语言"
         ],
         "categories": [
             "编程语言",
@@ -17,7 +21,8 @@
         "date": "2020-04-01 11:44:31",
         "tags": [
             "编程语言",
-            "Tex"
+            "Tex",
+            "实操"
         ],
         "categories": [
             "编程语言",
@@ -31,7 +36,10 @@
         "date": "2020-04-01 19:43:06",
         "tags": [
             "Tex",
-            "Literate Programming"
+            "Literate Programming",
+            "编程语言",
+            "编程思想",
+            "历史"
         ],
         "categories": [
             "编程语言",
@@ -45,7 +53,11 @@
         "date": "2020-04-01 11:44:31",
         "tags": [
             "Tex",
-            "Literate Programming"
+            "Literate Programming",
+            "实操",
+            "概念",
+            "设计思路",
+            "编程语言"
         ],
         "categories": [
             "编程语言",
@@ -60,7 +72,11 @@
         "date": "2020-04-01 12:43:23",
         "tags": [
             "Tex",
-            "Literate Programming"
+            "Literate Programming",
+            "编程语言",
+            "编程思想",
+            "概念",
+            "设计思路"
         ],
         "categories": [
             "编程语言",

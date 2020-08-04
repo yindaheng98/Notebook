@@ -74,6 +74,10 @@ def updateMDMeta(filedir, filename, metas):
         meta['tags'] = path_splitted
     
     meta['categories'] = path_splitted#目录数据直接覆盖
+
+    for c in meta['categories']:
+        if not c in meta['tags']:
+            meta['tags'].append(c)
         
     titletag = re.findall(titletagr,meta['title']) #找文章开头的括号加入到tag中，比如“(未完成)”
     if len(titletag)>0 and not titletag[0] in meta['tags']:
