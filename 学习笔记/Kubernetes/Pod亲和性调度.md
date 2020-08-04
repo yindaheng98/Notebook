@@ -259,21 +259,28 @@ spec:
 * `Exists`：某个 label 存在
 * `DoesNotExist`：某个 label 不存在
 
-### Pod亲和性`podAffinity`
+### Pod亲和性`podAffinity`和Pod反亲和性`podAntiAffinity`
 
->Pod间亲和与反亲和使你可以*基于已经在节点上运行的Pod的标签*来约束Pod可以调度到的节点，而不是基于节点上的标签。规则的格式为“如果 X 节点上已经运行了一个或多个 满足规则 Y 的pod，则这个 pod 应该（或者在非亲和的情况下不应该）运行在 X 节点”。Y 表示一个具有可选的关联命令空间列表的 LabelSelector。
+>Pod间亲和与反亲和使你可以*基于已经在节点上运行的Pod的标签*来约束Pod可以调度到的节点，而不是基于节点上的标签。规则的格式为“**如果 X 节点上已经运行了一个或多个 满足规则 Y 的pod，则这个 pod 应该（或者在非亲和的情况下不应该）运行在 X 节点**”。Y 表示一个具有可选的关联命令空间列表的 LabelSelector。
 
 >与节点不同，因为 pod 是命名空间限定的（因此 pod 上的标签也是命名空间限定的），因此作用于 pod 标签的标签选择器**必须指定选择器应用在哪个命名空间**。从概念上讲，X 是一个拓扑域，如节点，机架，云供应商地区，云供应商区域等。你可以使用 `topologyKey` 来表示它，`topologyKey` 是节点标签的键以便系统用来表示这样的拓扑域。
 
 >Pod 间亲和与反亲和需要大量的处理，这可能会显著减慢大规模集群中的调度。我们不建议在超过数百个节点的集群中使用它们。
 
+`podAffinity`和`podAntiAffinity`定义格式完全相同，但互为反义词：
+
+* `podAffinity`表示这个Pod应该和某个Pod部署在一起
+* `podAntiAffinity`表示这个Pod不应该和某个Pod部署在一起
+* `podAffinity`软策略将表示这个Pod应该和得分最高的Pod部署在一起
+* `podAntiAffinity`软策略将表示这个Pod不应该和得分最高的Pod部署在一起
+
 #### 重要知识：[Pod标签的namespace](./Namespace.md)
 
-#### 常用的`podAffinity`：`labelSelector`
+#### 常用的`podAffinity`和`podAntiAffinity`：`labelSelector`
 
-`podAffinity`中`labelSelector`的语法与`nodeAffinity`中的`nodeSelectorTerms`大致相同，不同的是：
+`podAffinity`和`podAntiAffinity`中`labelSelector`的语法与`nodeAffinity`中的`nodeSelectorTerms`大致相同，不同的是：
 
-`podAffinity`|`nodeAffinity`
+`podAffinity`/`podAntiAffinity`|`nodeAffinity`
 -|-
 一个`podAffinity`可以有多个`labelSelector`|一个`nodeAffinity`只能有一个`nodeSelectorTerms`
 一个`labelSelector`只能有一个`matchExpressions`|一个`nodeSelectorTerms`可以有多个`matchExpressions`
@@ -314,16 +321,29 @@ spec:
                     operator: In
                     values:
                       - amd64
+        podAntiAffinity: #Pod亲和性
+          requiredDuringSchedulingIgnoredDuringExecution: #运行过程中不生效的硬策略
+            - labelSelector:
+              topologyKey: development
+              matchExpressions:
+                - key: security
+                  operator: In
+                  values:
+                    - S1
+                    - S2
       containers:
         ...
       ...
 ```
 
-上面这个案例表示这个Pod要和满足下面条件的Pod放在一起：
+上面这个案例表示：
 
-* 在`development`命名空间内
-* 硬策略：“`kubernetes.io/hostname`标签值不是`node01`、`node02`或`node03`”且“`disktype`标签值为`ssd`
-* 软策略：
-  * “`beta.kubernetes.io/arch`的值为`amd64`”值11分
-
-### Pod反亲和性`podAntiAffinity`
+1. 这个Pod要和满足下面条件的Pod放在一起：
+  * 在`development`命名空间内
+  * 硬策略：“`kubernetes.io/hostname`标签值不是`node01`、`node02`或`node03`”且“`disktype`标签值为`ssd`
+  * 软策略：
+    * “`beta.kubernetes.io/arch`的值为`amd64`”值11分
+2. 这个Pod不能和满足下面条件的Pod放在一起：
+  * 在`development`命名空间内
+  * 硬策略：“`security`标签值是`S1`或`S2`
+  * 软策略：无
