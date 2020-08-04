@@ -3,7 +3,9 @@
         "title": "Kubernetes(k8s)介绍",
         "date": "2020-07-29 13:00:23",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "设计思路",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
@@ -16,7 +18,9 @@
         "title": "Kubernetes(k8s)的安装和基本使用",
         "date": "2020-07-29 13:00:23",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "服务器运维",
+            "实操"
         ],
         "categories": [
             "Kubernetes"
@@ -28,7 +32,9 @@
         "title": "Kubernetes(k8s)对象",
         "date": "2020-07-29 13:00:23",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "设计思路",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
@@ -41,7 +47,9 @@
         "title": "Kubernetes(k8s)的结构",
         "date": "2019-11-21 06:34:45",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "原理",
+            "设计思路"
         ],
         "categories": [
             "Kubernetes"
@@ -54,7 +62,10 @@
         "title": "K8S中的Namespaces",
         "date": "2020-08-03 07:44:52",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "原理",
+            "概念",
+            "实操"
         ],
         "categories": [
             "Kubernetes"
@@ -66,7 +77,10 @@
         "title": "Pod",
         "date": "2020-08-02 07:17:38",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "概念",
+            "Pod",
+            "实操"
         ],
         "categories": [
             "Kubernetes"
@@ -78,10 +92,14 @@
     "Pod亲和性调度.md": {
         "title": "Pod的亲和性调度",
         "created": "2020-08-03 10:18:43",
-        "updated": "2020-08-03 10:18:43",
-        "date": "2020-08-03 10:18:43",
+        "updated": "2020-08-04 07:19:27",
+        "date": "2020-08-04 07:19:27",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "原理",
+            "Pod",
+            "容器编排",
+            "容器调度"
         ],
         "categories": [
             "Kubernetes"
@@ -93,7 +111,11 @@
         "updated": "2020-08-02 15:18:20",
         "date": "2020-08-02 15:18:20",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "原理",
+            "Pod",
+            "容器编排",
+            "容器调度"
         ],
         "categories": [
             "Kubernetes"

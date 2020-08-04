@@ -286,64 +286,79 @@ spec:
 一个`labelSelector`只能有一个`matchExpressions`|一个`nodeSelectorTerms`可以有多个`matchExpressions`
 `matchExpressions`支持`In`、`NotIn`、`Exists`、`DoesNotExist`|`matchExpressions`支持`In`、`NotIn`、`Gt`、`Lt`、`Exists`、`DoesNotExist`
 
+#### 典型案例
+
+>在三节点集群中，一个 web 应用程序具有内存缓存，例如 redis。我们希望 web 服务器尽可能与缓存放置在同一位置。
+
+例如有三个Redis缓存，我们希望它们两两之间不要部署在一起，那就给打个标签并且在`podAntiAffinity`里面写上这个标签：
+
 ```yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  ...
+  name: redis-cache
 spec:
-  ...
-  template: #Pod模板
+  selector:
+    matchLabels:
+      app: store
+  replicas: 3
+  template:
     metadata:
-      ...
+      labels:
+        app: store
     spec:
       affinity:
-        podAffinity: #Pod亲和性
-          requiredDuringSchedulingIgnoredDuringExecution: #运行过程中不生效的硬策略
-            - labelSelector:
-              topologyKey: development
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
               matchExpressions:
-                - key: kubernetes.io/hostname
-                  operator: NotIn
-                  values:
-                    - node01
-                    - node02
-                    - node03
-                - key: disktype
-                  operator: In
-                  values:
-                    - ssd
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 11
-              preference:
-                - matchExpressions:
-                  - key: beta.kubernetes.io/arch
-                    operator: In
-                    values:
-                      - amd64
-        podAntiAffinity: #Pod亲和性
-          requiredDuringSchedulingIgnoredDuringExecution: #运行过程中不生效的硬策略
-            - labelSelector:
-              topologyKey: development
-              matchExpressions:
-                - key: security
-                  operator: In
-                  values:
-                    - S1
-                    - S2
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
       containers:
-        ...
-      ...
+      - name: redis-server
+        image: redis:3.2-alpine
 ```
 
-上面这个案例表示：
+然后web服务中就将这个`store`标签放在`podAffinity`里面从而使得web服务和Redis缓存部署在一起；并且同理用`podAntiAffinity`使得web服务不会两两部署在一起：
 
-1. 这个Pod要和满足下面条件的Pod放在一起：
-  * 在`development`命名空间内
-  * 硬策略：“`kubernetes.io/hostname`标签值不是`node01`、`node02`或`node03`”且“`disktype`标签值为`ssd`
-  * 软策略：
-    * “`beta.kubernetes.io/arch`的值为`amd64`”值11分
-2. 这个Pod不能和满足下面条件的Pod放在一起：
-  * 在`development`命名空间内
-  * 硬策略：“`security`标签值是`S1`或`S2`
-  * 软策略：无
+```yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server
+spec:
+  selector:
+    matchLabels:
+      app: web-store
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: web-store
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - web-store
+            topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - store
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: web-app
+        image: nginx:1.16-alpine
+```
