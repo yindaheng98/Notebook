@@ -66,7 +66,8 @@
             "Kubernetes",
             "原理",
             "概念",
-            "实操"
+            "实操",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
@@ -81,7 +82,8 @@
             "Kubernetes",
             "概念",
             "Pod",
-            "实操"
+            "实操",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
@@ -100,7 +102,8 @@
             "原理",
             "Pod",
             "容器编排",
-            "容器调度"
+            "容器调度",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
@@ -108,15 +111,16 @@
     },
     "Pod容忍与Node污点.md": {
         "title": "Node污点与Pod容忍调度",
-        "created": "2020-08-02 15:18:20",
-        "updated": "2020-08-02 15:18:20",
-        "date": "2020-08-02 15:18:20",
+        "created": "2020-08-05 05:55:31",
+        "updated": "2020-08-05 05:55:31",
+        "date": "2020-08-05 05:55:31",
         "tags": [
             "Kubernetes",
             "原理",
             "Pod",
             "容器编排",
-            "容器调度"
+            "容器调度",
+            "概念"
         ],
         "categories": [
             "Kubernetes"
