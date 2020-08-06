@@ -1,11 +1,24 @@
 {
+    "Ingress.md": {
+        "title": "Ingress",
+        "created": "2020-08-06 17:28:12",
+        "updated": "2020-08-06 17:28:12",
+        "date": "2020-08-06 17:28:12",
+        "tags": [
+            "Kubernetes"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
     "Kubernetes介绍.md": {
         "title": "Kubernetes(k8s)介绍",
         "date": "2020-07-29 13:00:23",
         "tags": [
             "Kubernetes",
             "设计思路",
-            "概念"
+            "概念",
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
@@ -20,7 +33,8 @@
         "tags": [
             "Kubernetes",
             "服务器运维",
-            "实操"
+            "实操",
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
@@ -34,7 +48,8 @@
         "tags": [
             "Kubernetes",
             "设计思路",
-            "概念"
+            "概念",
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
@@ -50,7 +65,8 @@
             "Kubernetes",
             "原理",
             "设计思路",
-            "架构"
+            "架构",
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
@@ -60,37 +76,37 @@
         "updated": "2019-11-21 06:34:45"
     },
     "Namespace.md": {
-        "title": "K8S中的Namespaces",
-        "date": "2020-08-03 07:44:52",
+        "title": "Namespaces - K8S虚拟集群单元",
+        "date": "2020-08-06 09:25:44",
         "tags": [
             "Kubernetes",
             "原理",
             "概念",
             "实操",
-            "概念"
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
         ],
         "created": "2020-07-29 13:00:23",
-        "updated": "2020-08-03 07:44:52"
+        "updated": "2020-08-06 09:25:44"
     },
     "Pod.md": {
-        "title": "Pod",
-        "date": "2020-08-02 07:17:38",
+        "title": "Pod - K8S最小管理单位",
+        "date": "2020-08-06 09:25:44",
         "tags": [
             "Kubernetes",
             "概念",
             "Pod",
             "实操",
-            "概念"
+            "容器编排"
         ],
         "categories": [
             "Kubernetes"
         ],
         "cover": "/Kubernetes/i/module_03_pods.png",
         "created": "2020-07-29 13:00:23",
-        "updated": "2020-08-02 07:17:38"
+        "updated": "2020-08-06 09:25:44"
     },
     "Pod亲和性调度.md": {
         "title": "Pod的亲和性调度",
@@ -127,16 +143,21 @@
         ]
     },
     "Service.md": {
-        "title": "Service",
-        "date": "2020-07-29 17:22:44",
+        "title": "Service - K8S流量路由",
+        "date": "2020-08-06 09:25:44",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "容器编排",
+            "原理",
+            "概念",
+            "实操"
         ],
         "categories": [
             "Kubernetes"
         ],
-        "created": "2020-07-29 17:22:44",
-        "updated": "2020-07-29 17:22:44"
+        "created": "2020-08-06 09:25:44",
+        "updated": "2020-08-06 09:25:44",
+        "cover": "/Kubernetes/./i/ClusterIP.png"
     },
     "Volume.md": {
         "title": "Volume",
