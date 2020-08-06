@@ -255,3 +255,47 @@ subsets:
 >如何实现这一点是正在使用的容器运行时的特定信息。
 >
 >也可以在 `node` 本身通过端口去请求你的 `Pod` （称之为主机端口），但这是一个很特殊的操作。转发方式如何实现也是容器运行时的细节。`Pod` 自己并不知道这些主机端口是否存在。
+
+## 原理简介——`kube-proxy`、VIP 和 Service 代理
+
+>在 Kubernetes 集群中，每个 Node 运行一个 `kube-proxy` 进程。
+`kube-proxy` 负责为 Service 实现了一种 VIP（虚拟 IP）的形式，而不是
+`ExternalName` 的形式。
+
+### `kube-proxy`的三种代理模式
+
+#### userspace 代理模式 - 通过代理端口传数据
+
+>这种模式，kube-proxy 会监视 Kubernetes 主控节点对 Service 对象和 Endpoints 对象的添加和移除操作。**对每个 Service，它会在本地 Node 上打开一个端口（随机选择）**。**任何连接到“代理端口”的请求，都会被代理到 Service 的后端 `Pods` 中的某个上面**（如 `Endpoints` 所报告的一样）。
+使用哪个后端 Pod，是 kube-proxy 基于 `SessionAffinity` 来确定的。
+>
+>最后，它配置 iptables 规则，捕获到达该 Service 的 `clusterIP`（是虚拟 IP）和 `Port` 的请求，并重定向到代理端口，代理端口再代理请求到后端Pod。
+>
+>默认情况下，用户空间模式下的 kube-proxy **通过轮转算法选择后端**。
+>
+>![userspace代理模式下Service概览图](i/services-userspace-overview.svg)
+
+#### iptables 代理模式 - 直接通过iptables传数据
+
+>这种模式，`kube-proxy` 会监视 Kubernetes 控制节点对 Service 对象和 Endpoints 对象的添加和移除。**对每个 Service，它会配置 iptables 规则，从而捕获到达该 Service 的 `clusterIP` 和端口的请求，进而将请求重定向到 Service 的一组后端中的某个 Pod 上面**。对于每个 Endpoints 对象，它也会配置 iptables 规则，这个规则会选择一个后端组合。
+>
+>默认的策略是，kube-proxy 在 iptables 模式下随机选择一个后端。
+>
+>![iptables代理模式下Service概览图](i/services-iptables-overview.svg)
+
+#### IPVS 代理模式
+
+>在 `ipvs` 模式下，kube-proxy监视Kubernetes服务和端点，调用 `netlink` 接口相应地创建 IPVS 规则，并定期将 IPVS 规则与 Kubernetes 服务和端点同步。 该控制循环可确保IPVS 状态与所需状态匹配。访问服务时，IPVS 将流量定向到后端Pod之一。
+>
+>IPVS代理模式基于类似于 iptables 模式的 netfilter 挂钩函数，但是使用哈希表作为基础数据结构，并且在内核空间中工作。这意味着，与 iptables 模式下的 kube-proxy 相比，IPVS 模式下的 kube-proxy重定向通信的延迟要短，并且在同步代理规则时具有更好的性能。与其他代理模式相比，IPVS 模式还支持更高的网络流量吞吐量。
+>
+>IPVS提供了更多选项来平衡后端Pod的流量。 这些是：
+>
+>- `rr`: round-robin
+>- `lc`: least connection (smallest number of open connections)
+>- `dh`: destination hashing
+>- `sh`: source hashing
+>- `sed`: shortest expected delay
+>- `nq`: never queue
+>
+>![IPVS代理的 Services 概述图](i/services-ipvs-overview.svg)
