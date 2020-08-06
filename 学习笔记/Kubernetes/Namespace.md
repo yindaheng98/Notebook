@@ -1,4 +1,4 @@
-# K8S中的Namespaces
+# Namespaces - K8S虚拟集群单元
 
 >Kubernetes 支持多个**虚拟集群**，它们底层依赖于同一个物理集群。 这些虚拟集群被称为**命名空间（namespace）**。
 >
