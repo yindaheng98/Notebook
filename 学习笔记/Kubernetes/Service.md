@@ -222,6 +222,35 @@ subsets:
 >* ExternalName 类型 Service 的 CNAME 记录
 >* 记录：与 Service 共享一个名称的任何 Endpoints，以及所有其它类型
 
+## Service 拓扑
+
+默认情况下，发往 `ClusterIP` 或者 `NodePort` 服务的流量可能会被路由到任意一个服务后端的地址上，Service拓扑可以**让一个服务基于集群的节点进行流量路由**，即**把流量路由到指定节点的Pod上**。例如，一个服务可以指定流量是被优先路由到一个和客户端在同一个 `Node` 或者在同一可用区域的端点，以获得低延迟。
+
+### 开启 Service 拓扑
+
+为了启用拓扑感知服务路由功能，必须要满足以下一些前提条件：
+
+* Kubernetes 的版本不低于 1.17
+* Kube-proxy 运行在 iptables 模式或者 IPVS 模式
+* 启用 [端点切片](/zh/docs/concepts/services-networking/endpoint-slices/)功能
+
+要启用 `Service` 拓扑，就要给 kube-apiserver 和 kube-proxy 启用 `ServiceTopology` 功能：
+
+```shell
+--feature-gates="ServiceTopology=true"
+```
+
+### 使用 Service 拓扑
+
+如果集群启用了 `Service` 拓扑功能后，就可以**在 `Service` 配置中指定 `topologyKeys` 字段**，从而控制 `Service` 的流量路由。此字段是 **`Node` 标签的优先顺序字段**，将用于在访问这个 `Service` 时对端点进行排序：
+
+* 流量会被定向到第一个标签值和源 `Node` 标签值相匹配的 `Node`。
+* 如果这个 `Service` 没有匹配的后端 `Node`，那么第二个标签会被使用做匹配
+* 以此类推，直到没有标签。
+* 如果没有匹配到，流量会被拒绝，就如同这个 `Service` 根本没有后端。
+
+这个字段配置为 `"*"` 意味着任意拓扑。这个通配符值如果使用了，那么只有作为配置值列表中的最后一个才有用。
+
 ## 原理简介——集群网络系统
 
 >集群网络系统是 Kubernetes 的核心部分，但是想要准确了解它的工作原理可是个不小的挑战。下面列出的是网络系统的的四个主要问题：
