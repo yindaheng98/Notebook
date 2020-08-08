@@ -46,9 +46,9 @@ spec:
 
 一些正确使用方法：
 
-* 缓存空间，例如基于磁盘的归并排序
-* 为耗时较长的计算任务提供检查点，以便任务能方便地从崩溃前状态恢复执行
-* 在 Web 服务器容器服务数据时，保存内容管理器容器获取的文件
+* 开一个`emptyDir`用作硬盘上的缓存空间，例如基于磁盘的归并排序
+* 用`emptyDir`为耗时较长的计算任务提供检查点，以便任务能方便地从崩溃前（容器意外退出）状态恢复执行
+* 在 Web 服务器容器服务数据时，用`emptyDir`保存内容管理器容器获取的文件
 
 范例见上面“Volume 的定义”。
 
@@ -120,10 +120,61 @@ spec:
 
 在 Pod 中使用 downwardAPI，具体见[《downwardAPI - 让容器了解自己的情况》](./downwardAPI.md)。
 
-### `flexVolume`
 ### `projected`
 
+>`projected` 卷类型能将若干现有的卷来源映射到同一目录上。
+>
+>目前，可以映射的卷来源类型如下：
+>
+>- `secret`
+>- `downwardAPI`
+>- `configMap`
+>- `serviceAccountToken`
+
+比如，把一个secret、downwardAPI 和 configmap映射到一起：
+
+```yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-test
+spec:
+  containers:
+  - name: container-test
+    image: busybox
+    volumeMounts:
+    - name: all-in-one
+      mountPath: "/projected-volume"
+      readOnly: true
+  volumes:
+  - name: all-in-one
+    projected:
+      sources:
+      - secret: #一个secret
+          name: mysecret
+          items:
+            - key: username
+              path: my-group/my-username #放到my-group/my-username
+      - downwardAPI: #两个downwardAPI
+          items:
+            - path: "my-group/labels" #metadata.labels Pod标签列表放到my-group/labels
+              fieldRef:
+                fieldPath: metadata.labels
+            - path: "my-group/cpu_limit" #limits.cpu资源情况放到my-group/labels
+              resourceFieldRef:
+                containerName: container-test
+                resource: limits.cpu
+      - configMap:  #一个configMap
+          name: myconfigmap
+          items:
+            - key: config
+              path: my-group/my-config #放到my-group/my-config
+```
+
 ### `persistentVolumeClaim`
+
+在Pod中使用K8S持久卷，具体见[《PersistentVolume和PersistentVolumeClaim - K8S持久卷的定义和使用》](./PersistentVolume.md)
+
 ### `local`
 
 >`local` 卷指的是所挂载的某个本地存储设备，例如磁盘、分区或者目录。
@@ -134,27 +185,19 @@ spec:
 
 ### 其他 Volume 类型
 
-不同的类型在定义文件中的区别只是类型设置的不同，而每种类型的具体设置字段各不相同。例如，一个`awsElasticBlockStore`的Volume可以写成：
+#### 前置知识：CSI和FlexVolume
 
-```yml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: <pod-name>
-spec:
-  containers:
-  - image: <image-path>
-    name: <container-name>
-    volumeMounts:
-    - mountPath: /test-ebs
-      name: test-volume
-  volumes:
-  - name: test-volume
-    # This AWS EBS volume must already exist.
-    awsElasticBlockStore: #表示这是一个awsElasticBlockStore卷
-      volumeID: <volume-id> #下面的具体设置应参考AWS文档
-      fsType: ext4
-```
+CSI是Container Storage Interface的缩写。CSI是由来自Kubernetes、Mesos、 Docker等社区的member联合制定的一个行业标准接口规范，旨在将任意存储系统暴露给容器化应用程序。CSI规范定义了存储提供商（SP）实现CSI兼容插件的最小操作集和部署建议。CSI规范的主要焦点是声明插件必须实现的接口。
+
+![CSI](./i/CSI.png)
+
+所有符合CSI标准的存储系统都可以通过`csi`类型的 Volume 挂载到K8S，此处不再展开介绍。
+
+FlexVolume 是一个自 1.2 版本（在 CSI 之前）以来在 Kubernetes 中一直存在的 out-of-tree 插件接口。 它使用基于 exec 的模型来与驱动程序对接。 用户必须在每个节点（在某些情况下是主节点）上的预定义卷插件路径中安装 FlexVolume 驱动程序可执行文件。
+
+所有实现了FlexVolume接口的存储系统都可以通过`flexVolume`类型的 Volume 挂载到K8S，此处不再展开介绍。
+
+注：目前阿里云的存储服务就是用FlexVolume接入K8S。
 
 #### 基于云存储的卷
 
