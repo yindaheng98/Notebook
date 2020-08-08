@@ -1,4 +1,4 @@
-# Volume
+# Volume - 挂载数据盘
 
 >容器中的文件在磁盘上是临时存放的，这给容器中运行的特殊应用程序带来一些问题。首先，当容器崩溃时，kubelet 将重新启动容器，容器中的文件将会丢失——因为容器会以干净的状态重建。其次，当在一个 `Pod` 中同时运行多个容器时，常常需要在这些容器之间共享文件。Kubernetes 抽象出 `Volume` 对象来解决这两个问题。
 
@@ -113,7 +113,13 @@ spec:
 用`configMap`填充数据卷，具体见[《ConfigMap - 按照配置文件在容器中生成环境变量》](./ConfigMap.md)。
 
 ### `secret`
+
+在 Pod 中使用 Secret 文件，具体见[《Secret - 保存敏感信息》](./Secret.md)。
+
 ### `downwardAPI`
+
+在 Pod 中使用 downwardAPI，具体见[《downwardAPI - 让容器了解自己的情况》](./downwardAPI.md)。
+
 ### `flexVolume`
 ### `projected`
 
