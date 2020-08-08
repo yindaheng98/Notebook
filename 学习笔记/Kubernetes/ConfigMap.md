@@ -116,6 +116,7 @@ data:
     color.bad=yellow
     allow.textmode=true
     how.nice.to.look=fairlyNice
+#注意上面game.properties和ui.properties后面的这个竖线“|”表面后面是一个字符串，不要把他当成键值对
 ```
 
 可以看到`game.properties`和`ui.properties`一起生成了ConfigMap。
@@ -249,6 +250,8 @@ data:
 
 ## ConfigMap的使用
 
+### 使用 ConfigMap 生成环境变量
+
 以两个ConfigMap为例：
 
 ```yml
@@ -269,7 +272,7 @@ data:
   log_level: INFO
 ```
 
-### 用 ConfigMap 中的数据定义容器环境变量
+#### 用 ConfigMap 中的value值定义容器环境变量
 
 比如，若要令容器中的环境变量`$SPECIAL_LEVEL_KEY`值为`special-config`中的`special.how`定义值，并令`$LOG_LEVEL`值为`env-config`中的`log_level`定义值，那么应该：
 
@@ -296,4 +299,153 @@ spec:
       ...
     ...
   ...
+```
+
+#### 用 ConfigMap 定义容器环境变量
+
+K8s当然也可以一次性将ConfigMap中的所有数据导入为容器的环境变量。比如，上面的Pod等同于：
+
+```yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  SPECIAL_LEVEL: very
+  SPECIAL_TYPE: charm
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: k8s.gcr.io/busybox
+      envFrom:
+      - configMapRef:
+          name: special-config
+      ...
+    ...
+  ...
+```
+
+### 使用存储在 ConfigMap 中的数据填充数据卷
+
+#### 直接用 ConfigMap 填充数据卷
+
+将ConfigMap用`volumes`挂载到容器里面即是使用 ConfigMap 中的数据填充数据卷。在被填充的数据卷中，`ConfigMap`中所定义的`data`字段下的每一个键都会生成一个文件，文件内容即其值。
+
+以这个ConfigMap为例：
+
+```yml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: special-config
+  namespace: default
+data:
+  game.properties: |
+    enemies=aliens
+    lives=3
+    enemies.cheat=true
+    enemies.cheat.level=noGoodRotten
+    secret.code.passphrase=UUDDLRLRBABAS
+    secret.code.allowed=true
+    secret.code.lives=30
+  ui.properties: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+    how.nice.to.look=fairlyNice
+```
+
+K8S可以使用ConfigMap填充数据卷：
+
+```yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: k8s.gcr.io/busybox
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap: #指定填充所用的configMap
+        name: special-config #指定填充所用的configMap名称
+```
+
+在这个容器中可以看到被填充的数据卷里面有两个文件，其内容为其在ConfigMap中的值：
+
+```shell
+$ ls /etc/config/
+game.properties
+ui.properties
+$ cat /etc/config/game.properties
+enemies=aliens
+lives=3
+enemies.cheat=true
+enemies.cheat.level=noGoodRotten
+secret.code.passphrase=UUDDLRLRBABAS
+secret.code.allowed=true
+secret.code.lives=30
+$ cat /etc/config/ui.properties
+color.good=purple
+color.bad=yellow
+allow.textmode=true
+how.nice.to.look=fairlyNice
+```
+
+#### 用 ConfigMap 填充数据卷的指定路径
+
+还是上面那个例子。我想把`game.properties`填充到`game`文件里面，而把`ui.properties`填充到`ui`文件里面：
+
+```yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dapi-test-pod
+spec:
+  containers:
+    - name: test-container
+      image: k8s.gcr.io/busybox
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap: #指定填充所用的configMap
+        name: special-config #指定填充所用的configMap名称
+        items:
+        - key: game.properties
+          path: game
+        - key: ui.properties
+          path: ui
+```
+
+在这个容器中可以看到被填充的数据卷里面的两个文件的文件名和上面不一样了：
+
+```shell
+$ ls /etc/config/
+game
+ui
+$ cat /etc/config/game
+enemies=aliens
+lives=3
+enemies.cheat=true
+enemies.cheat.level=noGoodRotten
+secret.code.passphrase=UUDDLRLRBABAS
+secret.code.allowed=true
+secret.code.lives=30
+$ cat /etc/config/ui
+color.good=purple
+color.bad=yellow
+allow.textmode=true
+how.nice.to.look=fairlyNice
 ```

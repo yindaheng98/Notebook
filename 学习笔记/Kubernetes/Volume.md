@@ -108,8 +108,11 @@ spec:
       mountPath: /another-mount-path #挂载到容器内的/another-mount-path中
 ```
 
-### `secret`
 ### `configMap`
+
+用`configMap`填充数据卷，具体见[《ConfigMap - 按照配置文件在容器中生成环境变量》](./ConfigMap.md)。
+
+### `secret`
 ### `downwardAPI`
 ### `flexVolume`
 ### `projected`
