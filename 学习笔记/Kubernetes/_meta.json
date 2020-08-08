@@ -15,6 +15,21 @@
             "Kubernetes"
         ]
     },
+    "downwardAPI.md": {
+        "title": "downwardAPI - 让容器了解自己的情况",
+        "created": "2020-08-08 11:35:26",
+        "updated": "2020-08-08 11:35:26",
+        "date": "2020-08-08 11:35:26",
+        "tags": [
+            "Kubernetes",
+            "概念",
+            "实操",
+            "存储"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
     "Ingress.md": {
         "title": "Ingress",
         "created": "2020-08-06 17:28:12",
@@ -107,6 +122,21 @@
         "created": "2020-07-29 13:00:23",
         "updated": "2020-08-06 09:25:44"
     },
+    "PersistentVolume.md": {
+        "title": "PersistentVolume和PersistentVolumeClaim - K8S持久卷的定义和使用",
+        "created": "2020-08-08 20:12:42",
+        "updated": "2020-08-08 20:12:42",
+        "date": "2020-08-08 20:12:42",
+        "tags": [
+            "Kubernetes",
+            "概念",
+            "实操",
+            "存储"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
     "Pod.md": {
         "title": "Pod - K8S最小管理单位",
         "date": "2020-08-06 09:25:44",
@@ -158,6 +188,20 @@
             "Kubernetes"
         ]
     },
+    "Secret.md": {
+        "title": "(未完成)Secret - 保存敏感信息",
+        "created": "2020-08-08 11:35:26",
+        "updated": "2020-08-08 11:35:26",
+        "date": "2020-08-08 11:35:26",
+        "tags": [
+            "Kubernetes",
+            "未完成"
+        ],
+        "categories": [
+            "Kubernetes",
+            "未完成"
+        ]
+    },
     "Service.md": {
         "title": "Service - K8S流量路由",
         "date": "2020-08-06 12:37:20",
@@ -176,8 +220,8 @@
         "cover": "/Kubernetes/./i/ClusterIP.png"
     },
     "Volume.md": {
-        "title": "Volume",
-        "date": "2020-08-08 06:07:14",
+        "title": "Volume - 挂载数据盘",
+        "date": "2020-08-08 12:15:08",
         "tags": [
             "Kubernetes",
             "存储",
@@ -188,6 +232,7 @@
             "Kubernetes"
         ],
         "created": "2020-08-07 13:14:03",
-        "updated": "2020-08-08 06:07:14"
+        "updated": "2020-08-08 12:15:08",
+        "cover": "/Kubernetes/./i/CSI.png"
     }
 }
