@@ -159,4 +159,47 @@ spec:
 >
 >A PV can specify node affinity to define constraints that limit what nodes this volume can be accessed from. Pods that use a PV will only be scheduled to nodes that are selected by the node affinity.
 
-## PersistentVolumeClaims
+## PersistentVolumeClaim
+
+不管三七二十一先放个示例：
+
+```yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: myclaim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: slow
+  selector:
+    matchLabels:
+      release: stable
+    matchExpressions:
+      - key: environment
+        operator: In
+        values: 
+          - dev
+```
+
+>创建 PersistentVolumeClaim 之后，Kubernetes 控制平面将查找满足申领要求的 PersistentVolume。 如果控制平面找到具有相同 StorageClass 的适当的 PersistentVolume，则将 PersistentVolumeClaim 绑定到该 PersistentVolume 上。
+
+和上面的PV定义对比一下就可以发现，定义PVC的字段和定义PV的字段基本相同。不同的是，PV中的`accessModes`、`volumeMode`、`storageClassName`是定义了PV的性质，而PVC中的这些字段是用来查找合适的PV进行绑定。
+
+除了`accessModes`、`volumeMode`、`storageClassName`外，还有一个用于查询PV标签的`selector`和资源请求的`resources`。
+
+### `selector`
+
+`selector`字段用于指定要绑定的PV的标签，只有标签全部匹配到的PV才能绑定。
+
+其中的`matchLabels`和`matchExpressions`都是标签的匹配规则。
+
+一看就懂，不说了。不懂的对比一下[《Pod的亲和性调度》](./Pod亲和性调度.md)里面的标签匹配规则也就差不多了。
+
+### `resources`
+
+`resources`字段用于指定PVC需要的资源量，比如上面那个`.spec.resources.requests.storage`表示这个PVC绑定的PV至少要有7G。
