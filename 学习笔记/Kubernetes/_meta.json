@@ -31,12 +31,13 @@
         ]
     },
     "Ingress.md": {
-        "title": "Ingress",
-        "created": "2020-08-06 17:28:12",
-        "updated": "2020-08-06 17:28:12",
-        "date": "2020-08-06 17:28:12",
+        "title": "(未完成)Ingress",
+        "created": "2020-08-08 21:11:47",
+        "updated": "2020-08-08 21:11:47",
+        "date": "2020-08-08 21:11:47",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "未完成"
         ],
         "categories": [
             "Kubernetes"
@@ -124,9 +125,9 @@
     },
     "PersistentVolume.md": {
         "title": "PersistentVolume和PersistentVolumeClaim - K8S持久卷的定义和使用",
-        "created": "2020-08-08 20:12:42",
-        "updated": "2020-08-08 20:12:42",
-        "date": "2020-08-08 20:12:42",
+        "created": "2020-08-09 03:24:40",
+        "updated": "2020-08-09 03:24:40",
+        "date": "2020-08-09 03:24:40",
         "tags": [
             "Kubernetes",
             "概念",
@@ -135,7 +136,8 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "cover": "/Kubernetes/./i/PV-PVC.png"
     },
     "Pod.md": {
         "title": "Pod - K8S最小管理单位",
@@ -198,8 +200,7 @@
             "未完成"
         ],
         "categories": [
-            "Kubernetes",
-            "未完成"
+            "Kubernetes"
         ]
     },
     "Service.md": {
