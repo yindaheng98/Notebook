@@ -29,7 +29,7 @@ sudo systemctl restart docker
 ## 为docker build设置代理
 
 ```shell
-docker build --build-arg http_proxy=http://10.0.75.1:10801 /path/to/Dockerfile
+docker build --build-arg http_proxy=http://10.0.75.1:10801 --build-arg https_proxy=http://10.0.75.1:10801 /path/to/Dockerfile
 ```
 
 在win上，和上文同理，主机地址是`10.0.75.1`。
