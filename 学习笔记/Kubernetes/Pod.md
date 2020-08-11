@@ -78,14 +78,8 @@ spec:
       ...
     spec:
       ...
+      restartPolicy: Always #重启策略
       containers:
-        - image: XXX
-          name: XXX
-          restartPolicy: Always #重启策略
-          ...
-        - image: XXXX
-          name: XXXX
-          restartPolicy: OnFailure #重启策略
         ...
 ```
 

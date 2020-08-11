@@ -23,6 +23,10 @@ PersistentVolume应由集群管理员创建，而集群用户通过PersistentVol
 2. 群集用户创建一个 PersistentVolumeClaim，它将自动绑定到合适的 PersistentVolume。
 3. 用户创建使用 PersistentVolumeClaim 作为存储的 Pod。
 
+### PersistentVolume和PersistentVolumeClaim的删除顺序
+
+显然，现有PersistentVolume后有PersistentVolumeClaim。在K8S中，PersistentVolume的删除命令`kubectl delete pv <pv名>`会阻塞直到与这个PV绑定的所有PVC被删除。
+
 ## PersistentVolume
 
 不管三七二十一先放个示例：
