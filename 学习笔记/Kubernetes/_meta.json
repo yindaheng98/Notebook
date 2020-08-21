@@ -32,9 +32,9 @@
     },
     "Ingress.md": {
         "title": "(未完成)Ingress",
-        "created": "2020-08-13 16:09:18",
-        "updated": "2020-08-13 16:09:18",
-        "date": "2020-08-13 16:09:18",
+        "created": "2020-08-13 08:10:59",
+        "updated": "2020-08-13 08:10:59",
+        "date": "2020-08-13 08:10:59",
         "tags": [
             "Kubernetes",
             "未完成"
@@ -235,20 +235,5 @@
         "created": "2020-08-07 13:14:03",
         "updated": "2020-08-08 12:15:08",
         "cover": "/Kubernetes/./i/CSI.png"
-    },
-    "yindaheng98.top.md": {
-        "title": "记录一下用Aliyun和K8S部署[yindaheng98.top](http://yindaheng98.top:8888)的过程",
-        "created": "2020-08-11 11:32:41",
-        "updated": "2020-08-11 11:32:41",
-        "date": "2020-08-11 11:32:41",
-        "tags": [
-            "Kubernetes",
-            "实操",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ],
-        "cover": "/Kubernetes/./i/轻量应用服务器.png"
     }
 }
