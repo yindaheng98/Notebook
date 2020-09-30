@@ -124,12 +124,23 @@ cd $GOPATH/src/github.com/kubeedge/kubeedge/_output/local/bin
 从编译安装的系统中取出`keadm`程序和`/etc/kubeedge`文件夹，在一个新SD卡中：
 
 1. 刷入经过基本设置的Ubuntu系统
-   * 包括在`wpa_supplicant.conf`中设置无线连接
-2. 安装Docker
+2. 按照前文所述的步骤安装Docker
 3. 将`keadm`上传到`/bin`
-4. 将`/etc/kubeedge`上传到`/etc/kubeedge`
+4. 将`/etc/kubeedge`文件夹上传到`/etc/kubeedge`
 
 ### 生成镜像
+
+#### 用读卡器
+
+在Linux系统上：
+
+```shell
+dd bs=4M if=/dev/<SD卡设备名> | gzip | cat > rasp.img.gz
+```
+
+在Windows系统上：用Win32DiskImager读取即可。
+
+#### 基于网络
 
 选择一个硬盘容量足够的主机，记录下IP地址，在原型系统上执行：
 
