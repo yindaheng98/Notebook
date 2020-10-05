@@ -24,7 +24,7 @@ def getHEAD(head):
         else:
             HEAD += "%s: %s\n" % (k, head[k])
     HEAD += "---\n"
-    print(HEAD)
+    # print(HEAD)
     return HEAD
 
 #处理.md文件
