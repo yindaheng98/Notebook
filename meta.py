@@ -2,6 +2,7 @@ import os
 import json
 import time
 import re
+from pprint import pprint
 path = '学习笔记'
 metas_filename = '_meta.json'
 meta_data = {}
@@ -86,7 +87,7 @@ def updateMDMeta(filedir, filename, metas):
     cover = re.findall(coverr,s)
     if len(cover)>0:
         meta['cover'] = '/'+'/'.join(path_splitted)+'/'+cover[0]#封面数据直接覆盖
-    print(meta)
+    pprint(meta)
     print('Meta data collected : %s' % filename)
     meta_data[filepath] = meta
     metas[filename] = meta
