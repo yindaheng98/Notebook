@@ -1,4 +1,18 @@
 {
+    "maCooperativeServiceCaching2020.md": {
+        "title": "Cooperative Service Caching and Workload Scheduling in Mobile Edge Computing",
+        "created": "2020-10-04 15:43:02",
+        "updated": "2020-10-05 05:56:32",
+        "date": "2020-10-05 05:56:32",
+        "tags": [
+            "论文笔记",
+            "凸优化",
+            "边缘计算"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
     "xuCollaborateSeparateDistributed2020.md": {
         "title": "Collaborate or Separate? Distributed Service Caching in Mobile Edge Clouds",
         "created": "2020-10-02 14:41:07",
