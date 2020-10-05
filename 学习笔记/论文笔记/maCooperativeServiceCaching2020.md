@@ -156,6 +156,8 @@ $$
 
 ### 服务延迟
 
+#### 边缘服务器上的延迟
+
 $$
 \frac{1}{\mu_{ns}}=\frac{\beta_s}{r_{ns}}
 $$
@@ -174,18 +176,83 @@ $$
 D_{ns}=\frac{1}{\mu_{ns}-\lambda_{ns}A_s}
 $$
 
-* $D_{ns}$：请求处理的延迟
-  * 似乎需要用到排队论的知识，暂时不懂
+* $D_{ns}$：在边缘服务器$n$上的服务$s$的请求处理的延迟
+* $\mu_{ns}$：边缘服务器$n$单位时间内能处理的服务$s$的请求数量
+* $\lambda_{ns}A_s$：单位时间内边缘服务器$n$上处理的服务$s$的请求数量的期望
+* 为什么相减取倒数，似乎需要用到排队论的知识，暂时不懂
 
-#### 服务延迟限制
-
-##### 保持队列的稳定性
+##### 延迟限制：保持队列的稳定性
 
 $$
 \lambda_{ns}A_s<\mu_{ns}
 $$
 
 * 似乎需要用到排队论的知识，暂时不懂
+
+#### 云服务器上的延迟
+
+假定任务在云服务器上运行时只有传输延迟没有计算延迟
+
+$$
+d_{cloud}=\frac{1}{\frac{B_s}{t_s\beta_s}-\lambda_{\omicron s}A_s}
+$$
+
+* $d_{cloud}$：在云服务器上运行任务时的传输延迟
+  * 似乎需要用到排队论的知识，暂时不懂
+* $t_s$：服务$s$每卸载单位的“计算请求”到云服务器所产生的“传输请求”量
+* $B_s$：给服务$s$卸载计算量所分配的带宽
+* $\frac{B_s}{t_s\beta_s}$：单位时间内能完成多少卸载到云端的请求
+* $\lambda_{\omicron s}A_s$：单位时间内卸载到云端的服务$s$请求量的期望值
+* 为什么相减取倒数，似乎需要用到排队论的知识，暂时不懂
+
+
+##### 延迟限制：保持队列的稳定性
+
+$$
+\lambda_{\omicron s}A_s<\frac{B_s}{t_s\beta_s}
+$$
+
+* 似乎需要用到排队论的知识，暂时不懂
+
+### 优化目标
+
+#### 服务响应时间（总传输延迟）
+
+$$
+D_s=\sum_{n\in\mathbb N}\left[\lambda_{ns}D_{ns}+\frac{max(\lambda_{ns}A_s-A_{ns},0)}{A_s}d_n\right]+\lambda_{\omicron s}d_{cloud}
+$$
+
+* 此式是服务$s$的请求在各个边缘服务器上的响应时间的加权平均值，$\lambda_{ns}$和$\lambda_{os}$就是边缘服务器的权重：
+
+$$
+D_s=\frac{\sum_{n\in\mathbb N}\left[\lambda_{ns}A_sD_{ns}+max(\lambda_{ns}A_s-A_{ns},0)d_n\right]+\lambda_{\omicron s}A_sd_{cloud}}{A_s}
+$$
+
+* $\lambda_{ns}A_sD_{ns}$：在边缘服务器$n$上处理的服务$s$请求所产生的**计算延迟**
+* $max(\lambda_{ns}A_s-A_{ns},0)d_n$：在边缘服务器$n$上处理的其他边缘服务器卸载而来的请求所产生的**传输延迟**
+* $\lambda_{\omicron s}A_sd_{cloud}$：卸载到云端处理的服务$s$请求产生的**传输延迟**
+
+#### 外网流量
+
+外网流量就是卸载到云服务器的请求数量$\lambda_{\omicron s}A_s$
+
+#### 汇总
+
+最小化服务响应时间和外网流量，并设置一个表征优化目标重要性的权值$w_s$：
+
+$$
+\begin{aligned}
+\mathop{min}\limits_{\bm C,\bm\Lambda}&\sum_{s\in\mathbb S}(D_s+w_s\lambda_{\omicron s}A_s)\\
+s.t.&\sum_{n\in\mathbb{N}\cup\{\omicron\}}\lambda_{ns}=1\\
+subject\ to:&\\
+&\sum_{s\in\mathbb{S}}c_{ns}p_s\leq P_n\\
+&\lambda_{ns}A_s\leq\sum_{i\in\Theta_n\cup\{n\}}A_{is}\\
+&\lambda_{ns}A_s<\mu_{ns}\\
+&\lambda_{\omicron s}A_s<\frac{B_s}{t_s\beta_s}\\
+&\lambda_{ns}\geq 0\\
+&c_{ns}\in\{0,1\}\\
+\end{aligned}
+$$
 
 ## 思考
 
