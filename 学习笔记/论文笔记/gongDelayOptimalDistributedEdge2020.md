@@ -1,5 +1,6 @@
 # Delay-Optimal Distributed Edge Computing in Wireless Edge Networks
 
+```bibtex
 @inproceedings{gongDelayOptimalDistributedEdge2020,
   title = {Delay-{{Optimal Distributed Edge Computing}} in {{Wireless Edge Networks}}},
   booktitle = {{{IEEE INFOCOM}} 2020 - {{IEEE Conference}} on {{Computer Communications}}},
@@ -13,6 +14,7 @@
   isbn = {978-1-72816-412-0},
   language = {en}
 }
+```
 
 ## 要解决的问题
 
