@@ -1,4 +1,18 @@
 {
+    "gongDelayOptimalDistributedEdge2020.md": {
+        "title": "Delay-Optimal Distributed Edge Computing in Wireless Edge Networks",
+        "created": "2020-10-07 07:22:41",
+        "updated": "2020-10-07 07:22:41",
+        "date": "2020-10-07 07:22:41",
+        "tags": [
+            "论文笔记",
+            "边缘计算",
+            "分布式计算"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
     "maCooperativeServiceCaching2020.md": {
         "title": "Cooperative Service Caching and Workload Scheduling in Mobile Edge Computing",
         "created": "2020-10-04 15:43:02",
