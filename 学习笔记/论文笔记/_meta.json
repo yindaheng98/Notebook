@@ -1,5 +1,5 @@
 {
-    "gongDelayOptimalDistributedEdge2020.md": {
+    "DelayOptimalDistributedEdge2020.md": {
         "title": "Delay-Optimal Distributed Edge Computing in Wireless Edge Networks",
         "created": "2020-10-07 07:22:41",
         "updated": "2020-10-08 14:45:21",
@@ -14,11 +14,11 @@
             "论文笔记"
         ]
     },
-    "maCooperativeServiceCaching2020.md": {
+    "CooperativeServiceCaching2020.md": {
         "title": "Cooperative Service Caching and Workload Scheduling in Mobile Edge Computing",
         "created": "2020-10-04 15:43:02",
-        "updated": "2020-10-05 12:17:09",
-        "date": "2020-10-05 12:17:09",
+        "updated": "2020-10-17 02:55:40",
+        "date": "2020-10-17 02:55:40",
         "tags": [
             "论文笔记",
             "凸优化",
@@ -28,7 +28,7 @@
             "论文笔记"
         ]
     },
-    "xuCollaborateSeparateDistributed2020.md": {
+    "CollaborateSeparateDistributed2020.md": {
         "title": "Collaborate or Separate? Distributed Service Caching in Mobile Edge Clouds",
         "created": "2020-10-02 14:41:07",
         "updated": "2020-10-02 14:41:07",
@@ -38,6 +38,18 @@
             "边缘计算",
             "博弈论",
             "凸优化"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
+    "BranchyNetFastInferenceEarly2017.md": {
+        "title": "BranchyNet: Fast Inference via Early Exiting from Deep Neural Networks",
+        "created": "2020-10-17 15:20:27",
+        "updated": "2020-10-17 15:20:27",
+        "date": "2020-10-17 15:20:27",
+        "tags": [
+            "论文笔记"
         ],
         "categories": [
             "论文笔记"
