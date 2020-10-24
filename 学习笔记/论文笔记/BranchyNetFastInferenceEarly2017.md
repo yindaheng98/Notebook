@@ -1,4 +1,4 @@
-# BranchyNet: Fast Inference via Early Exiting from Deep Neural Networks
+# BranchyNet：Fast Inference via Early Exiting from Deep Neural Networks
 
 ```bibtex
 @article{BranchyNetFastInferenceEarly2017,
