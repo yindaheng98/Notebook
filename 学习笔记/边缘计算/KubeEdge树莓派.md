@@ -153,7 +153,7 @@ dd bs=4M if=/dev/mmcblk0 | gzip | ssh <目标主机IP> "cat > rasp.img.gz"
 对于每个树莓派，将系统镜像刷入SD卡，开机后执行：
 
 ```shell
-keadm join --cloudcore-ipport=<云端的IP>:<cloudcore端口号，默认为10000> --edgenode-name=<为这个边缘节点取名> --token=<从云端获取到的token>
+keadm join --kubeedge-version=1.4.0 --cloudcore-ipport=<云端的IP>:<cloudcore端口号，默认为10000> --edgenode-name=<为这个边缘节点取名> --token=<从云端获取到的token>
 ```
 
 即可完成设置。
