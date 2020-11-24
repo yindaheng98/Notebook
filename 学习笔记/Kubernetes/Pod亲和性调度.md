@@ -51,21 +51,21 @@ spec:
     spec:
       affinity:
         nodeAffinity: #Node亲和性
-          requiredDuringSchedulingIgnoredDuringExecution:
+          requiredDuringSchedulingRequiredDuringExecution:
             ... #运行过程中生效的硬策略
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
           preferredDuringSchedulingIgnoredDuringExecution:
             ... #软策略
         podAffinity: #Pod亲和性
-          requiredDuringSchedulingIgnoredDuringExecution:
+          requiredDuringSchedulingRequiredDuringExecution:
             ... #运行过程中生效的硬策略
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
           preferredDuringSchedulingIgnoredDuringExecution:
             ... #软策略
         podAntiAffinity: #Pod反亲和性
-          requiredDuringSchedulingIgnoredDuringExecution:
+          requiredDuringSchedulingRequiredDuringExecution:
             ... #运行过程中生效的硬策略
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
@@ -263,8 +263,6 @@ spec:
 
 >Pod间亲和与反亲和使你可以*基于已经在节点上运行的Pod的标签*来约束Pod可以调度到的节点，而不是基于节点上的标签。规则的格式为“**如果 X 节点上已经运行了一个或多个 满足规则 Y 的pod，则这个 pod 应该（或者在非亲和的情况下不应该）运行在 X 节点**”。Y 表示一个具有可选的关联命令空间列表的 LabelSelector。
 
->与节点不同，因为 pod 是命名空间限定的（因此 pod 上的标签也是命名空间限定的），因此作用于 pod 标签的标签选择器**必须指定选择器应用在哪个命名空间**。从概念上讲，X 是一个拓扑域，如节点，机架，云供应商地区，云供应商区域等。你可以使用 `topologyKey` 来表示它，`topologyKey` 是节点标签的键以便系统用来表示这样的拓扑域。
-
 >Pod 间亲和与反亲和需要大量的处理，这可能会显著减慢大规模集群中的调度。我们不建议在超过数百个节点的集群中使用它们。
 
 `podAffinity`和`podAntiAffinity`定义格式完全相同，但互为反义词：
@@ -275,6 +273,14 @@ spec:
 * `podAntiAffinity`软策略将表示这个Pod不应该和得分最高的Pod部署在一起
 
 #### 重要知识：[Pod标签的namespace](./Namespace.md)
+
+#### 重要知识：`topologyKey`
+
+pod亲和性调度需要各个相关的pod对象运行于"同一位置"， 而反亲和性调度则要求他们不能运行于“同一位置”。这里指定 **“同一位置” 是通过 `topologyKey` 来定义的**：`topologyKey` 对应的值是 node 上的一个标签键，对应标签值相同的所有节点都被视为“同一位置”。
+
+比如某些节点上有`zone=A`标签，还有一些节点有`zone=B`标签，pod affinity `topologyKey`定义为`zone`，那么调度pod的时候，所有`zone=A`的node就被视为为“同一位置”，`zone=B`的node也被视为“同一位置”，而`zone=A`的node和`zone=B`的node被视为处在不同的位置。
+
+K8S节点自带标签`kubernetes.io/hostname`是最常用的`topologyKey`，它使得Pod不会调度到同一个node上。
 
 #### 常用的`podAffinity`和`podAntiAffinity`：`labelSelector`
 
