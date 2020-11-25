@@ -26,13 +26,14 @@
 
 在亲和性调度规则的定义文件中，除了指定一个调度规则是硬策略还是软策略外，还需要定义这个规则在运行过程中是否生效：
 
-* 运行过程中生效的硬策略：`requiredDuringSchedulingRequiredDuringExecution`
+* 运行过程中生效的硬策略：`requiredDuringSchedulingRequiredDuringExecution`**（计划中，未实现，现在版本还不支持）**
   * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
-  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除 **（计划中，未实现，现在版本还不支持）**
+  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除 
 
 * 运行过程中不生效的硬策略：`requiredDuringSchedulingIgnoredDuringExecution`
   * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
   * 在之后的运行过程中，系统不会再检查这些规则是否满足
+  * >为什么会有这种策略？根据一位核心开发人员在Issue中所写，`requiredDuringSchedulingIgnoredDuringExecution`的存在只是为`requiredDuringSchedulingRequiredDuringExecution`的开发争取时间。![Issue评论](./i/RequiredDuringExecution.png)`requiredDuringSchedulingRequiredDuringExecution`的开发似乎非常困难，这么多年了还没做好
 
 * 软策略：`preferredDuringSchedulingIgnoredDuringExecution`
   * 在调度期间尽量满足规则，如果不能满足规则，Pod也有可能被调度到对应的主机上
