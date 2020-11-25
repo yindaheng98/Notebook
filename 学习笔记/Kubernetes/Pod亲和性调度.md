@@ -28,7 +28,7 @@
 
 * 运行过程中生效的硬策略：`requiredDuringSchedulingRequiredDuringExecution`
   * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
-  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除 **（现在版本还不支持）**
+  * 在之后的运行过程中，如果因为某些原因（比如修改label）导致规则不能满足，系统会尝试把Pod从主机上删除 **（计划中，未实现，现在版本还不支持）**
 
 * 运行过程中不生效的硬策略：`requiredDuringSchedulingIgnoredDuringExecution`
   * 在调度期间必须满足规则，如果不能满足规则，则Pod不能被调度到对应的主机上
@@ -52,21 +52,21 @@ spec:
       affinity:
         nodeAffinity: #Node亲和性
           requiredDuringSchedulingRequiredDuringExecution:
-            ... #运行过程中生效的硬策略
+            ... #运行过程中生效的硬策略（计划中，未实现）
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
           preferredDuringSchedulingIgnoredDuringExecution:
             ... #软策略
         podAffinity: #Pod亲和性
           requiredDuringSchedulingRequiredDuringExecution:
-            ... #运行过程中生效的硬策略
+            ... #运行过程中生效的硬策略（计划中，未实现）
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
           preferredDuringSchedulingIgnoredDuringExecution:
             ... #软策略
         podAntiAffinity: #Pod反亲和性
           requiredDuringSchedulingRequiredDuringExecution:
-            ... #运行过程中生效的硬策略
+            ... #运行过程中生效的硬策略（计划中，未实现）
           requiredDuringSchedulingIgnoredDuringExecution:
             ... #运行过程中不生效的硬策略
           preferredDuringSchedulingIgnoredDuringExecution:
