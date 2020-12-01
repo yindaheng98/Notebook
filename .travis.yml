@@ -12,6 +12,7 @@ before_install:
   - sudo apt-get -y install tree
   - docker pull python:3.7
 script:
+  - bash build-simple-blog.sh $DOCKER_TOKEN
   - docker run -v $(pwd):/app python:3.7 sh -c "cd /app && python travisPorcess.py"
   - bash build.sh
   - bash deploy.sh $GH_TOKEN
