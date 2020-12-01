@@ -49,7 +49,7 @@ def setDIRMetas(filedir,metas):
 
 # 获取某个.md文件的meta数据
 titler = re.compile(r'#\s+(.*?)\n', re.S)
-coverr = re.compile(r'!\[.*?\]\((.*?)\)\n', re.S)
+coverr = re.compile(r'!\[.*?\]\((.*?)\)', re.S)
 titletagr = re.compile(r'^\((.*?)\)', re.S)
 def updateMDMeta(filedir, filename, metas):
     print('Meta data collecting: %s' % filename)

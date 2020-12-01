@@ -159,8 +159,8 @@
     "Pod亲和性调度.md": {
         "title": "Pod的亲和性调度",
         "created": "2020-08-03 10:18:43",
-        "updated": "2020-08-04 07:43:40",
-        "date": "2020-08-04 07:43:40",
+        "updated": "2020-11-25 08:25:46",
+        "date": "2020-11-25 08:25:46",
         "tags": [
             "Kubernetes",
             "原理",
@@ -171,7 +171,8 @@
         ],
         "categories": [
             "Kubernetes"
-        ]
+        ],
+        "cover": "/Kubernetes/./i/RequiredDuringExecution.png"
     },
     "Pod容忍与Node污点.md": {
         "title": "Node污点与Pod容忍调度",
