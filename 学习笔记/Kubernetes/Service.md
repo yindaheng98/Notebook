@@ -151,9 +151,18 @@ spec:
 
 ### LoadBalancer
 
+早在K8S项目成熟之前，各大云计算厂商都依托大规模集群实现了自己成熟的负载均衡方案，有极强的负载均衡能力，K8S显然也不能浪费这种能力。
+
 >**使用云提供商的负载局衡器**，可以向外部暴露服务。外部的负载均衡器可以路由到 NodePort 服务和 ClusterIP 服务，这个需要结合具体的云厂商进行操作。
 
 ![LoadBalancer](./i/LoadBalancer.png)
+
+云厂商的LoadBalancer插件主流的实现方式：
+1. 让Service以NodePort形式启动
+2. 向云厂商的负载均衡配置接口报告Pod所在Node的IP和NodePort端口
+3. 云厂商的负载均衡器按照上报的IP和NodePort自动将流量导到Node上，进而导到Pod中
+
+除了这种方式外，云厂商自然也还可以通过控制集群网络中的网络策略（路由器路由表等）实现负载均衡转发。
 
 ### ExternalName
 

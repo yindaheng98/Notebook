@@ -128,6 +128,8 @@ k8s调度容器的方式就是从控制节点调用工作节点CNI接口，进�
 
 常见的兼容CNI接口的容器网络化组件有flannel，calico，weave等。
 
+[CNI插件相关知识简介](./CNI插件相关知识简介.md)
+
 ### kubelet
 
 每个工作节点上都运行一个kubelet服务进程，默认监听10250端口，接收并执行master发来的指令，管理Pod及Pod中的容器。每个kubelet进程会在API Server上注册节点自身信息，定期向master节点汇报节点的资源使用情况，并通过cAdvisor监控节点和容器的资源。
