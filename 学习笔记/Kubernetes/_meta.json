@@ -1,4 +1,20 @@
 {
+    "CNI插件相关知识简介.md": {
+        "title": "CNI插件相关知识简介",
+        "created": "2020-12-13 15:04:47",
+        "updated": "2020-12-13 15:04:47",
+        "date": "2020-12-13 15:04:47",
+        "tags": [
+            "Kubernetes",
+            "原理",
+            "概念",
+            "实操",
+            "容器编排"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
+    },
     "ConfigMap.md": {
         "title": "ConfigMap - 按照配置文件在容器中生成环境变量",
         "created": "2020-08-07 13:14:03",
@@ -92,7 +108,7 @@
     },
     "Kubernetes结构.md": {
         "title": "Kubernetes(k8s)的结构",
-        "date": "2019-11-21 06:34:45",
+        "date": "2020-12-13 16:30:47",
         "tags": [
             "Kubernetes",
             "原理",
@@ -105,7 +121,7 @@
         ],
         "cover": "/Kubernetes/i/K8s.png",
         "created": "2019-11-21 05:43:22",
-        "updated": "2019-11-21 06:34:45"
+        "updated": "2020-12-13 16:30:47"
     },
     "Namespace.md": {
         "title": "Namespaces - K8S虚拟集群单元",
@@ -206,7 +222,7 @@
     },
     "Service.md": {
         "title": "Service - K8S流量路由",
-        "date": "2020-08-06 12:37:20",
+        "date": "2020-12-13 16:30:47",
         "tags": [
             "Kubernetes",
             "容器编排",
@@ -218,7 +234,7 @@
             "Kubernetes"
         ],
         "created": "2020-08-06 09:25:44",
-        "updated": "2020-08-06 12:37:20",
+        "updated": "2020-12-13 16:30:47",
         "cover": "/Kubernetes/./i/ClusterIP.png"
     },
     "Volume.md": {
