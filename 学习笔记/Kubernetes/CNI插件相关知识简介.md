@@ -1,5 +1,9 @@
 # CNI插件相关知识简介
 
+CNI(Container Network Interface, 容器网络接口)是K8S定义的进行容器网络配置的接口标准。CNI插件是指符合CNI标准的网络配置工具。
+
+CNI插件是K8S插件系统中数量最多、实现花样最多的插件类型。
+
 ## K8S如何调用CNI插件？
 
 ### 用户配置
