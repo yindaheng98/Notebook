@@ -329,11 +329,19 @@ subsets:
 >
 >IPVS提供了更多选项来平衡后端Pod的流量。 这些是：
 >
->- `rr`: round-robin
->- `lc`: least connection (smallest number of open connections)
->- `dh`: destination hashing
->- `sh`: source hashing
+>- `rr`: round-robin 轮叫调度，按依次循环的方式将请求调度到不同的服务器上
+>- `lc`: least connection 最少链接，发给当前连接数最少的后端
+>- `dh`: destination hashing 目标地址散列调度算法，根据目标 IP 地址通过散列函数将目标 IP 与服务器建立映射关系
+>- `sh`: source hashing 源地址散列调度算法，根据源 IP 地址通过散列函数将源 IP 与服务器建立映射关系
 >- `sed`: shortest expected delay
 >- `nq`: never queue
 >
 >![IPVS代理的 Services 概述图](i/services-ipvs-overview.svg)
+
+#### Iptables vs. IPVS：Service性能
+
+每个节点都知道系统中所有Service的情况，会不会有性能问题？
+
+![IPVS](./i/IPVS1.png)
+![IPVS](./i/IPVS2.png)
+![IPVS](./i/IPVS3.png)
