@@ -62,6 +62,8 @@ $$A\text{系统是类脑计算完备的}:=A\text{系统的类脑计算能力等�
 
 ### FSOG(Finite State Operator Graph, 有限状态操作图)形式定义
 
+![Operator](./i/Operator.png)
+
 FSOG为一个五元组$\psi$：
 
 $$\psi=(G, T, \delta, q_0, F)$$
@@ -110,6 +112,8 @@ $$
 
 ### 带参数更新器(Parameter Updater)的POG
 
+![Parameter Updater](./i/Updater.png)
+
 带参数更新器的FSOG为一个五元组$\psi$：
 
 $$\psi=(G, T, \delta, q_0, F)$$
@@ -157,3 +161,46 @@ $$\{(t_{u:p=x},e_{v',v}),(t_{d:i=p},e_{v,v})\}\rightarrow\{(t_{d:i=x},e_{v,v})\}
 其中，$v'$是通过$e_{v',v}$向$v$发送参数更新事件的Operator。
 
 显然，此Operator $v$等价于一个带有参数更新器的Operator。因此包含参数更新器的POG与原始POG等价。
+
+### Control-Flow Operator 控制流操作器
+
+![Control-Flow Operator](./i/ControlFlow.png)
+
+
+### Synapse 突触操作器
+
+![Synapse](./i/Synapse.png)
+
+## POG 图灵完备性
+
+## abstract neuromorphic architecture (ANA)
+
+![ANA](./i/ANA.png)
+
+* 硬件设施由两部分组成：
+  * 一系列处理单元组成，每个处理单元包括：
+    * 计算单元：一系列执行计算的处理器
+    * 调度单元：控制计算单元执行计算的处理器
+    * 私有内存：一个只有处理单元内的计算单元和调度单元才能访问的内存
+  * 连接处理单元的互联网络
+
+### 一种ANA的实现方式：忆阻器阵列
+
+## execution primitive graph (EPG)
+
+* 控制流是一个有向图：
+  * 点表示由一个或多个执行原语组成的基本块
+  * 边表示把一个基本块的执行结果放到下一个基本块中进行下一步操作
+* 数据流是一个有向图：
+  * 点表示由一个执行原语
+  * 边表示数据依赖关系
+
+### 执行原语
+
+* 加权求和操作：即向量积
+* 元素层面上的修正线性单元(ReLU, rectified linear unit)：即对向量中的每个元素进行ReLU
+
+### 执行原语的类脑计算完全性证明
+
+* 将图灵完全的POG转化为EPG
+* 类脑计算完全性将通用估计和通用计算联系起来
