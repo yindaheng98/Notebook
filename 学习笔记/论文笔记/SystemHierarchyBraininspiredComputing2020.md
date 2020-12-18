@@ -2,7 +2,7 @@
 
 ## 通用逼近器(Universal Approximator)和通用逼近理论(Universal Approximation Theorem)
 
-通用逼近理论：对于足够大的、由两层的神经网络和一个Sigmoid非线性层组成的网络（即$y=Sigmoid(\bm w^Tx+b)$），可以通过合理设定参数矩阵来近似所有的连续函数或者各种其他函数 [Hornik et al., 1989, Cybenko, 1992,Barron, 1993]。
+通用逼近理论：对于足够大的、由两层的神经网络和一个ReLU非线性层组成的网络（即$y=ReLU(\bm w^Tx+b,0)$），可以通过合理设定参数矩阵来近似所有的连续函数或者各种其他函数 [Hornik et al., 1989, Cybenko, 1992,Barron, 1993]。
 
 对比高等数学在讲无穷级数之前引入的Stone-Weierstrass第一定理：
 * 闭区间上的连续函数可用多项式级数一致逼近
@@ -10,11 +10,11 @@
 和讲傅里叶级数之前引入的Stone-Weierstrass第二定理：
 * 闭区间上周期为$2\pi$的连续函数可用三角函数级数一致逼近
 
-它们分别证明了多项式函数和三角函数在函数空间内的稠密性；而通用逼近理论则证明了类似Sigmoid的阶梯函数在函数空间内的稠密性。基于这种稠密性构建的通用逼近器计算式$y=Sigmoid(\bm w^Tx+b)$就是现在所有神经网络的基础。
+它们分别证明了多项式函数和三角函数在函数空间内的稠密性；而通用逼近理论则证明了类似ReLU的阶梯函数在函数空间内的稠密性。基于这种稠密性构建的通用逼近器计算式$y=ReLU(\bm w^Tx+b)$就是现在所有神经网络的基础。
 
 ## Neuromorphic Computing Capability 类脑计算能力
 
-通用逼近器$y=Sigmoid(\bm w^Tx+b)$的核心目标是“逼近”，它的计算能力由它的逼近精度决定。
+通用逼近器$y=ReLU(\bm w^Tx+b)$的核心目标是“逼近”，它的计算能力由它的逼近精度决定。
 
 若存在两个可以生成函数的系统$A$和$B$，将$A$能生成的所有函数的集合记为$S_A$、将$B$能生成的所有函数的集合记为$S_B$，即：
 $$
@@ -54,79 +54,106 @@ $$A\text{系统是类脑计算完备的}:=A\text{系统的类脑计算能力等�
 
 对于图灵可计算函数的组合相当于将一个图灵机停机后的字符串作为另一个图灵机开始的字符串，这样的组合可以产生更加复杂的函数（相当于增加了图灵机的规则，使图灵机的计算能力更强）。
 
-而对于通用逼近器，想要逼近更加复杂的函数或提高逼近的精度，则需要增加层中的神经元数量（即在$y=Sigmoid(\bm w^Tx+b)$中扩展$w$的长度）；而$f(g(x))$是增加了神经网络的层数。因此，通用逼近器组合无法产生更加复杂的函数，不具备可组合性。
+而对于通用逼近器，想要逼近更加复杂的函数或提高逼近的精度，则需要增加层中的神经元数量（即在$y=ReLU(\bm w^Tx+b)$中扩展$w$的长度）；而$f(g(x))$是增加了神经网络的层数。因此，通用逼近器组合无法产生更加复杂的函数，不具备可组合性。
 
 ## Programming Operator Graph (POG)
 
 ![POG](./i/POG.png)
 
-### Operator
-
-Operator是由一系列操作符组成的函数，处理的数据包含三种：
-* 输入数据 input：来自其他Operator的输出或来自运行环境
-* 输出数据 output：Operator执行操作后产生的结果
-* 参数数据 parameter：只有当前Operator能访问到的私有数据（神经网络的参数）
-
-Operator的运行方式由事件驱动：
-* Operator接受的事件包括三种：
-  * 数据事件$t_{i=value}$：用于传输计算所需的输入数据
-  * 信号事件$t_s$：用于告诉Operator相关数据已经传输完成，可以开始计算
-  * 参数事件：用于控制Operator内的参数更新
-* Operator的执行过程包含
-  * 执行操作符规定的运算
-  * 计算输出事件
-  * 将输出事件传递给指定的Operator
-
-### POG 执行模型
-
-#### 活动模型：FSOG(finite state operator graph, 有限状态操作图)
+### FSOG(Finite State Operator Graph, 有限状态操作图)形式定义
 
 FSOG为一个五元组$\psi$：
 
 $$\psi=(G, T, \delta, q_0, F)$$
 
-* $G$：操作图，$G=(V,E,P)$
-  * 点$v\in V$表示一个Operator
-  * 边$e_{(v_1,v_2)}\in E$表示Operator$v_1$的一个或多个输出需要传递给$v_2$
-  * $P$表示所有Operator中的可变参数数据集合
+* $G$：操作图，$G=(V,E)$
+  * 边$e_{v_1,v_2}\in E$表示Operator $v_1$的一个或多个数据事件需要传递给$v_2$，也可以看作是$v_1$和$v_2$间的数据依赖关系
+  * 点$v\in V$表示一个Operator，当$v$和其他所有点的依赖关系被满足时，就可以开始计算
 * $T$：事件集合
-* $\delta$：状态转移函数，$\delta:2^T\times 2^E\times 2^P\rightarrow\delta:2^T\times 2^E\times 2^P$
-* $q_0$：初始状态，$q_0\in \delta:2^T\times 2^E\times 2^P$
-* $F$：终结状态集（接受状态集），$F\subseteq \delta:2^T\times 2^E\times 2^P$
+  * 数据事件$t_{d:i=v}\in T$：用于传输计算所需的输入数据，$v$表示一个字符串
+  * 触发事件$t_s\in T$：不包含数据，仅用于表征Operator间的依赖关系
+* $\delta$：状态转移函数，$\delta:2^{T\times E}\rightarrow2^{T\times E}$
+* $q_0$：初始状态，$q_0\in2^{T\times E}$
+* $F$：终结状态集（接受状态集），$F\subseteq 2^{T\times E}$
 
-FSOG的状态表示为一个四元组$S$：
+#### FSOG的瞬时描述（状态详解）
 
-$$S=(T,E,P)$$
+按照自动机理论的一般视角，FSOG的有限状态集$Q=2^{T\times E}$，其中的每一个状态（也即瞬时描述）：
 
+$$q=\{(t,e)|t\in T\wedge e\in E\}\in Q$$
 
-## abstract neuromorphic architecture (ANA)
+表示一系列事件与操作图中边的对应关系，状态中的对应关系$(t,e_{v_1,v_2})\in q$表示事件$t$在边$e_{v_1,v_2}$上被触发了，也同时表明$v_1$和$v_2$之间执行的依赖关系已经满足。
 
-![ANA](./i/ANA.png)
+#### 定义FSOG的动作（状态转移函数详解）
 
-* 硬件设施由两部分组成：
-  * 一系列处理单元组成，每个处理单元包括：
-    * 计算单元：一系列执行计算的处理器
-    * 调度单元：控制计算单元执行计算的处理器
-    * 私有内存：一个只有处理单元内的计算单元和调度单元才能访问的内存
-  * 连接处理单元的互联网络
+FSOG状态转移函数可以看作是操作图中所有Operator的状态转移函数的集合：
 
-### 一种ANA的实现方式：忆阻器阵列
+$$\delta=\{f_v|f_v:2^{T\times \{e_{v_i,v}\in E|v_i\in V\}}\rightarrow 2^{T\times \{e_{v,v_o}\in E|v_o\in V\}},v\in V\}$$
 
-## execution primitive graph (EPG)
+其中每个Operator $v$的状态转移函数$f_v$就是一个输入边上的状态（事件-边元组的集合）$I_v\subseteq T\times \{e_{v_i,v}\in E|v_i\in V\}$到输出边上的状态$O_v\subseteq T\times \{e_{v,v_o}\in E|v_o\in V\}$的映射$O_v=f_v(I_v)$。
 
-* 控制流是一个有向图：
-  * 点表示由一个或多个执行原语组成的基本块
-  * 边表示把一个基本块的执行结果放到下一个基本块中进行下一步操作
-* 数据流是一个有向图：
-  * 点表示由一个执行原语
-  * 边表示数据依赖关系
+在状态转移过程中，只有所有输入条件全部满足（即每个相连的输入边上都有事件触发）的Operator才能进行状态转移，这些Operator称为“使能”的Operator。在某个状态$q$中所有使能Operator的集合可以表示为：
 
-### 执行原语
+$$V_{enabled}(q)=\{v|(\forall v_i\in V\wedge e_{v_i,v}\in E)(\exist t\in T)(t,e_{v_i,v})\in q\}$$
 
-* 加权求和操作：即向量积
-* 元素层面上的修正线性单元(ReLU, rectified linear unit)：即对向量中的每个元素进行ReLU
+进而可以将状态转移函数$\delta$表达为：
 
-### 执行原语的类脑计算完全性证明
+$$
+\delta(q)=\bigcup_{v\in V_{enabled}(q)}f_v\left(\{(t,e_{v_i,v})|v_i\in V\wedge(t,e_{v_i,v})\in q\}\right)
+$$
 
-* 将图灵完全的POG转化为EPG
-* 类脑计算完全性将通用估计和通用计算联系起来
+## POG 扩展操作
+
+除上文所述的 POG 的状态转移操作外，POG 还提供了一些扩展操作，这些操作可以由基本操作组合而来，因此包含这些扩展操作的POG与原始POG是等价的。
+
+使用 POG 扩展操作可以帮助开发人员更快速有效地构造 POG。
+
+### 带参数更新器(Parameter Updater)的POG
+
+带参数更新器的FSOG为一个五元组$\psi$：
+
+$$\psi=(G, T, \delta, q_0, F)$$
+
+* $G$：操作图，$G=(V,E,P)$
+  * 点$v\in V$和边$e_{v_1,v_2}\in E$含义同上
+  * $P$是Operator的参数列表，$v$的参数$P[v]$表示一个只有Operator $v$才能访问和修改的符号串
+    * 设$P$所有可能的取值情况集合为$\mathcal P$，$P\in\mathcal P$
+    * 设参数符号集为$\Sigma_P$，$P[v]\in\Sigma_P^*$
+* $T$：事件集合
+  * 数据事件$t_{d:i=v}$含义同上
+  * 参数更新事件$t_{u:p=x}$表示将该边所连接的点的参数修改为$x$
+* $\delta$：状态转移函数，$\delta:2^{T\times E}\times \mathcal P\rightarrow2^{T\times E}\times \mathcal P$
+* $q_0$：初始状态，$q_0\in2^{T\times E}\times \mathcal P$
+* $F$：终结状态集（接受状态集），$F\subseteq2^{T\times E}\times \mathcal P$
+
+#### 带参数更新器的FSOG的瞬时描述（状态详解）
+
+显然，加入参数更新器后，每个Operator都是有状态的了，每个Operator与一个状态对应，表示为一个二元组$(v,p)\in \mathcal P$，进而FSOG的状态可以表示为：
+$$q=2^{T\times E}\times\mathcal P$$
+
+#### 定义带参数更新器的FSOG的动作（状态转移函数详解）
+
+加入参数更新器后，状态转移函数不仅需要更新边上触发的事件，还需要更新Operator中的状态符号串，因此Operator状态转移函数的集合定义为：
+
+$$\delta=\{f_v|f_v:2^{T\times \{e_{v_i,v}\in E|v_i\in V\}}\times \Sigma_P^*\rightarrow 2^{T\times \{e_{v,v_o}\in E|v_o\in V\}}\times \Sigma_P^*,v\in V\}$$
+
+使能Operator的集合$V_{enabled}(q)$的定义不变，状态转移函数$\delta$表达为：
+
+$$
+\begin{aligned}
+\delta(q)&=(\bigcup_{v\in V_{enabled}(q)}q_{t,e}(v),P')\qquad\text{其中，}\\
+(q_{t,e}(v),P'[v])&=f_v\left(\{(t,e_{v_i,v})|v_i\in V\wedge(t,e_{v_i,v})\in q\},P[v]\right)\\
+\end{aligned}
+$$
+
+#### 证明包含参数更新器的POG与原始POG等价
+
+可以使用仅包含状态转移操作的Operator $v$模拟具有参数更新器的Operator：
+
+* $v$有一条指向自身的边$e_{v,v}$，将需要更新的参数作为数据事件$t_{d:i=x}$其上传递
+* $v$有一条用于更新参数的状态转移规则：
+$$\{(t_{u:p=x},e_{v',v}),(t_{d:i=p},e_{v,v})\}\rightarrow\{(t_{d:i=x},e_{v,v})\}$$
+
+其中，$v'$是通过$e_{v',v}$向$v$发送参数更新事件的Operator。
+
+显然，此Operator $v$等价于一个带有参数更新器的Operator。因此包含参数更新器的POG与原始POG等价。
