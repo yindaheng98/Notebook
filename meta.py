@@ -67,8 +67,6 @@ def updateMDMeta(filedir, filename, metas):
         meta['created'] = getCreatedTime(filepath)#日期数据直接覆盖
         meta['updated'] = getLastUpdated(filepath)#日期数据直接覆盖
         meta['date'] = meta['updated']
-        if 'lastUpdated' in meta:
-            del meta['lastUpdated']
     
     path_splitted = filedir.replace('\\','/').split('/')[1:]
     if not 'tags' in meta:#tag数据

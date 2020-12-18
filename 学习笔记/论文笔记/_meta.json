@@ -1,28 +1,11 @@
 {
-    "DelayOptimalDistributedEdge2020.md": {
-        "title": "Delay-Optimal Distributed Edge Computing in Wireless Edge Networks",
-        "created": "2020-10-07 07:22:41",
-        "updated": "2020-10-08 14:45:21",
-        "date": "2020-10-08 14:45:21",
+    "BranchyNetFastInferenceEarly2017.md": {
+        "title": "BranchyNet：Fast Inference via Early Exiting from Deep Neural Networks",
+        "created": "2020-10-17 15:20:27",
+        "updated": "2020-10-24 15:27:59",
+        "date": "2020-10-24 15:27:59",
         "tags": [
-            "论文笔记",
-            "边缘计算",
-            "分布式计算",
-            "贪心算法"
-        ],
-        "categories": [
             "论文笔记"
-        ]
-    },
-    "CooperativeServiceCaching2020.md": {
-        "title": "Cooperative Service Caching and Workload Scheduling in Mobile Edge Computing",
-        "created": "2020-10-04 15:43:02",
-        "updated": "2020-10-17 02:55:40",
-        "date": "2020-10-17 02:55:40",
-        "tags": [
-            "论文笔记",
-            "凸优化",
-            "边缘计算"
         ],
         "categories": [
             "论文笔记"
@@ -43,16 +26,73 @@
             "论文笔记"
         ]
     },
-    "BranchyNetFastInferenceEarly2017.md": {
-        "title": "BranchyNet: Fast Inference via Early Exiting from Deep Neural Networks",
-        "created": "2020-10-17 15:20:27",
-        "updated": "2020-10-17 15:20:27",
-        "date": "2020-10-17 15:20:27",
+    "CooperativeServiceCaching2020.md": {
+        "title": "Cooperative Service Caching and Workload Scheduling in Mobile Edge Computing",
+        "created": "2020-10-04 15:43:02",
+        "updated": "2020-10-17 02:55:40",
+        "date": "2020-10-17 02:55:40",
+        "tags": [
+            "论文笔记",
+            "凸优化",
+            "边缘计算"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
+    "DelayOptimalDistributedEdge2020.md": {
+        "title": "Delay-Optimal Distributed Edge Computing in Wireless Edge Networks",
+        "created": "2020-10-07 07:22:41",
+        "updated": "2020-10-08 14:45:21",
+        "date": "2020-10-08 14:45:21",
+        "tags": [
+            "论文笔记",
+            "边缘计算",
+            "分布式计算",
+            "贪心算法"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
+    "DistributedDeepNeuralNetworks2017.md": {
+        "title": "Distributed Deep Neural Networks over the Cloud, the Edge and End Devices",
+        "created": "2020-10-18 10:17:41",
+        "updated": "2020-10-18 10:17:41",
+        "date": "2020-10-18 10:17:41",
         "tags": [
             "论文笔记"
         ],
         "categories": [
             "论文笔记"
         ]
+    },
+    "FastVADeepLearning2020.md": {
+        "title": "FastVA: Deep Learning Video Analytics Through Edge Processing and NPU in Mobile",
+        "created": "2020-10-17 11:04:14",
+        "updated": "2020-10-17 11:04:14",
+        "date": "2020-10-17 11:04:14",
+        "tags": [
+            "论文笔记"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
+    "SystemHierarchyBraininspiredComputing2020.md": {
+        "title": "A system hierarchy for brain-inspired computing",
+        "created": "2020-12-15 14:43:00",
+        "updated": "2020-12-15 14:43:00",
+        "date": "2020-12-15 14:43:00",
+        "tags": [
+            "论文笔记",
+            "计算理论",
+            "类脑计算",
+            "人工智能"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/./i/POG.png"
     }
 }

@@ -236,7 +236,7 @@
     },
     "Service.md": {
         "title": "Service - K8S流量路由",
-        "date": "2020-12-13 16:30:47",
+        "date": "2020-12-15 07:56:14",
         "tags": [
             "Kubernetes",
             "容器编排",
@@ -248,7 +248,7 @@
             "Kubernetes"
         ],
         "created": "2020-08-06 09:25:44",
-        "updated": "2020-12-13 16:30:47",
+        "updated": "2020-12-15 07:56:14",
         "cover": "/Kubernetes/./i/ClusterIP.png"
     },
     "Volume.md": {
