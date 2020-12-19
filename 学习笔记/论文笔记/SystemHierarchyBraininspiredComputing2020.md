@@ -1,4 +1,4 @@
-# A system hierarchy for brain-inspired computing
+# 《A system hierarchy for brain-inspired computing》笔记一：类脑计算完备性和POG
 
 ## 通用逼近器(Universal Approximator)和通用逼近理论(Universal Approximation Theorem)
 
@@ -168,45 +168,100 @@ $$\{(t_{u:p=x},e_{v',v}),(t_{d:i=p},e_{v,v})\}\rightarrow\{(t_{d:i=x},e_{v,v})\}
 
 显然，此Operator $v$等价于一个带有参数更新器的Operator。因此包含参数更新器的POG与原始POG等价。
 
-### Control-Flow Operator 控制流操作器
+### Control-Flow Operator 流程控制Operator
 
 ![Control-Flow Operator](./i/ControlFlow.png)
 
+流程控制Operator是用于模拟一般编程语言中的IF操作，它包三种Operator：Decider、Conditional Merger和True/False gates
+
+#### Decider
+
+Decider根据情况选择将输入的数据输出到哪条边。它有两条输入边和两条输出边：
+* 输入边$e_{v_i,v}$用于接收数据
+* 输入边$e_{v_{c},v}$用于接收$True/False$
+* 当$e_{v_{c},v}$收到事件$t_{d:condition=True}$时，将收到的数据输出到输出边$e_{v,v_t}$
+* 当$e_{v_{c},v}$收到事件$t_{d:condition=False}$时，将收到的数据输出到输出边$e_{v,v_f}$
+
+使用基础Operator模拟Decider时，其状态转移规则形式化表述为：
+
+$$
+\Delta_v=
+\left\{\begin{aligned}
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=True},e_{v_c,v})\}&\rightarrow\{(t_{d:i=x},e_{v,v_t}),(t_s,e_{v,v_f})\},\\
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=False},e_{v_c,v})\}&\rightarrow\{(t_s,e_{v,v_t}),(t_{d:i=x},e_{v,v_f})\}\\
+\end{aligned}
+\right\}
+$$
+
+#### Conditional Merger
+
+Conditional Merger根据情况选择将哪条边的输入数据输出到输出边。它有三条输入边和一条输出边：
+* 输入边$e_{v_t,v}$、$e_{v_f,v}$用于接收数据
+* 输入边$e_{v_{c},v}$用于接收$True/False$
+* 当$e_{v_{c},v}$收到事件$t_{d:condition=True}$时，将$e_{v_t,v}$收到的数据输出到输出边$e_{v,v_o}$
+* 当$e_{v_{c},v}$收到事件$t_{d:condition=False}$时，将$e_{v_f,v}$收到的数据输出到输出边$e_{v,v_o}$
+
+使用基础Operator模拟Conditional Merger时，其状态转移规则形式化表述为：
+
+$$
+\Delta_v=
+\left\{\begin{aligned}
+  \{(t_{d:i=x_t},e_{v_t,v}),(t_{d:i=x_f},e_{v_f,v}),(t_{d:condition=True},e_{v_c,v})\}&\rightarrow\{(t_{d:i=x_t},e_{v,v_o})\},\\
+  \{(t_{d:i=x_t},e_{v_t,v}),(t_{d:i=x_f},e_{v_f,v}),(t_{d:condition=False},e_{v_c,v})\}&\rightarrow\{(t_{d:i=x_f},e_{v,v_o})\}\\
+\end{aligned}
+\right\}
+$$
+
+#### True/False gates
+
+True/False gates根据情况选择是否让输入数据通过。它有两条输入边和一条输出边：
+* 输入边$e_{v_i,v}$用于接收数据
+* 输入边$e_{v_{c},v}$用于接收$True/False$
+* 对于True gate：当$e_{v_i,v}$收到事件$t_{d:condition=True}$时，将收到的数据输出到输出边$e_{v,v_o}$，否则输出$t_s$
+* 对于False gate：当$e_{v_i,v}$收到事件$t_{d:condition=False}$时，将收到的数据输出到输出边$e_{v,v_o}$，否则输出$t_s$
+
+使用基础Operator模拟True gate时，其状态转移规则形式化表述为：
+
+$$
+\Delta_v=
+\left\{\begin{aligned}
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=True},e_{v_c,v})\}&\rightarrow\{(t_{d:i=x},e_{v,v_o})\},\\
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=False},e_{v_c,v})\}&\rightarrow\{(t_s,e_{v,v_o})\}\\
+\end{aligned}
+\right\}
+$$
+
+使用基础Operator模拟False gate时，其状态转移规则形式化表述为：
+
+$$
+\Delta_v=
+\left\{\begin{aligned}
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=True},e_{v_c,v})\}&\rightarrow\{(t_s,e_{v,v_o})\},\\
+  \{(t_{d:i=x},e_{v_i,v}),(t_{d:condition=False},e_{v_c,v})\}&\rightarrow\{(t_{d:i=x},e_{v,v_o})\}\\
+\end{aligned}
+\right\}
+$$
 
 ### Synapse 突触操作器
 
 ![Synapse](./i/Synapse.png)
 
+>In POG, typical operators are enabled when all the input tokens are satisfied. But in most neuromorphic models, the neuron may have input connections from many other neurons and its internal states should be updated every time a spike arrives.
+
+因此，为了更好地表示这些操作，我们需要一个能执行类似操作的Operator，称为Synapse：
+* Synapse $v$有$n$个输入边$e_{v_i,v},i\in[1,n]$
+* Synapse是一个带参数更新器的Operator，其参数$P[v]$是一个长度等于输入边数量$n$的列表
+* Synapse的输出为所有输入边的有效输入$t_{d:i=x_i}$的数据$x_i$与边对应参数$P[v]$的加权和
+
+状态转移规则形式化表述为：
+
+$$
+\Delta_v=
+\left\{
+  \{(t_i,e_{v_i,v})|i\in[1,n],e_{v_i,v}\in E\}\rightarrow\{(t_{d:i=\sum_{i\in[1,n]}^{t_i\not = t_s}x_iP[v]_i},e_{v,v_o})\}
+\right\}
+$$
+
 ## POG 图灵完备性
 
-## abstract neuromorphic architecture (ANA)
-
-![ANA](./i/ANA.png)
-
-* 硬件设施由两部分组成：
-  * 一系列处理单元组成，每个处理单元包括：
-    * 计算单元：一系列执行计算的处理器
-    * 调度单元：控制计算单元执行计算的处理器
-    * 私有内存：一个只有处理单元内的计算单元和调度单元才能访问的内存
-  * 连接处理单元的互联网络
-
-### 一种ANA的实现方式：忆阻器阵列
-
-## execution primitive graph (EPG)
-
-* 控制流是一个有向图：
-  * 点表示由一个或多个执行原语组成的基本块
-  * 边表示把一个基本块的执行结果放到下一个基本块中进行下一步操作
-* 数据流是一个有向图：
-  * 点表示由一个执行原语
-  * 边表示数据依赖关系
-
-### 执行原语
-
-* 加权求和操作：即向量积
-* 元素层面上的修正线性单元(ReLU, rectified linear unit)：即对向量中的每个元素进行ReLU
-
-### 执行原语的类脑计算完全性证明
-
-* 将图灵完全的POG转化为EPG
-* 类脑计算完全性将通用估计和通用计算联系起来
+使用一个Operator模拟图灵机的输入，该Operator包含一个由无限多个parameter，其状态转移函数
