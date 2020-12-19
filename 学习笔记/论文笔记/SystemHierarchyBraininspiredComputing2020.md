@@ -262,6 +262,53 @@ $$
 \right\}
 $$
 
+## Composability 可组合性
+
+>As the operator of the POG may contain complicated instructions or even a whole algorithm, a sub-OG can be viewed as an operator.
+>
+>此功能称为可组合性，对于编程便利性很重要，因为不同的硬件实现可能会为硬件操作员提供多粒度的功能：可以将神经网络应用描述为
+一个仅包含基本计算和控制流运算符的OG，然后将该OG的某些子图组成新的运算符，以适应多粒度硬件操作。 因此，描述为POG的应用程序可以不经修改就适合不同的硬件。
+>
+>从软硬件协同设计的角度来看，此属性也非常有用：我们可以根据底层硬件提供的特定操作来自定义编程操作员集，反之亦然。 由于可组合性，这些修改只能出现到POG级别，而不会影响上层编程范例。
+
 ## POG 图灵完备性
 
-使用一个Operator模拟图灵机的输入，该Operator包含一个由无限多个parameter，其状态转移函数
+要证POG图灵完备性，只要构造一个模拟图灵机的POG即可：
+
+![POG图灵机](./i/POGTM.svg)
+
+其中各部分详解如下：
+
+### 模拟图灵机输入带
+
+使用一个带参数更新器的Operator $v_{tape}$模拟图灵机的输入带$T$，该Operator包含一个模拟输入带的无限长字符串$T$和记录读头位置的整数$i$：$P[v_{tape}]=(T,i),T\in\Gamma^*,i\in\mathbb Z$，其输入边有两个：
+* $e_{v_{TM_{head}},v_{tape}}$上传递的事件为图灵机的读头位置移动方向$t_{d:head=m},m=\pm 1$。输入读头位置返回移动后对应位置处的参数值$T_i$
+* $e_{v_{TM_{update}},v_{tape}}$上传递的事件为更新图灵机输入带上当前位置的值$t_{u:p=c}$。输入当前参数的修改事件修改参数$T_i=c$
+
+综合得其状态转移规则为：
+$$
+\left(\{(t_{d:head=m},e_{v_{TM_{head}},v_{tape}}),(t_{u:p=c},e_{v_{TM_{update}},v_{tape}})\},(T,i)\right)\rightarrow\left(\{(t_{d:data=T'_{i+m}},e_{v_{tape},v_{TM}})\},(T',i+m)\right)\text{其中}T'_{i}=c
+$$
+
+### 模拟图灵机
+
+使用一个带参数更新器的Operator $v_{TM}$模拟图灵机，该Operator包含一个模拟状态的参数$P[v_{tape}]=q\in Q$，其输入边是与输入带Operator相连的$e_{v_{tape},v_{TM}}$，用于接收输入带上的值。其输出边就是控制输入带活动的$e_{v_{TM_{head}},v_{tape}}$和$e_{v_{TM_{update}},v_{tape}}$。
+
+对于图灵机状态转移规则集合$\Delta$中的每个规则$(q,X)\rightarrow(q',X',D)$，都可以写出对应的POG状态转移规则：
+
+$D=L$时：
+$$
+\left(\{(t_{d:data=X},e_{v_{tape},v_{TM}})\},q\right)\rightarrow\left(\{(t_{u:p=X'},e_{v_{TM_{update}},v_{tape}}),(t_{d:head=+1},e_{v_{TM_{head}},v_{tape}})\},q'\right)
+$$
+$D=R$时：
+$$
+\left(\{(t_{d:data=X},e_{v_{tape},v_{TM}})\},q\right)\rightarrow\left(\{(t_{u:p=X'},e_{v_{TM_{update}},v_{tape}}),(t_{d:head=-1},e_{v_{TM_{head}},v_{tape}})\},q'\right)
+$$
+
+### 接受状态
+
+为了模拟接受状态$F$，还需要给$v_{tape}$和$v_{TM}$各加一条出边连到一个用于判断接受状态的Operator $v_F$中，如果$v_{TM}$进入接受状态，则输出$v_{tape}$中的参数$T$，否则不输出。因此有状态转移规则：
+
+$$
+\{(t_{d:state=q\in F},e_{v_{TM},v_{F}}),(t_{d:tape=T},e_{v_{tape},v_{F}})\}\rightarrow\{(t_{d:tape=T},e_o)\}
+$$
