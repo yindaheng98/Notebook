@@ -79,11 +79,27 @@
             "论文笔记"
         ]
     },
+    "SystemHierarchyBraininspiredComputing2020-1.md": {
+        "title": "《A system hierarchy for brain-inspired computing》笔记二",
+        "created": "2020-12-19 15:24:09",
+        "updated": "2020-12-19 15:24:09",
+        "date": "2020-12-19 15:24:09",
+        "tags": [
+            "论文笔记",
+            "计算理论",
+            "类脑计算",
+            "人工智能"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/./i/ANA.png"
+    },
     "SystemHierarchyBraininspiredComputing2020.md": {
-        "title": "A system hierarchy for brain-inspired computing",
+        "title": "《A system hierarchy for brain-inspired computing》笔记一：类脑计算完备性和POG",
         "created": "2020-12-15 14:43:00",
-        "updated": "2020-12-18 15:14:45",
-        "date": "2020-12-18 15:14:45",
+        "updated": "2020-12-19 09:59:15",
+        "date": "2020-12-19 09:59:15",
         "tags": [
             "论文笔记",
             "计算理论",
