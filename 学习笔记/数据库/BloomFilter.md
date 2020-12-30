@@ -19,7 +19,7 @@ $$P=(1-(1-\frac{1}{M})^{KN})^K\approx(1-e^{-\frac{KN}{M}})^K$$
 
 当实际插入的元素个数$N=10^5$时，上述公式图形如下：
 
-![Bloom Filter性能](i/bloom_filter_性能.png)
+![Bloom Filter性能](BloomFilter/untitled.svg)
 
 且其中的假正率$P$和hash函数数量的关系如下图：
 
