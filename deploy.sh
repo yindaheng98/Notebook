@@ -1,7 +1,7 @@
 #!/bin/bash
 git config user.name "TravisCI"
 git config user.email "yindaheng98@163.com"
-cd yindaheng98.github.io/public
+cd ./theme/public
 set -e
 git init
 git add -A
