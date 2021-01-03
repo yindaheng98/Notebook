@@ -137,6 +137,23 @@
         "created": "2019-11-21 05:43:22",
         "updated": "2020-12-13 16:30:47"
     },
+    "Mesos.md": {
+        "title": "【转载】Introduction to Apache Mesos and Mesosphere DCOS",
+        "created": "2021-01-03 14:43:59",
+        "updated": "2021-01-03 14:43:59",
+        "date": "2021-01-03 14:43:59",
+        "tags": [
+            "Mesos",
+            "原理",
+            "设计思路",
+            "架构",
+            "容器编排"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/Mesos/apache-mesos-logo.jpg"
+    },
     "Namespace.md": {
         "title": "Namespaces - K8S虚拟集群单元",
         "date": "2020-08-06 09:25:44",
