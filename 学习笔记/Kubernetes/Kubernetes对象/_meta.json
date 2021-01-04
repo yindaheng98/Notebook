@@ -1,20 +1,4 @@
 {
-    "CNI插件相关知识简介.md": {
-        "title": "CNI插件相关知识简介",
-        "created": "2020-12-13 15:04:47",
-        "updated": "2020-12-14 07:37:56",
-        "date": "2020-12-14 07:37:56",
-        "tags": [
-            "Kubernetes",
-            "原理",
-            "概念",
-            "实操",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ]
-    },
     "ConfigMap.md": {
         "title": "ConfigMap - 按照配置文件在容器中生成环境变量",
         "created": "2020-08-07 13:14:03",
@@ -25,24 +9,12 @@
             "原理",
             "概念",
             "实操",
-            "服务器运维"
+            "服务器运维",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
-        ]
-    },
-    "CSI插件相关知识简介.md": {
-        "title": "CSI插件相关知识简介",
-        "created": "2020-12-14 07:37:56",
-        "updated": "2020-12-14 07:37:56",
-        "date": "2020-12-14 07:37:56",
-        "tags": [
             "Kubernetes",
-            "存储",
-            "概念"
-        ],
-        "categories": [
-            "Kubernetes"
+            "Kubernetes对象"
         ]
     },
     "downwardAPI.md": {
@@ -54,10 +26,12 @@
             "Kubernetes",
             "概念",
             "实操",
-            "存储"
+            "存储",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ]
     },
     "Ingress.md": {
@@ -67,42 +41,13 @@
         "date": "2020-08-13 08:10:59",
         "tags": [
             "Kubernetes",
-            "未完成"
+            "未完成",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ]
-    },
-    "Kubernetes介绍.md": {
-        "title": "Kubernetes(k8s)介绍",
-        "date": "2020-07-29 13:00:23",
-        "tags": [
-            "Kubernetes",
-            "设计思路",
-            "概念",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ],
-        "cover": "/Kubernetes/i/module_01_cluster.png",
-        "created": "2019-09-23 07:37:12",
-        "updated": "2020-07-29 13:00:23"
-    },
-    "Kubernetes使用.md": {
-        "title": "Kubernetes(k8s)的安装和基本使用",
-        "date": "2020-07-29 13:00:23",
-        "tags": [
-            "Kubernetes",
-            "服务器运维",
-            "实操",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ],
-        "created": "2019-09-23 07:37:12",
-        "updated": "2020-07-29 13:00:23"
     },
     "Kubernetes对象.md": {
         "title": "Kubernetes(k8s)对象",
@@ -111,48 +56,16 @@
             "Kubernetes",
             "设计思路",
             "概念",
-            "容器编排"
+            "容器编排",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
         "cover": "/Kubernetes/i/module_03_pods.png",
         "created": "2020-07-29 13:00:23",
         "updated": "2020-07-29 13:00:23"
-    },
-    "Kubernetes结构.md": {
-        "title": "Kubernetes(k8s)的结构",
-        "date": "2020-12-13 16:30:47",
-        "tags": [
-            "Kubernetes",
-            "原理",
-            "设计思路",
-            "架构",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ],
-        "cover": "/Kubernetes/i/K8s.png",
-        "created": "2019-11-21 05:43:22",
-        "updated": "2020-12-13 16:30:47"
-    },
-    "Mesos.md": {
-        "title": "【转载】Introduction to Apache Mesos and Mesosphere DCOS",
-        "created": "2021-01-03 14:43:59",
-        "updated": "2021-01-03 14:43:59",
-        "date": "2021-01-03 14:43:59",
-        "tags": [
-            "Mesos",
-            "原理",
-            "设计思路",
-            "架构",
-            "容器编排"
-        ],
-        "categories": [
-            "Kubernetes"
-        ],
-        "cover": "/Kubernetes/i/Mesos/apache-mesos-logo.jpg"
     },
     "Namespace.md": {
         "title": "Namespaces - K8S虚拟集群单元",
@@ -162,10 +75,12 @@
             "原理",
             "概念",
             "实操",
-            "容器编排"
+            "容器编排",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
         "created": "2020-07-29 13:00:23",
         "updated": "2020-08-06 09:25:44"
@@ -179,12 +94,14 @@
             "Kubernetes",
             "概念",
             "实操",
-            "存储"
+            "存储",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
-        "cover": "/Kubernetes/./i/PV-PVC.png"
+        "cover": "/Kubernetes/Kubernetes对象/./i/PV-PVC.png"
     },
     "Pod.md": {
         "title": "Pod - K8S最小管理单位",
@@ -194,12 +111,14 @@
             "概念",
             "Pod",
             "实操",
-            "容器编排"
+            "容器编排",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
-        "cover": "/Kubernetes/i/module_03_pods.png",
+        "cover": "/Kubernetes/Kubernetes对象/i/module_03_pods.png",
         "created": "2020-07-29 13:00:23",
         "updated": "2020-08-11 11:32:41"
     },
@@ -214,12 +133,14 @@
             "Pod",
             "容器编排",
             "容器调度",
-            "概念"
+            "概念",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
-        "cover": "/Kubernetes/./i/RequiredDuringExecution.png"
+        "cover": "/Kubernetes/Kubernetes对象/./i/RequiredDuringExecution.png"
     },
     "Pod容忍与Node污点.md": {
         "title": "Node污点与Pod容忍调度",
@@ -232,10 +153,12 @@
             "Pod",
             "容器编排",
             "容器调度",
-            "概念"
+            "概念",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ]
     },
     "Secret.md": {
@@ -245,10 +168,12 @@
         "date": "2020-08-08 11:35:26",
         "tags": [
             "Kubernetes",
-            "未完成"
+            "未完成",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ]
     },
     "Service.md": {
@@ -259,14 +184,16 @@
             "容器编排",
             "原理",
             "概念",
-            "实操"
+            "实操",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
         "created": "2020-08-06 09:25:44",
         "updated": "2020-12-15 07:56:14",
-        "cover": "/Kubernetes/./i/ClusterIP.png"
+        "cover": "/Kubernetes/Kubernetes对象/./i/ClusterIP.png"
     },
     "Volume.md": {
         "title": "Volume - 挂载数据盘",
@@ -275,13 +202,15 @@
             "Kubernetes",
             "存储",
             "概念",
-            "实操"
+            "实操",
+            "Kubernetes对象"
         ],
         "categories": [
-            "Kubernetes"
+            "Kubernetes",
+            "Kubernetes对象"
         ],
         "created": "2020-08-07 13:14:03",
         "updated": "2020-08-08 12:15:08",
-        "cover": "/Kubernetes/./i/CSI.png"
+        "cover": "/Kubernetes/Kubernetes对象/./i/CSI.png"
     }
 }
