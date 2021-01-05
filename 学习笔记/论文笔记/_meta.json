@@ -67,6 +67,18 @@
             "论文笔记"
         ]
     },
+    "DRF2011.md": {
+        "title": "Dominant Resource Fairness: Fair Allocation of Multiple Resource Types",
+        "created": "2021-01-05 11:39:10",
+        "updated": "2021-01-05 11:39:10",
+        "date": "2021-01-05 11:39:10",
+        "tags": [
+            "论文笔记"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
     "FastVADeepLearning2020.md": {
         "title": "FastVA: Deep Learning Video Analytics Through Edge Processing and NPU in Mobile",
         "created": "2020-10-17 11:04:14",
