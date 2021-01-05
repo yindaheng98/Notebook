@@ -33,32 +33,23 @@
 
 ![](i/Mesos/Mesos两级调度.png)
 
-* 第一级调度：资源调度
-  * 集群由物理服务器或虚拟服务器组成，用于运行应用程序的任务，比如图中的Hadoop和MPI作业
-  * Master主机上的守护进程负责管理资源
-  * Slave主机上的守护进程负责向Master主机上报资源信息
-* 第二级调度：任务调度
-  * 每种Framework由相应的应用集群管理，比如上图中的Hadoop和MPI两种Framework
-  * Framework有一个集中式的调度器（Scheduler）负责任务调度
-  * 每个Slave主机上都有一个或多个执行器（Executor）负责任务的执行
-* 两级调度间的衔接
-  * 每个Slave主机上都有一个Manager负责接收执行的指令启动执行器执行任务
-    * 对于Manager而言，他看到的所有Executor、Task都是一致的容器，而不管这些任务具体执行什么样的业务逻辑
+* 第一级调度：Master给每个Framework分配资源
+* 第二级调度：Framework给每个Task分配资源
 
 ### 过程
 
 ![](i/Mesos/Mesos两级调度过程.png)
 
-1. （第一级调度）Slave 1向Master汇报其空闲资源：4个CPU、4GB内存
-2. （第一级调度）Master向Framework 1发送资源邀约：Slave 1上的可用资源有4个CPU、4GB内存
+1. Slave 1向Master汇报其空闲资源：4个CPU、4GB内存
+2. （第一级调度）Master向Framework 1发送Resource Offer：Slave 1上的可用资源有4个CPU、4GB内存
 3. （第二级调度）Framework 1的调度器（Scheduler）响应Master：需要在Slave上运行两个任务，第一个任务分配<2 CPUs, 1 GB RAM>资源，第二个任务分配<1 CPUs, 2 GB RAM>资源。
-4. （第二级调度）Master向Slave下发任务，分配适当的资源给Framework的任务执行器（Executor），接下来由执行器启动这两个任务
-5. （第一级调度）此时，还有1个CPU和1GB的RAM尚未分配，回到第2步，向Framework 2发送资源邀约：Slave 1上的可用资源：1个CPU、1GB内存
+4. Master向Slave下发任务，分配适当的资源给Framework的任务执行器（Executor），接下来由执行器启动这两个任务
+5. 此时，还有1个CPU和1GB的RAM尚未分配，回到第2步，向Framework 2发送资源邀约：Slave 1上的可用资源：1个CPU、1GB内存
 
-在实际系统中，显然Mesos无法知道用户的任务什么时候来，因此在没有任务到来的时候，步骤1和步骤3是一直在定期运行的：
+在实际系统中，显然Mesos无法知道用户的任务什么时候来，因此在没有任务到来的时候，步骤1和步骤2是一直在定期运行的：
 
-* （第一级调度，步骤1）集群中的所有slave节点会和master定期进行通信，将自己的资源信息同步到master，master由此获知到整个集群的资源状况
-* （第二级调度，步骤3）mater会和已注册、受信任的Framework进行交互，定期将最新的资源情况发送给Framework
+* 步骤1：集群中的所有slave节点会和master定期进行通信，将自己的资源信息同步到master，master由此获知到整个集群的资源状况
+* 步骤2：mater会和已注册、受信任的Framework进行交互，定期将最新的资源情况发送给Framework
 
 当用户提交了计算任务，Framework就能直接依据资源信息向slave发起任务启动命令，开始调度工作。
 
@@ -119,8 +110,68 @@ DRF相比其他算法的优势如下，具体的分析参考原论文：
 
 ![](i/Mesos/DRF3.png)
 
-### Mesos所使用的分层DRF：Hierarchical DRF
+### Mesos所使用的DRF算法：Hierarchical DRF
 
+简单来说，就是先由Master的调度器按照Framework的Quota给Framework分配资源，再由Framework上的调度器给Task分配资源。
+
+在系统中，与调度有关的信息如下：
+```mermaid
+graph TD
+Role(Role)
+Framework(Framework)
+Task(Task)
+Slave(Slave)
+Role--1---属于1{属于}--n---Framework--1---属于2{属于}--n---Task
+Quota((Quota))---Role
+Reserved((Reserved))---Role
+Weight((Weight))---Role
+权限((权限))---Role
+资源限制((资源限制))---Role
+Task---资源需求((资源需求))
+Task--1---执行于{执行于}--n---Slave
+```
+
+其中：
+* Quota：给每个Role的最小资源配额，第一级调度时的Dominant Resource由此计算
+* Reserved：在调度中必须要为某个Role预留的资源，精确到每个Slave
+* Weight：Role的权重，权重大的优先选择资源
+
+#### 第一级调度
+
+核心代码：
+
+```cpp
+hashmap<FrameworkID, hashmap<SlaveID, Resources>> offerable; //哪个Framework被分配了哪个SlaveID的多少资源
+//省略一系列信息获取的操作
+std::random_shuffle(slaveIds.begin(), slaveIds.end()); //打乱Slave的遍历顺序，保证资源分配相对均匀
+foreach (const SlaveID& slaveId, slaveIds) {
+    foreach (const string& role, roleSorter->sort()) {
+        foreach (const string& frameworkId_, frameworkSorters[role]->sort()) {
+            //省略reserved的相关操作
+            offerable[frameworkId][slaveId] += resources; //记录Framework被分配了哪个Slave的多少资源
+            slaves[slaveId].allocated += resources; //记录Slave的资源已被分配
+
+            frameworkSorters[role]->add(slaveId, resources); //用于下次排序
+            frameworkSorters[role]->allocated(frameworkId_, slaveId, resources); //用于下次排序
+            roleSorter->allocated(role, slaveId, resources); //用于下次排序
+        }
+    }
+}
+//根据offerable执行allocate操作
+```
+
+在第一级调度中，DRF主要发挥作用的位置是两个sort函数：`roleSorter->sort()`和。其中：
+* `frameworkSorters[role]->sort()`对于每个Framework，按照通常方法计算DRF Dominant Share，对每一种资源都计算Dominant Share，并将Dominant Share小的Framework排前面
+* `roleSorter->sort()`对于每个Role，排序方式是Dominant Share/Weight，使得权重大的优先选择
+* 每当一个Framework分配了一份资源后，将这份资源加进Framework和对应Role的和Dominant Share中，在下一次排序时就会排到后面去
+
+### 缺点
+
+>Mesos中的DRF调度算法过分的追求公平，没有考虑到实际的应用需求。在实际生产线上，往往需要类似于Hadoop中Capacity Scheduler的调度机制，将所有资源分成若干个queue，每个queue分配一定量的资源，每个user有一定的资源使用上限；更使用的调度策略 是应该支持每个queue可单独定制自己的调度器策略，如：FIFO，Priority等。
+>
+>由于Mesos采用了双层调度机制，在实际调度时，将面临设计决策问题：第一层和第二层调度器分别实现哪几个调度机制，即：将大部分调度机制放到第一层调度器，还是第一层调度器仅支持简单的资源分配（分配比例由管理员指定）？
+>
+>Mesos采用了Resource Offer机制（不同于Hadoop中的基于slot的调度机制），这种调度机制面临着**资源碎片**问题，即：**每个节点上的资源不可能全部被分配完**，剩下的一点可能不足以让任何任务运行，这样，便产生了类似于操作系统中的内存碎片问题。
 
 ## Mesos一些前进道路（2016年）
 
@@ -128,7 +179,7 @@ DRF相比其他算法的优势如下，具体的分析参考原论文：
 
 虽然Kubernetes运行在Framework之上，可以让Kubernetes和其它Framework共享资源，对系统的资源利用率提升有一定帮助，但是当前的主要问题是Mesos对资源抢占的支持不是太好，现在只支持类似于Resource Scavenge的功能：当资源在被使用的时候，如果使用不充分，Mesos会把使用不充分的资源作为可撤销资源，发给Framwork。Framework可以在这些资源上运行一些优先级不是很高的作业，因为可撤销资源随时可能因为资源的回收而出发杀掉作业的动作。
 
-但是仅仅有这种Resource Scavenge的功能是远远不够的，因为在Mesos集群还可能有大量其它的资源未被使用。例如Reserved(独占)的资源或者Quota(配额)的资源，这些资源目前只能供某个Role/Framework使用，但是如果这些被某个Role/Framework Reserve的资源或者Quota的资源，在当前这个Role/Framework的负载不是很高的情况下，是没办法让其它的Role/Framework去使用的，所以这部分资源就浪费了。
+但是仅仅有这种Resource Scavenge的功能是远远不够的，因为在Mesos集群还可能有大量其它的资源未被使用。例如Reserved(独占)的资源或者Quota(配额)的资源，这些资源目前只能供某个Role/Framework使用，但是如果这些被某个Role/Framework Reserve的资源或者Quota的资源，**在当前这个Role/Framework的负载不是很高的情况下，是没办法让其它的Role/Framework去使用的**，所以这部分资源就浪费了。
 
 Mesos社区正在通过两个项目来对上述情况做一些改进：Optimistic Offer(MESOS-1607)和Multiple Role Framework (MESOS-1763)。
 
