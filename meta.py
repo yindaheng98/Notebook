@@ -6,6 +6,7 @@ from pprint import pprint
 path = '学习笔记'
 metas_filename = '_meta.json'
 meta_data = {}
+image_set = set()
 
 #获取文件创建时间
 def getCreatedTime(path):
@@ -49,7 +50,7 @@ def setDIRMetas(filedir,metas):
 
 # 获取某个.md文件的meta数据
 titler = re.compile(r'#\s+(.*?)\n', re.S)
-coverr = re.compile(r'!\[.*?\]\((.*?)\)', re.S)
+imagesr = re.compile(r'!\[.*?\]\((.*?)\)', re.S)
 titletagr = re.compile(r'^\((.*?)\)', re.S)
 def updateMDMeta(filedir, filename, metas):
     print('Meta data collecting: %s' % filename)
@@ -82,9 +83,17 @@ def updateMDMeta(filedir, filename, metas):
     if len(titletag)>0 and not titletag[0] in meta['tags']:
         meta['tags'].append(titletag[0])
     
-    cover = re.findall(coverr,s)
-    if len(cover)>0:
-        meta['cover'] = '/'+'/'.join(path_splitted)+'/'+cover[0]#封面数据直接覆盖
+    images = re.findall(imagesr,s)
+    if len(images)>0:
+        meta['cover'] = '/'+'/'.join(path_splitted)+'/'+images[0]#封面数据直接覆盖
+        for image in images:
+            fds = filedir.replace('\\','/').split('/')
+            if image[0:2]=='./':
+                image_set.add('/'.join(fds)+'/'+image[2:])
+            elif image[0:3]=='../':
+                image_set.add('/'.join(fds[0:-1])+'/'+image[3:])
+            else:
+                image_set.add('/'.join(fds)+'/'+image)
     pprint(meta)
     print('Meta data collected : %s' % filename)
     meta_data[filepath] = meta
@@ -109,3 +118,24 @@ if __name__=="__main__":
     from getDate import created_time,updated_time
 
 processMDIR(path)
+
+# 以下用于删除多余图片
+def processIDIR(path, image_set):
+    def isImg(fname):
+        if not os.path.isfile(fname):
+            return False
+        return fname[-4:] == '.png' or \
+            fname[-4:] == '.jpg' or \
+            fname[-5:] == '.jpeg' or \
+            fname[-5:] == '.webp'
+    for i in os.listdir(path):
+        p = os.path.join(path, i)
+        if os.path.isdir(p):
+            processIDIR(p, image_set)
+        elif isImg(p) and not p.replace('\\','/') in image_set:
+            os.remove(p)
+            print('Image %s deleted' % p)
+
+
+if __name__=="__main__":
+    processIDIR(path, image_set)
