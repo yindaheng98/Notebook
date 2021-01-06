@@ -17,6 +17,21 @@
             "Kubernetes对象"
         ]
     },
+    "Deployment.vs.StatefulSet.md": {
+        "title": "Deployment vs StatefulSet",
+        "created": "2021-01-06 16:46:54",
+        "updated": "2021-01-06 16:46:54",
+        "date": "2021-01-06 16:46:54",
+        "tags": [
+            "Kubernetes",
+            "Kubernetes对象",
+            "概念"
+        ],
+        "categories": [
+            "Kubernetes",
+            "Kubernetes对象"
+        ]
+    },
     "downwardAPI.md": {
         "title": "downwardAPI - 让容器了解自己的情况",
         "created": "2020-08-08 11:35:26",

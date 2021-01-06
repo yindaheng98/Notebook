@@ -29,12 +29,31 @@
         "updated": "2021-01-05 15:58:15",
         "date": "2021-01-05 15:58:15",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "DCOS",
+            "容器编排",
+            "Mesos",
+            "大数据分析"
         ],
         "categories": [
             "Kubernetes"
         ],
         "cover": "/Kubernetes/i/Mesos/Mesos生态圈.png"
+    },
+    "K8S微服务性.md": {
+        "title": "为什么Kubernetes天然适合微服务？",
+        "created": "2021-01-06 16:46:54",
+        "updated": "2021-01-06 16:46:54",
+        "date": "2021-01-06 16:46:54",
+        "tags": [
+            "Kubernetes",
+            "容器编排",
+            "微服务"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/K8S微服务/0.png"
     },
     "Kubernetes介绍.md": {
         "title": "Kubernetes(k8s)介绍",
@@ -80,7 +99,11 @@
         "updated": "2021-01-03 14:43:59",
         "date": "2021-01-03 14:43:59",
         "tags": [
-            "Kubernetes"
+            "Kubernetes",
+            "DCOS",
+            "任务调度",
+            "Mesos",
+            "大数据分析"
         ],
         "categories": [
             "Kubernetes"
@@ -88,17 +111,33 @@
         "cover": "/Kubernetes/i/Mesos/apache-mesos-logo.jpg"
     },
     "横向比较.md": {
-        "title": "为什么Kubernetes天然适合微服务？——Docker Swarm, Kubernetes, DCOS横向比较",
-        "created": "2021-01-06 10:27:54",
-        "updated": "2021-01-06 10:27:54",
-        "date": "2021-01-06 10:27:54",
+        "title": "从IT运维到大数据分析到应用开发——Docker Swarm, DCOS, Kubernetes演进过程",
+        "created": "2021-01-06 15:18:12",
+        "updated": "2021-01-06 15:18:12",
+        "date": "2021-01-06 15:18:12",
+        "tags": [
+            "Kubernetes",
+            "DCOS",
+            "Mesos",
+            "Swarm"
+        ],
+        "categories": [
+            "Kubernetes"
+        ],
+        "cover": "/Kubernetes/i/企业上云三大架构.png"
+    },
+    "横向比较2.md": {
+        "title": "Docker Swarm, Kubernetes, DCOS横向比较（二）架构分析",
+        "created": "2021-01-06 18:19:06",
+        "updated": "2021-01-06 18:19:06",
+        "date": "2021-01-06 18:19:06",
         "tags": [
             "Kubernetes"
         ],
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/企业上云三大架构.png"
+        "cover": "/Kubernetes/i/Swarm.webp"
     },
     "跨网.md": {
         "title": "网易云对虚拟机/容器混用场景的网络配置方案",
