@@ -89,16 +89,16 @@
     },
     "横向比较.md": {
         "title": "为什么Kubernetes天然适合微服务？——Docker Swarm, Kubernetes, DCOS横向比较",
-        "created": "2021-01-04 23:20:38",
-        "updated": "2021-01-04 23:20:38",
-        "date": "2021-01-04 23:20:38",
+        "created": "2021-01-06 10:27:54",
+        "updated": "2021-01-06 10:27:54",
+        "date": "2021-01-06 10:27:54",
         "tags": [
             "Kubernetes"
         ],
         "categories": [
             "Kubernetes"
         ],
-        "cover": "/Kubernetes/i/Swarm.webp"
+        "cover": "/Kubernetes/i/企业上云三大架构.png"
     },
     "跨网.md": {
         "title": "网易云对虚拟机/容器混用场景的网络配置方案",
