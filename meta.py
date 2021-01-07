@@ -127,7 +127,8 @@ def processIDIR(path, image_set):
         return fname[-4:] == '.png' or \
             fname[-4:] == '.jpg' or \
             fname[-5:] == '.jpeg' or \
-            fname[-5:] == '.webp'
+            fname[-5:] == '.webp' or \
+            fname[-4:] == '.svg'
     for i in os.listdir(path):
         p = os.path.join(path, i)
         if os.path.isdir(p):
