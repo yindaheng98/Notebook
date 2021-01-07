@@ -1,9 +1,9 @@
 {
     "CNCF.md": {
         "title": "CNCF简介（零）云原生计算基金会",
-        "created": "2021-01-03 21:12:27",
-        "updated": "2021-01-03 21:12:27",
-        "date": "2021-01-03 21:12:27",
+        "created": "2021-01-07 16:41:59",
+        "updated": "2021-01-07 16:41:59",
+        "date": "2021-01-07 16:41:59",
         "tags": [
             "CNCF",
             "云原生",
@@ -16,9 +16,9 @@
     },
     "DCOS.md": {
         "title": "Mesos和DCOS(Data Center Operating System, 数据中心操作系统)",
-        "created": "2021-01-05 23:57:19",
-        "updated": "2021-01-05 23:57:19",
-        "date": "2021-01-05 23:57:19",
+        "created": "2021-01-04 16:49:42",
+        "updated": "2021-01-05 15:58:15",
+        "date": "2021-01-05 15:58:15",
         "tags": [
             "Kubernetes",
             "DCOS",
@@ -34,9 +34,9 @@
     },
     "Mesos.md": {
         "title": "【转载】Introduction to Apache Mesos and Mesosphere DCOS",
-        "created": "2021-01-03 22:43:08",
-        "updated": "2021-01-03 22:43:08",
-        "date": "2021-01-03 22:43:08",
+        "created": "2021-01-03 14:43:59",
+        "updated": "2021-01-03 14:43:59",
+        "date": "2021-01-03 14:43:59",
         "tags": [
             "Kubernetes",
             "DCOS",
@@ -130,9 +130,9 @@
     },
     "横向比较.md": {
         "title": "从IT运维到大数据分析到应用开发——Docker Swarm, DCOS, Kubernetes演进过程",
-        "created": "2021-01-06 23:17:28",
-        "updated": "2021-01-06 23:17:28",
-        "date": "2021-01-06 23:17:28",
+        "created": "2021-01-06 15:18:12",
+        "updated": "2021-01-06 15:18:12",
+        "date": "2021-01-06 15:18:12",
         "tags": [
             "Kubernetes",
             "DCOS",
@@ -146,10 +146,10 @@
         "cover": "/CNCF/i/企业上云三大架构.png"
     },
     "横向比较2.md": {
-        "title": "Docker Swarm, Kubernetes, DCOS横向比较（二）架构分析",
-        "created": "2021-01-06 18:19:06",
-        "updated": "2021-01-06 18:19:06",
-        "date": "2021-01-06 18:19:06",
+        "title": "Docker Swarm, Kubernetes, DCOS架构横向比较",
+        "created": "2021-01-07 16:33:59",
+        "updated": "2021-01-07 16:33:59",
+        "date": "2021-01-07 16:33:59",
         "tags": [
             "Kubernetes",
             "CNCF"
@@ -161,9 +161,9 @@
     },
     "编排和管理层.md": {
         "title": "CNCF Landscape（三）编排和管理层（Orchestration & Management）",
-        "created": "2021-01-07 16:24:50",
-        "updated": "2021-01-07 16:24:50",
-        "date": "2021-01-07 16:24:50",
+        "created": "2021-01-07 17:42:58",
+        "updated": "2021-01-07 17:42:58",
+        "date": "2021-01-07 17:42:58",
         "tags": [
             "CNCF",
             "云原生",
