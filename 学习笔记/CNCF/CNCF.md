@@ -48,7 +48,7 @@ CNCF 项目毕业标准中关于毕业条件是这样定义的：
 远程过程调用（RPC）|应用间的相互远程调用|Google家的gRPC、腾讯的TARS、阿里的Dubbo
 服务代理（Service proxy）|在应用不知道的情况下把它的请求转发到正确的地方并监控之|Envoy：一个牛逼的L3/L4/L7代理服务器<br>Contour：基于Envoy的K8S Ingress Controller<br>Nginx、Haproxy、traefik等
 API网关（API gateway）|在代理转发之前对请求进行验证鉴权转换等处理|基于Envoy的API网关：Ambassador、Gloo等
-服务网格（Service mesh）|在应用不知道的情况下进行配置、路由、遥测、记录、断路等网络功能|服务网格接口规范：SMI(Service Mesh Interface)<br>服务网格鼻祖：Linkerd
+服务网格（Service mesh）|在应用不知道的情况下进行配置、路由、遥测、记录、断路等网络功能|服务网格接口规范：SMI(Service Mesh Interface)<br>Linkerd：自带代理程序的Service mesh控制面板<br>Istio：基于Envoy代理的Service mesh控制面板
 
 * [应用程序定义和开发层（Application Definition & Development）](应用程序定义和开发层.md)
   * 数据库（Databases）
