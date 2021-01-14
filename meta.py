@@ -114,6 +114,7 @@ def processMDIR(path):
     print('Meta data processed in dir %s' % path)
 
 #TODO:CI系统pygit2中的Object not found问题仍未解决
+#TODO:_meta.json文件中不应该放日期目录封面之类的信息
 if __name__=="__main__":
     from getDate import created_time,updated_time
 
