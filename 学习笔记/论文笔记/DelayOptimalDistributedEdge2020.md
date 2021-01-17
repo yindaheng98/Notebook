@@ -16,6 +16,8 @@
 }
 ```
 
+[笔记PPT](DelayOptimalDistributedEdge2020.pptx)
+
 ## 要解决的问题
 
 使用无线连接的边缘计算设备执行分布式并行计算，最小化执行分布式算法的延迟
