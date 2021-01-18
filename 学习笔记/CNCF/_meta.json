@@ -12,7 +12,7 @@
         "categories": [
             "CNCF"
         ],
-        "cover": "/CNCF/https://landscape.cncf.io/images/landscape.png"
+        "cover": "https://landscape.cncf.io/images/landscape.png"
     },
     "DCOS.md": {
         "title": "Mesos和DCOS(Data Center Operating System, 数据中心操作系统)",
