@@ -85,7 +85,11 @@ def updateMDMeta(filedir, filename, metas):
     
     images = re.findall(imagesr,s)
     if len(images)>0:
-        meta['cover'] = '/'+'/'.join(path_splitted)+'/'+images[0]#封面数据直接覆盖
+        cover = images[0]
+        if (len(cover)>=7 and cover[0:7]=='http://') or (len(cover)>=8 and cover[0:8]=='https://'):
+            meta['cover'] = cover
+        else:
+            meta['cover'] = '/'+'/'.join(path_splitted)+'/'+images[0]#封面数据直接覆盖
         for image in images:
             fds = filedir.replace('\\','/').split('/')
             if image[0:2]=='./':
