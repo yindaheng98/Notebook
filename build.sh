@@ -11,5 +11,5 @@ cd ..
 
 #编译一个Docker镜像
 echo "$1" | docker login -u "yindaheng98" --password-stdin
-docker build --build-arg 'PAGES=./theme/blogs/.vuepress/public' -t yindaheng98/yindaheng98.github.io:latest .
+docker build --build-arg 'PAGES=./theme/public' -t yindaheng98/yindaheng98.github.io:latest .
 docker push yindaheng98/yindaheng98.github.io:latest
