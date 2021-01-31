@@ -129,11 +129,11 @@ def processIDIR(path, image_set):
     def isImg(fname):
         if not os.path.isfile(fname):
             return False
-        return fname[-4:] == '.png' or \ # TODO: 不区分大小写
-            fname[-4:] == '.jpg' or \ # TODO: 不区分大小写
-            fname[-5:] == '.jpeg' or \ # TODO: 不区分大小写
-            fname[-5:] == '.webp' or \ # TODO: 不区分大小写
-            fname[-4:] == '.svg'
+        return fname[-4:] == '.png' or \
+            fname[-4:] == '.jpg' or \
+            fname[-5:] == '.jpeg' or \
+            fname[-5:] == '.webp' or \
+            fname[-4:] == '.svg' # TODO: 不区分大小写
     for i in os.listdir(path):
         p = os.path.join(path, i)
         if os.path.isdir(p):
