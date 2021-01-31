@@ -112,7 +112,7 @@ def processMDIR(path):
         p = os.path.join(path, file)
         if os.path.isdir(p):#如果是文件夹就递归
             processMDIR(p)
-        elif p[-3:] == '.md' and os.path.isfile(p):#是md文件就更新meta
+        elif p[-3:] == '.md' and os.path.isfile(p):#是md文件就更新meta TODO: 不区分大小写
             new_metas[file] = updateMDMeta(path,file,old_metas)
     setDIRMetas(path,new_metas)#最后将这个文件夹的meta数据写入到对应文件中
     print('Meta data processed in dir %s' % path)
@@ -129,10 +129,10 @@ def processIDIR(path, image_set):
     def isImg(fname):
         if not os.path.isfile(fname):
             return False
-        return fname[-4:] == '.png' or \
-            fname[-4:] == '.jpg' or \
-            fname[-5:] == '.jpeg' or \
-            fname[-5:] == '.webp' or \
+        return fname[-4:] == '.png' or \ # TODO: 不区分大小写
+            fname[-4:] == '.jpg' or \ # TODO: 不区分大小写
+            fname[-5:] == '.jpeg' or \ # TODO: 不区分大小写
+            fname[-5:] == '.webp' or \ # TODO: 不区分大小写
             fname[-4:] == '.svg'
     for i in os.listdir(path):
         p = os.path.join(path, i)
