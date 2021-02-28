@@ -2,17 +2,14 @@ dist: focal
 language: node_js
 node_js:
   - 12 # use nodejs v12 LTS
+python: 3.7
 cache: npm
 branches:
   only:
     - master
 before_install:
   - sudo apt-get update
-  - sudo apt-get install software-properties-common
-  - sudo add-apt-repository ppa:deadsnakes/ppa
-  - sudo apt-get update
-  - sudo apt-get -y install tree python3.8
-  - python --version
+  - sudo apt-get -y install tree
 script:
   - bash build-simple-blog.sh $DOCKER_TOKEN
   - python travisPorcess.py"
