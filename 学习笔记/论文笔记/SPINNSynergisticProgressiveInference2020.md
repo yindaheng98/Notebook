@@ -173,7 +173,7 @@ $thr_{conf}$越大，样本在浅层网络退出的概率越小，越多的的�
   2. 计算延迟缩放参数$SF=\frac{T^{real}\langle s\rangle}{T^{offline}\langle s\rangle}$
   3. 更新其他点$s'$的离线估计值为$SF\cdot T^{offline}\langle s'\rangle$
 * 估计服务器上的延迟：
-  * 如果服务器端能直接返回计算时间$T^{server}\langle s\rangle$，那就可以直接计算$SF$**（论文里没写这里到底怎么个计算法）**
+  * 如果服务器端能直接返回计算时间$T^{server}\langle s\rangle$，那就可以直接计算$SF$
   * 如果服务器端不支持返回计算时间
     * 那就通过总时间和网络带宽估计计算时间$T^{server}\langle s\rangle=T^{response}\langle s,e\rangle-\left(L+\frac{D_{response}}{B}\right)$
       * $T^{response}\langle s,e\rangle$：返回结果的总耗时
@@ -182,7 +182,35 @@ $thr_{conf}$越大，样本在浅层网络退出的概率越小，越多的的�
 
 ## 动态调度器
 
+* 优化变量$\sigma=\langle s,thr_{conf}\rangle$：切分点位置和每个出口的置信度
+* 优化目标$\mathcal M=\langle latency, throughput, server cost, device cost, accuracy\rangle$：延迟、吞吐量、服务器负载、设备负载、正确率，每个优化目标方程都转化成取值越小越好的形式
+* 优化方法：
+  1. 用户指定$\mathcal M$中的所有优化目标的硬性限制，系统从$\sigma$可行值中剔除不可行的解
+  2. 用户对$\mathcal M$中的所有优化目标进行排序，系统在$\sigma$的可行解上进行字典序多目标规划
+
+字典序多目标规划：
+
+$$
+\begin{aligned}
+  &\mathop{min}\limits_\sigma M_i(\sigma)\\
+  s.t.\quad&M_j(\sigma)\leq M_j(\sigma_j^*)\\
+  &i,j\in N_+,j<i\leq |\mathcal M|
+\end{aligned}
+$$
+
+即，对于第$i$个优化目标$M_i$，在优化过程中除了需要调整$\sigma$使得$M_i(\sigma)$尽可能小之外，还需要保证前面所有优化项的值$M_j(\sigma)$不能比之前的优化结果$M_j(\sigma_j^*)$更差。
+
 ## 通信优化器
+
+通信优化器中所使用的算法都是前人已经实现的算法。
+
+1. 压缩模型：
+  * 权值缩减
+  * 量化神经网络(QNN)
+2. 压缩数据：先估计一下压缩时间和压缩后所能节约的传输时间，如果总时间确实能减少那就执行压缩
 
 ## 分布式执行引擎
 
+* 每到达一个退出位置，都将置信度和设定的阈值相比较，如果大于阈值则退出
+* 数据的传输和计算分为两个线程并行地执行
+* 云端推断和本地推断同时进行，如果本地推断先出了结果，就向云端发信息让其退出推断过程，以节约资源（云端可能有网络波动或暂时断线，导致本地出结果先于云端返回结果）
