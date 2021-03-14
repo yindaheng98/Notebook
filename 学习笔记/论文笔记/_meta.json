@@ -83,8 +83,8 @@
     "SPINNSynergisticProgressiveInference2020.md": {
         "title": "SPINN: Synergistic Progressive Inference of Neural Networks over Device and Cloud",
         "created": "2021-01-31 14:30:33",
-        "updated": "2021-01-31 14:30:33",
-        "date": "2021-01-31 14:30:33",
+        "updated": "2021-03-14 15:35:14",
+        "date": "2021-03-14 15:35:14",
         "tags": [
             "论文笔记"
         ],
@@ -94,10 +94,10 @@
         "cover": "/论文笔记/i/SPINN-Intro.png"
     },
     "SystemHierarchyBraininspiredComputing2020-1.md": {
-        "title": "《A system hierarchy for brain-inspired computing》笔记二",
-        "created": "2020-12-19 15:24:09",
-        "updated": "2020-12-19 15:24:09",
-        "date": "2020-12-19 15:24:09",
+        "title": "《A system hierarchy for brain-inspired computing》笔记二(未完成)",
+        "created": "2021-03-03 12:10:27",
+        "updated": "2021-03-03 12:10:27",
+        "date": "2021-03-03 12:10:27",
         "tags": [
             "论文笔记",
             "计算理论",
