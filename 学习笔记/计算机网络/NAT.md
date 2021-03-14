@@ -33,7 +33,7 @@ i.Addr-->e.Addr-->s.Addr
 * 每个访问外网的主机都必须固定分配一个外网IP
 * 只有分配了外网IP的主机才能访问外网，其他主机不能访问外网。
 
-### 基本网络地址转换/动态NAT(Basic NAT/Dynamic NAT)
+### 基本NAT/动态NAT(Basic NAT/Dynamic NAT)
 
 * 一个局域网对外有多个`e.Addr`
 * `i.Addr`和`e.Addr`一一对应
@@ -90,7 +90,80 @@ NAPT是现在常用的技术。
 
 ### STUN(Simple Traversal of User Datagram Protocol Through Network Address Translators)
 
-### TURN(Traversal Using Relay NAT)
+STUN协议主要针对通信双方都在NAT后的情况，需要一个通信双方都能访问到的STUN服务器协调双方的通信。
+
+假定一个STUN服务器位于公网上，IP地址为`s.Addr`，STUN服务端应用程序监听于默认端口3478；`Host_1`和`Host_2`分别位于两个NAT后，其内网IP地址正巧都一样是`i.Addr`，它们都运行这STUN客户端，都通过端口`iPort`与STUN服务器持续通信。而经过NAT后，STUN服务器看到的它们建立连接的IP地址和端口分别是`e.1.Addr:e1Port`和`e.2.Addr:e2Port`。
+
+```mermaid
+graph LR
+i.Addr(`Host_1`<br>i.Addr:iPort)
+NATi[NAT1<br>e.1.Addr:e1Port]
+j.Addr(`Host_2`<br>i.Addr:iPort)
+NATj[NAT2<br>e.2.Addr:e2Port]
+s.Addr(STUN服务器<br>s.Addr:3478)
+i.Addr-->NATi-->s.Addr
+j.Addr-->NATj-->s.Addr
+```
+
+在实际的通信开始前，STUN服务器会维护一个主机->IP+端口的表，例如上面这种情况下，表格中就会有`Host_1->e.1.Addr:e1Port`和`Host_2->e.2.Addr:e2Port`两项。
+
+若假定`Host_1`想向`Host_2`发送一条信息。显然，**不管NAT1是哪种模式，都不影响`Host_1`出站流量**，`Host_1`发送的数据包能正常出站。因此，关键问题就在于，数据包离开了NAT1之后，如何经过NAT2到达`Host_2`。
+
+根据前文所述，NAT2可能采用了上述四种模式之一，不同的模式下STUN的处理方式不尽相同。在开始通信前，STUN客户端和服务器会通过一系列TCP和UDP包探测所处的NAT环境（探测方式很简单，稍微想想就能懂，在不济看看不同NAT环境下的运行过程也能想到对应的探测方法）。
+
+##### 直接向`Host_2`的IP地址发送
+
+当`Host_1`要发信息给`Host_2`的`jPort`时：
+
+1. `Host_1`上的客户端向STUN服务器查询`Host_2`此时的IP地址`e.2.Addr`
+2. `Host_1`上的客户端直接将包发往`e.2.Addr:jPort`
+
+显然，这种方法**要求到`e.2.Addr`任何端口的包都能到达`Host_2`**，因此只有在NAT2是基本NAT时才可用。
+
+##### 直接向`Host_2`在NAT2对应的端口中发送
+
+当`Host_1`要发信息给`Host_2`的`jPort`时：
+
+1. `Host_1`上的客户端向STUN服务器查询`Host_2`此时的IP地址和端口`e.2.Addr:e2Port`
+2. `Host_1`上的客户端将包进行一层封装，在载荷中注明真实目的端口为`jPort`，然后发往`e.2.Addr:e2Port`（进而通过NAT2转到`i.Addr:iPort`）
+3. `Host_2`上监听于`iPort`的STUN客户端收到包后，从载荷中拆出真正的数据包和目的端口`jPort`
+4. `Host_2`上的客户端将包转发到`localhost:jPort`
+
+根据前面分析的NAT规则，当`Host_2`上的客户端向STUN服务器发包时，STUN服务器收到的包的源地址和端口`e.2.Addr:e2Port`就是NAT2为`Host_2`开放的地址和端口，因此直接往`e.2.Addr:e2Port`发包就能到达`Host_2`。
+
+显然，这种方法**要求从任何地址到`e.2.Addr:e2Port`的包都能到达`Host_2`**，因此只有在NAT2是基本NAT或完全圆锥型NAT时才可用。
+
+##### `Host_2`先往`Host_1`发一个消息，`Host_1`再向`Host_2`对应的端口中发送
+
+当`Host_1`要发信息给`Host_2`的`jPort`时：
+
+1. `Host_1`通知STUN服务器：我要向`Host_2`发送消息
+2. STUN服务器通过于`Host_2`的持续通信过程通知`Host_2`：`Host_1`要连接你；同时附上服务器中记录的`Host_1`当前的地址和端口`e.1.Addr:e1Port`
+3. `Host_2`通过端口`iPort`向`e.1.Addr:e1Port`发送任意信息
+4. `Host_1`上的客户端将包进行一层封装，在载荷中注明真实目的端口为`jPort`，然后发往`e.2.Addr:e2Port`（进而通过NAT2转到`i.Addr:iPort`）
+5. `Host_2`上监听于`iPort`的STUN客户端收到包后，从载荷中拆出真正的数据包和目的端口`jPort`
+6. `Host_2`上的客户端将包转发到`localhost:jPort`
+
+仔细一看，这种方法其实是欺骗了NAT2，让它以为`Host_2`在与`e.1.Addr:e1Port`通信：`Host_2`通过`iPort`向`e.1.Addr:e1Port`发送的消息会在NAT2处变成通过`e2Port`向`e.1.Addr:e1Port`发送了信息。进而，在受限圆锥型NAT和端口受限圆锥型NAT中，后续来自`e.1.Addr:e1Port`的所有信息都能通过`e2Port`畅通无阻地到达`Host_1`的`iPort`端口。
+
+因此这种方法在NAT2是基本NAT、完全圆锥型NAT、受限圆锥型NAT和端口受限圆锥型NAT时都可用。
+
+对于对称型NAT，`Host_2`从`iPort`发送到`e.1.Addr:e1Port`的信息会被NAT2分到另一个端口`e3Port`，这时`Host_1`必须往`e.2.Addr:e3Port`发消息才能到达`Host_1`，但是，`e3Port`具体是哪个是由NAT路由器决定的，`Host_2`并不知道具体端口号，`Host_1`也只有在NAT1是基本NAT或完全圆锥型NAT时才能收到`Host_2`发来的任意信息得到源地址端口，所以，如果通信双方有一方是对称型NAT时，另一方必须是基本NAT或完全对称NAT，STUN才能运行。
+
+### TURN(Traversal Using Relay NAT)：由服务器来转发包，适用于任何NAT
+
+TURN是STUN的扩展，相比STUN多了由服务器来转发包的功能，从而能适应双方都是对称型NAT的环境。
+
+当`Host_1`要发信息给`Host_2`的`jPort`时：
+
+1. `Host_1`上的客户端将包进行一层封装，在载荷中注明真实目的为`Host_2`的`jPort`，然后发往服务器`s.Addr:3478`
+2. STUN服务器拆包，得知这是要给`Host_2`的包，于是发往`e.2.Addr:e2Port`（进而通过NAT2转到`i.Addr:iPort`）
+3. `Host_2`上监听于`iPort`的STUN客户端收到包后，从载荷中拆出真正的数据包和目的端口`jPort`
+4. `Host_2`上的客户端将包转发到`localhost:jPort`
+
+这种方法完全由服务器进行包的转发，在NAT看来，就是`Host_2`一直在向一个服务器请求数据，与一般的HTTP等常用通信方式无异，因此在任何NAT环境下都可以使用。
+
+和STUN相比，TURN主要的缺点就是所有流量都要走服务器，延迟高，且服务器负载很大。
 
 ### 由内网主机控制端口映射规则
 
@@ -165,7 +238,9 @@ NAT-PMP是PCP(端口控制协议)的前身。
 * NAT内网主机访问公网时不知道自己的公网IP，也不知道端口会被转成哪个
 * RSIP内网主机访问公网时知道自己的公网IP，也知道端口的转换关系
 
-### ALG(Application Layer Gateway/Application-Level Gateway, 应用层网关)：针对载荷中包含IP地址而造成错误的协议
+### 让路由器修改IP数据包中的部分内容以使协议正常运行
+
+#### ALG(Application Layer Gateway/Application-Level Gateway, 应用层网关)：针对载荷中包含IP地址而造成错误的协议
 
 ALG针对的场景是：
 
@@ -184,7 +259,7 @@ ALG的思想是：
 
 ALG支持的协议：FTP、H.323（包括RAS、H.225、H.245）、SIP、DNS、ILS、MSN/QQ、NBT、RTSP、SQLNET、TFTP等。
 
-### SBC(Session Border Controller, 会话边界控制器)
+#### SBC(Session Border Controller, 会话边界控制器)
 
 SBC针对的场景和ALG类似，但其仅面向企业级VoIP应用：
 
