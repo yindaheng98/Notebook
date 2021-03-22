@@ -62,7 +62,7 @@ LSTM也拥有这种链状结构，但是重复模块则拥有不同的结构。�
 
 To be a bit more explicit, we can split up each line into lines carrying individual scalar values:
 
-![符号](img/img/LSTM-vector.png)
+![符号](img/LSTM-vector.png)
 
 ## LSTM背后的核心理念
 
