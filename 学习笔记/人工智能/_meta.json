@@ -1,4 +1,20 @@
 {
+    "Attention.md": {
+        "title": "机器学习中的Attention机制",
+        "created": "2021-03-24 08:14:29",
+        "updated": "2021-03-24 08:14:29",
+        "date": "2021-03-24 08:14:29",
+        "tags": [
+            "人工智能",
+            "LSTM",
+            "神经网络",
+            "注意力机制"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/img/LSTM3-focus-f.png"
+    },
     "DenseNet.md": {
         "title": "DenseNet",
         "created": "2021-01-31 23:02:59",
@@ -14,8 +30,8 @@
     "LSTM.md": {
         "title": "【纯转载】《Understanding LSTM Networks》翻译",
         "created": "2021-03-22 07:56:22",
-        "updated": "2021-03-22 08:31:20",
-        "date": "2021-03-22 08:31:20",
+        "updated": "2021-03-22 10:44:48",
+        "date": "2021-03-22 10:44:48",
         "tags": [
             "人工智能",
             "LSTM",
