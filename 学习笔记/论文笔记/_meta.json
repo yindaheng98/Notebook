@@ -12,6 +12,18 @@
         ],
         "cover": "/论文笔记/i/1RMA.png"
     },
+    "2021顶会笔记.md": {
+        "title": "2020顶会论文阅读笔记",
+        "created": "2021-03-27 14:44:27",
+        "updated": "2021-03-27 14:44:27",
+        "date": "2021-03-27 14:44:27",
+        "tags": [
+            "论文笔记"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
+    },
     "BranchyNetFastInferenceEarly2017.md": {
         "title": "BranchyNet：Fast Inference via Early Exiting from Deep Neural Networks",
         "created": "2020-10-17 15:20:27",
@@ -80,11 +92,41 @@
             "论文笔记"
         ]
     },
+    "ElfAccelerateHighresolutionMobile2021.md": {
+        "title": "Elf: accelerate high-resolution mobile deep vision with content-aware parallel offloading",
+        "created": "2021-03-28 13:54:38",
+        "updated": "2021-03-28 13:54:38",
+        "date": "2021-03-28 13:54:38",
+        "tags": [
+            "论文笔记",
+            "目标跟踪",
+            "Region Proposal"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/./i/ELF-LSTM.png"
+    },
+    "ServerDrivenVideoStreamingDeep2020.md": {
+        "title": "Server-Driven Video Streaming for Deep Learning Inference",
+        "created": "2021-03-27 14:44:27",
+        "updated": "2021-03-27 14:44:27",
+        "date": "2021-03-27 14:44:27",
+        "tags": [
+            "论文笔记",
+            "目标跟踪",
+            "云计算"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/i/DDS.png"
+    },
     "SPINNSynergisticProgressiveInference2020.md": {
         "title": "SPINN: Synergistic Progressive Inference of Neural Networks over Device and Cloud",
         "created": "2021-01-31 14:30:33",
-        "updated": "2021-03-14 15:35:14",
-        "date": "2021-03-14 15:35:14",
+        "updated": "2021-03-28 14:40:25",
+        "date": "2021-03-28 14:40:25",
         "tags": [
             "论文笔记"
         ],
