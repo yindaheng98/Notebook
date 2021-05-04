@@ -2,6 +2,8 @@
 
 [视频](https://www.bilibili.com/video/av67843210)
 
+[PPT](http://causality.cs.ucla.edu/blog/wp-content/uploads/2017/12/nips-dec2017-bw.pdf)
+
 ![](i/Alchemy.jpg)
 
 ![](i/Theoreticalimpediments.png)
