@@ -1,4 +1,4 @@
-# 来自华为的AdderNet及其应用
+# 来自华为的AdderNet及其在超分辨率领域的应用
 
 ## 《AdderNet: Do We Really Need Multiplications in Deep Learning?》in CVPR 2020
 
@@ -66,3 +66,52 @@
 ![](i/AdderNetResult.png)
 
 非常牛逼
+
+## 《AdderSR: Towards Energy Efficient Image Super-Resolution》in CVPR 2021
+
+### 核心思想
+
+用AdderNet搞超分辨率任务
+
+### 创新点
+
+* 第一次将AdderNet用在超分辨率里面
+* 解决了AdderNet用在超分辨率时的两个问题
+  * 用AdderNet实现了类似ResNet里面的恒等映射
+  * 用AdderNet实现了高通滤波器
+
+### 用AdderNet实现恒等映射
+
+恒等映射能力对于处理SR任务来讲很重要（为什么？恒等映射和SR之间的关系还需要进一步学习）
+
+文章证明了单纯的AdderNet无法实现恒等映射
+
+![](i/AdderNetSR1.png)
+
+那就学ResNet加支路（ResNet是怎么搞恒等映射的见[《ResNet》](../人工智能/ResNet.md)）
+
+![](i/AdderNetSR2.png)
+
+### 用AdderNet实现高通滤波器
+
+高通滤波器对于图像细节的恢复来讲很重要，因为SR里面需要靠高通滤波器处理卷积输出滤出细节部分加到图像里
+
+>The above equation can help the SISR model removing redundant outputs and noise and enhancing the high-frequency details, which is also a very essential component in the SISR models.
+
+（这句话不知道我理解的对不对？高通滤波和SR之间的关系还需要进一步学习）
+
+文章证明了单纯的AdderNet无法实现高通滤波
+
+![](i/AdderNetSR31.png)
+
+![](i/AdderNetSR32.png)
+
+（为什么不满足这个式子就无法实现高通滤波？）
+
+作者直接用了别人论文里的Box-Cox变换（一种高通滤波器替代方法）解决这个问题
+
+![](i/AdderNetSR4.png)
+
+### 效果
+
+![](i/AdderNetSRR.png)
