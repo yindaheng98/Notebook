@@ -83,21 +83,23 @@
     },
     "ResNet.md": {
         "title": "ResNet",
-        "created": "2021-01-31 23:12:22",
-        "updated": "2021-01-31 23:12:22",
-        "date": "2021-01-31 23:12:22",
+        "created": "2021-05-05 03:09:44",
+        "updated": "2021-05-05 03:09:44",
+        "date": "2021-05-05 03:09:44",
         "tags": [
-            "人工智能"
+            "人工智能",
+            "ResNet"
         ],
         "categories": [
             "人工智能"
-        ]
+        ],
+        "cover": "/人工智能/i/Res.jpg"
     },
     "TheoreticalImpedimentstoMachineLearning.md": {
         "title": "NIPS2017 Theoretical impediments to machine learning：无人问津的图灵奖得主",
         "created": "2021-05-04 14:59:25",
-        "updated": "2021-05-04 14:59:25",
-        "date": "2021-05-04 14:59:25",
+        "updated": "2021-05-04 15:03:22",
+        "date": "2021-05-04 15:03:22",
         "tags": [
             "人工智能",
             "思想"
