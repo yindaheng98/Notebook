@@ -52,6 +52,20 @@
             "论文笔记"
         ]
     },
+    "ClassSR2020.md": {
+        "title": "ClassSR: A General Framework to Accelerate Super-Resolution Networks by Data Characteristic",
+        "created": "2021-05-15 15:39:41",
+        "updated": "2021-05-15 15:39:41",
+        "date": "2021-05-15 15:39:41",
+        "tags": [
+            "论文笔记",
+            "超分辨率"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/i/ClassSR1.png"
+    },
     "CollaborateSeparateDistributed2020.md": {
         "title": "Collaborate or Separate? Distributed Service Caching in Mobile Edge Clouds",
         "created": "2020-10-02 14:41:07",
