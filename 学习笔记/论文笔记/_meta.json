@@ -1,16 +1,4 @@
 {
-    "2020各领域研究热点汇总.md": {
-        "title": "2020各领域研究热点汇总",
-        "created": "2021-04-24 22:46:21",
-        "updated": "2021-04-24 22:46:21",
-        "date": "2021-04-24 22:46:21",
-        "tags": [
-            "论文笔记"
-        ],
-        "categories": [
-            "论文笔记"
-        ]
-    },
     "2020顶会笔记.md": {
         "title": "2020顶会论文阅读笔记",
         "created": "2021-01-31 13:36:07",
@@ -57,7 +45,8 @@
         "updated": "2020-10-24 15:27:59",
         "date": "2020-10-24 15:27:59",
         "tags": [
-            "论文笔记"
+            "论文笔记",
+            "边缘计算"
         ],
         "categories": [
             "论文笔记"
@@ -92,6 +81,20 @@
             "论文笔记"
         ]
     },
+    "DeepUnfoldingNetworkImage2020.md": {
+        "title": "Deep Unfolding Network for Image Super-Resolution",
+        "created": "2021-05-15 04:19:44",
+        "updated": "2021-05-15 08:22:56",
+        "date": "2021-05-15 08:22:56",
+        "tags": [
+            "论文笔记",
+            "超分辨率"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/i/DeepUnfolding.png"
+    },
     "DelayOptimalDistributedEdge2020.md": {
         "title": "Delay-Optimal Distributed Edge Computing in Wireless Edge Networks",
         "created": "2020-10-07 07:22:41",
@@ -102,18 +105,6 @@
             "边缘计算",
             "分布式计算",
             "贪心算法"
-        ],
-        "categories": [
-            "论文笔记"
-        ]
-    },
-    "DRF2011.md": {
-        "title": "Dominant Resource Fairness: Fair Allocation of Multiple Resource Types",
-        "created": "2021-01-05 11:39:10",
-        "updated": "2021-01-05 11:39:10",
-        "date": "2021-01-05 11:39:10",
-        "tags": [
-            "论文笔记"
         ],
         "categories": [
             "论文笔记"
@@ -133,6 +124,20 @@
             "论文笔记"
         ],
         "cover": "/论文笔记/./i/ELF-LSTM.png"
+    },
+    "LapSRN.md": {
+        "title": "LapSRN",
+        "created": "2021-05-14 07:50:03",
+        "updated": "2021-05-14 07:50:03",
+        "date": "2021-05-14 07:50:03",
+        "tags": [
+            "论文笔记",
+            "超分辨率"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/i/LapSRN.png"
     },
     "ServerDrivenVideoStreamingDeep2020.md": {
         "title": "Server-Driven Video Streaming for Deep Learning Inference",
@@ -194,11 +199,24 @@
         ],
         "cover": "/论文笔记/./i/POG.png"
     },
-    "杂记.md": {
-        "title": "没看懂的论文杂记",
+    "杂记2020.md": {
+        "title": "没看懂的论文杂记2020",
+        "created": "2021-05-12 07:15:03",
+        "updated": "2021-05-12 07:15:03",
+        "date": "2021-05-12 07:15:03",
+        "tags": [
+            "论文笔记"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/i/JSI-GAN.png"
+    },
+    "杂记2021.md": {
+        "title": "没看懂的论文杂记2021",
         "created": "2021-05-09 13:35:41",
-        "updated": "2021-05-09 13:35:41",
-        "date": "2021-05-09 13:35:41",
+        "updated": "2021-05-15 08:23:52",
+        "date": "2021-05-15 08:23:52",
         "tags": [
             "论文笔记"
         ],
