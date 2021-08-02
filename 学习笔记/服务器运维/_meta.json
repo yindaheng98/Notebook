@@ -1,4 +1,29 @@
 {
+    "img-compress.md": {
+        "title": "如何压缩Win32DiskImager读出的磁盘镜像",
+        "created": "2021-07-07 15:01:25",
+        "updated": "2021-08-02 13:12:42",
+        "date": "2021-08-02 13:12:42",
+        "tags": [
+            "服务器运维"
+        ],
+        "categories": [
+            "服务器运维"
+        ],
+        "cover": "/服务器运维/./i/img-fdisk-start.png"
+    },
+    "openwrt-build.md": {
+        "title": "用docker编译lede大佬的openwrt固件",
+        "created": "2021-08-02 13:12:42",
+        "updated": "2021-08-02 13:12:42",
+        "date": "2021-08-02 13:12:42",
+        "tags": [
+            "服务器运维"
+        ],
+        "categories": [
+            "服务器运维"
+        ]
+    },
     "reverse-proxy.md": {
         "title": "Apache2反向代理的配置方法",
         "date": "2019-05-07 09:04:17",
