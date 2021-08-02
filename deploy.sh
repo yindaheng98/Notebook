@@ -2,6 +2,7 @@
 git config user.name "TravisCI"
 git config user.email "yindaheng98@163.com"
 cd ./theme/public
+touch .nojekyll
 set -e
 git init
 git add -A
