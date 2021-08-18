@@ -68,6 +68,25 @@ StopIteration: xxx
 
 可以看到，协程与迭代器非常相似，都是一个可以挂起和继续的对象，协程的底层就是基于迭代器在控制挂起和继续的操作。这也是为什么Python协程的教程都要从生成器和迭代器开始讲起。
 
+### 基于生成器的协程
+
+>**注解**：对基于生成器的协程的支持 **已弃用** 并计划在 Python 3.10 中移除。
+>
+>基于生成器的协程是 async/await 语法的前身。它们是使用 `yield from` 语句创建的 Python 生成器，可以等待 Future 和其他协程。
+>
+>基于生成器的协程应该使用 `@asyncio.coroutine` 装饰，虽然这并非强制。此装饰器使得旧式的基于生成器的协程能与 async/await 代码相兼容:
+>
+>```python
+>@asyncio.coroutine
+>def old_style_coroutine():
+>    yield from asyncio.sleep(1)
+>
+>async def main():
+>    await old_style_coroutine()
+>```
+>
+>Deprecated since version 3.8, will be removed in version 3.10: 请改用 `async def`。
+
 ## 异步生成器
 
 在一个 `async def` 定义的函数体内使用 `yield` 表达式会让协程函数变成异步的生成器。
