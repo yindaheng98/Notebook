@@ -1,4 +1,4 @@
-# 用实例学习pion - [`rtp-forwarder.go`](https://github.com/pion/webrtc/blob/master/examples/rtp-forwarder/main.go#L24)
+# 用实例学习pion - [`rtp-forwarder`](https://github.com/pion/webrtc/blob/master/examples/rtp-forwarder/main.go#L24)
 
 ## 配置`MediaEngine`
 
@@ -370,7 +370,7 @@ if err = peerConnection.SetLocalDescription(answer); err != nil {
 <-gatherComplete
 ```
 
-等待连接建立并完成ICE。注释里讲了这个示例的特殊性：只进行一次ICE信令交换，正常情况应该是使用`OnICECandidate`。
+等待完成ICE信息收集。注释里讲了这个示例的特殊性：只进行一次ICE信令交换，正常情况应该是使用`OnICECandidate`。
 
 ```go
 // Output the answer in base64 so we can paste it in browser
