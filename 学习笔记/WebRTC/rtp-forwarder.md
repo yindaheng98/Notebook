@@ -345,7 +345,7 @@ if err != nil {
 }
 ```
 
-设置PeerConnection的SDP Answer。本案例中的WebRTC是接收方，是等待连接的一方，其接收请求方发来的Offer返回自己的Answer，所以是CreateAnswer没有CreateOffer。
+设置PeerConnection的SDP Answer。
 
 ```go
 // Create channel that is blocked until ICE Gathering is complete
