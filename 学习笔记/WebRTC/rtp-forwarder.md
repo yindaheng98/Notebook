@@ -377,7 +377,7 @@ if err = peerConnection.SetLocalDescription(answer); err != nil {
 fmt.Println(signal.Encode(*peerConnection.LocalDescription()))
 ```
 
-输出SessionDescription，给用户在服务器里粘贴（包含收集到的ICE信息）。
+输出SessionDescription，给用户在浏览器里粘贴（包含收集到的ICE信息），浏览器就是通过这个在STUN里找到自己要连的服务端在哪。
 
 ```go
 // Block forever
