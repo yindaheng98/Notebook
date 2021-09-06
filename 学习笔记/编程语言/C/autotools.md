@@ -8,7 +8,6 @@
 
 Autotools 的组件是：
 
-  * `automake`
   * `autoconf`
   * `automake`
   * `make`
