@@ -1,5 +1,6 @@
 # 【转载】P2P通信标准协议(二)之TURN
 
+原文：[《P2P通信标准协议(二)之TURN》](https://evilpan.com/2015/12/15/p2p-standard-protocol-turn/)
 
 上一篇[P2P通信标准协议(一)](https://evilpan.com/2015/12/12/p2p-standard-protocol-stun/)介绍了在NAT上进行端口绑定的通用规则，应用程序可以根据这个协议来设计网络以外的通信。但是，[STUN/RFC5389](http://www.rfc-editor.org/info/rfc5389)协议里能处理的也只有市面上大多数的`Cone NAT`（关于NAT类型可以参照[P2P通信原理与实现](https://evilpan.com/2015/10/31/p2p-over-middle-box/)），对于`Symmetric NAT`，传统的P2P打洞方法是不适用的。因此为了保证通信能够建立，我们可以在没办法的情况下用保证成功的中继方法（Relaying），虽然使用中继会对服务器负担加重，而且也算不上P2P，但是至少保证了最坏情况下信道的通畅，从而不至于受NAT类型的限制。[TURN/RFC5766](http://www.rfc-editor.org/info/rfc5766)就是为此目的而进行的拓展。
 
