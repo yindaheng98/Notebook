@@ -171,28 +171,28 @@ TURN支持两种方式来创建许可,比如其中一种就是发送`CreatePermi
 
 这里使用wireshark来抓包分析,关于wireshark的简介可以参照我之前的文章[细说中间人攻击(一)](https://evilpan.com/2015/11/01/mitm-detail-1/), 首先TurnClient发送Allocation请求:
 
-![allocation](https://img-blog.csdnimg.cn/img_convert/6ec6a5e2f8dce9bf4305bba48818df22.png)
+![allocation](./i/6ec6a5e2f8dce9bf4305bba48818df22.png)
 
 可以看到第一次requst被服务器拒绝,因为后者要求nonce验证信息,服务器的返回中包含了nonce信息, 除此之外还包含了ERROR-CODE,SOFTWARE,FINGERPRINT属性.
 
-![error-nonce](https://img-blog.csdnimg.cn/img_convert/cb5bfdc0e7ed9a3755fe659c0469a07a.png)
+![error-nonce](./i/cb5bfdc0e7ed9a3755fe659c0469a07a.png)
 
 在下一次request请求中,客户端加上了收到的nonce,以及USERNAME和REALM等属性,再次发送到TurnServer:
 
-![allocation2](https://img-blog.csdnimg.cn/img_convert/beb9ab5da62858e970017154ac7c54d3.png)
+![allocation2](./i/beb9ab5da62858e970017154ac7c54d3.png)
 
 服务器接收到了正确的allocation请求,于是返回succcess response,可以看到在返回中带有默认的lifetime为1800秒, XOR-MAPPED-ADDRESS以及XOR-RELAY-ADDRESS等属性:
 
-![allocation-success](https://img-blog.csdnimg.cn/img_convert/2d91f7cac2aa9bc75bddcf2f185b2d0b.png)
+![allocation-success](./i/2d91f7cac2aa9bc75bddcf2f185b2d0b.png)
 
 前文也说过,若要和peer进行通信,必须先创建一个许可,因此Client向服务器发送CreatePermission请求,其中携带了peer的信息:
 
-![createpermission](https://img-blog.csdnimg.cn/img_convert/8ae913e40adf1395d021fc7f9f06cd8f.png)
+![createpermission](./i/8ae913e40adf1395d021fc7f9f06cd8f.png)
 
 
 服务器如果通过验证,就会返回success response,随后Client可以通过上文说到的两种方法与Peer进行通讯,比如下面的Send indication方法:
 
-![send-indication](https://img-blog.csdnimg.cn/img_convert/a233751e1e4a40df1629d3a615d07a12.png)
+![send-indication](./i/a233751e1e4a40df1629d3a615d07a12.png)
 
 
 通过对TurnServer发送indication告知数据的接收方以及数据内容让TurnServer进行转发,从而间接地向对等端发送DATA. 而从对等端来看,就是收到一个从client的relay地址192.168.1.110:65315到目的地址192.168.1.106:59593(即peer地址)的UDP数据包.
