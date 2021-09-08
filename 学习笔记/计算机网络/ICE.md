@@ -1,5 +1,6 @@
 # 【转载】P2P通信标准协议(三)之ICE
 
+原文：[《P2P通信标准协议(三)之ICE》](https://evilpan.com/2015/12/20/p2p-standard-protocol-ice/)
 
 在[P2P通信标准协议(二)](https://evilpan.com/2015/12/15/p2p-standard-protocol-turn/)中,介绍了TURN的基本交互流程,在上篇结束部分也有说到,TURN作为STUN协议的一个拓展,保持了STUN的工具性质,而不作为完整的NAT传输解决方案,只提供穿透NAT的功能, 并且由具体的应用程序来使用.虽然TURN也可以独立工作,但其本身就是被设计为[ICE/RFC5245](http://www.rfc-editor.org/info/rfc5245)的一部分,本章就来介绍一下ICE协议的具体内容.
 
