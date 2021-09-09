@@ -31,7 +31,7 @@
 * [《P2P通信标准协议(二)之TURN》](../计算机网络/TURN.md)
 * [《P2P通信标准协议(三)之ICE》](../计算机网络/ICE.md)
 
-## pion里的ICE协商过程案例 - 作为发起方
+## pion里的ICE协商过程案例 - 作为被发起连接的一方
 
 以[《用实例学习pion - `rtp-forwarder`》](rtp-forwarder.md)中的最后一段代码为例。
 
