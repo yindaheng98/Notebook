@@ -1,4 +1,4 @@
-# 一张图理解WebRTC中的STUN、SDP和ICE过程总结
+# 从一张图开始理解WebRTC中的STUN、SDP和ICE过程
 
 前面几篇文章已经总结了很多关于WebRTC数据传输方面的操作过程了，现在是时候解析一下最后一块拼图了：WebRTC通过ICE建立连接的过程。
 
@@ -30,3 +30,68 @@
 * [《P2P通信标准协议(一)之STUN》](../计算机网络/STUN.md)
 * [《P2P通信标准协议(二)之TURN》](../计算机网络/TURN.md)
 * [《P2P通信标准协议(三)之ICE》](../计算机网络/ICE.md)
+
+## pion里的ICE协商过程案例 - 作为发起方
+
+以[《用实例学习pion - `rtp-forwarder`》](rtp-forwarder.md)中的最后一段代码为例。
+
+前面的`webrtc.PeerConnection`已经配置好了音视频流格式，略去，从创建Offer的过程开始。
+
+```go
+// Wait for the offer to be pasted
+offer := webrtc.SessionDescription{}
+signal.Decode(signal.MustReadStdin(), &offer)
+```
+
+这里的Offer SDP信息是从命令行读取来的，而命令行里的SDP是从浏览器里粘贴来的，所以这里相当于是手工担任了信令传输的工作。
+
+```go
+// Set the remote SessionDescription
+if err = peerConnection.SetRemoteDescription(offer); err != nil {
+    panic(err)
+}
+```
+
+可以看到这里对对面的Offer调用了PeerConnection的`SetRemoteDescription`，和前面介绍的一样。
+
+```go
+// Create answer
+answer, err := peerConnection.CreateAnswer(nil)
+if err != nil {
+    panic(err)
+}
+```
+
+调用PeerConnection的`CreateAnswer`创建Answer，和前面介绍的一样。
+
+```go
+// Create channel that is blocked until ICE Gathering is complete
+gatherComplete := webrtc.GatheringCompletePromise(peerConnection)
+```
+
+这里的`GatheringCompletePromise`返回的是一个`context`(本质上是`<-chan struct{}`)，阻塞直到完成ICECandidate信息收集，实际上就是等待STUN和本地IP地址获取完成。
+
+```go
+// Sets the LocalDescription, and starts our UDP listeners
+if err = peerConnection.SetLocalDescription(answer); err != nil {
+    panic(err)
+}
+```
+
+可以看到这里对方才生成的Answer调用了PeerConnection的`SetLocalDescription`，和前面介绍的一样。
+
+```go
+// Block until ICE Gathering is complete, disabling trickle ICE
+// we do this because we only can exchange one signaling message
+// in a production application you should exchange ICE Candidates via OnICECandidate
+<-gatherComplete
+```
+
+等待完成ICECandidate信息收集。
+
+```go
+// Output the answer in base64 so we can paste it in browser
+fmt.Println(signal.Encode(*peerConnection.LocalDescription()))
+```
+
+输出SessionDescription，应该是包含收集到的ICECandidate信息和Answer，给用户在浏览器里粘贴，所以这里也相当于是手工担任了信令传输的工作。
