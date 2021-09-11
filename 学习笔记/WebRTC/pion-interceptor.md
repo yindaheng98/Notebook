@@ -11,6 +11,17 @@
 >
 >In this release we only are providing a NACK Generator/Responder interceptor. We will be implementing more and you can import the latest at anytime! This means you can update your pion/interceptor version without having to upgrade pion/webrtc!
 
+总的来说，在WebRTC通信中，要收发的包可以分为两类：
+* RTP包：传递媒体内容，如音视频片段等
+* RTCP包：传递控制信息，如NACK、接收方报告等
+
+`pion/interceptor`也是按照这样的思路进行实现的，其中实现的interceptor都同时要处理RTP包和RTCP包，处理方式基本上都是根据RTP包的收发情况构造RTCP包进行发送，以及根据收到的RTCP包调整RTP包的发送。
+* 比如在`pion/interceptor/pkg/nack`里，就是一方根据RTP包的序列号发送NACK信息，另一方根据NACK信息重发RTP包
+* 又比如在`pion/interceptor/pkg/nack`里，就是一方统计RTP包的接收情况发送SenderReport，另一方接收并存储之
+* 再比如在`pion/interceptor/pkg/twcc`里，就是一方统计RTP包的接收情况反馈丢包信息，另一方接收然后调整RTP包发送窗口
+
+此外，从逻辑上讲，一个协议必须得收发双方都实现了才能正常运行，而且由于WebRTC是对等连接通信，一方可能既是接收方又是发送方，所以`pion/interceptor`里的interceptor都必须得实现收发双方的功能。在程序里，这个思想体现为收发方基础接口不是分`SenderInterceptor`和`ReceiverInterceptor`两个，而是在一个基础接口`Interceptor`中同时包含收发双方的方法。
+
 ## 核心接口
 
 ```go
@@ -45,6 +56,20 @@ type RTCPReader interface {
 结合前面`BindRTCPReader`里说的功能，这个`Read`应该就是用户实现自定义修改输入RTCP数据包过程的地方。
 
 输出里的错误自不必多讲，这里输入的字节数据应该就是修改前的RTCP数据包，修改过程应该是直接在这个字节输入上进行，后面输出的整型应该是修改后的数据长度，让之后的操作可以直接从字节数据里读出RTCP包。这个`Attributes`在后面定义的，是一个`map[interface{}]interface{}`，应该是用于传递一些自定义参数的。
+
+`pion/interceptor`里还提供了一种简便的构造`RTCPReader`的方式：
+
+```go
+// RTCPReaderFunc is an adapter for RTCPReader interface
+type RTCPReaderFunc func([]byte, Attributes) (int, Attributes, error)
+
+// Read a batch of rtcp packets
+func (f RTCPReaderFunc) Read(b []byte, a Attributes) (int, Attributes, error) {
+	return f(b, a)
+}
+```
+
+这样，只要写好`Read`里的代码，可以不用再定义一个`RTCPReader`子类，直接把函数放进`RTCPReaderFunc`就行。函数式编程思想，很妙。`pion/interceptor/pkg`里的几个interceptor都是这么用的。
 
 那么这么看，`BindRTCPReader`确实是可以级联的，并且`BindRTCPReader`里面要实现的操作也能大概猜得到：
 * 以`BindRTCPReader`输入的`RTPReader`构造自己的`RTPReader`作为输出，在自己的`RTPReader`的`Read`函数中：
@@ -86,6 +111,22 @@ type RTCPWriter interface {
 * 再比如在`pion/interceptor/pkg/report`里是定期发送SenderReport包
 * 又比如在`pion/interceptor/pkg/twcc`里是定期发送反馈信息
 
+`pion/interceptor`里也提供了一种简便的构造`RTCPWriter`的方式：
+
+```go
+// RTCPWriterFunc is an adapter for RTCPWriter interface
+type RTCPWriterFunc func(pkts []rtcp.Packet, attributes Attributes) (int, error)
+
+// Write a batch of rtcp packets
+func (f RTCPWriterFunc) Write(pkts []rtcp.Packet, attributes Attributes) (int, error) {
+	return f(pkts, attributes)
+}
+```
+
+和`RTCPReaderFunc`一个道理，不必多讲。
+
+## `BindLocalStream`方法
+
 ```go
 	// BindLocalStream lets you modify any outgoing RTP packets. It is called once for per LocalStream. The returned method
 	// will be called once per rtp packet.
@@ -98,6 +139,7 @@ type RTCPWriter interface {
 	UnbindLocalStream(info *StreamInfo)
 ```
 
+## `BindRemoteStream`方法
 
 ```go
 	// BindRemoteStream lets you modify any incoming RTP packets. It is called once for per RemoteStream. The returned method
@@ -111,6 +153,7 @@ type RTCPWriter interface {
 	UnbindRemoteStream(info *StreamInfo)
 ```
 
+## `Close`
 
 ```go
 	io.Closer
@@ -119,32 +162,12 @@ type RTCPWriter interface {
 
 
 ```go
-// RTCPWriter is used by Interceptor.BindRTCPWriter.
-type RTCPWriter interface {
-	// Write a batch of rtcp packets
-	Write(pkts []rtcp.Packet, attributes Attributes) (int, error)
-}
-
-// RTCPReader is used by Interceptor.BindRTCPReader.
-type RTCPReader interface {
-	// Read a batch of rtcp packets
-	Read([]byte, Attributes) (int, Attributes, error)
-}
-
-// Attributes are a generic key/value store used by interceptors
-type Attributes map[interface{}]interface{}
-
 // RTPWriterFunc is an adapter for RTPWrite interface
 type RTPWriterFunc func(header *rtp.Header, payload []byte, attributes Attributes) (int, error)
 
 // RTPReaderFunc is an adapter for RTPReader interface
 type RTPReaderFunc func([]byte, Attributes) (int, Attributes, error)
 
-// RTCPWriterFunc is an adapter for RTCPWriter interface
-type RTCPWriterFunc func(pkts []rtcp.Packet, attributes Attributes) (int, error)
-
-// RTCPReaderFunc is an adapter for RTCPReader interface
-type RTCPReaderFunc func([]byte, Attributes) (int, Attributes, error)
 
 // Write a rtp packet
 func (f RTPWriterFunc) Write(header *rtp.Header, payload []byte, attributes Attributes) (int, error) {
@@ -153,16 +176,6 @@ func (f RTPWriterFunc) Write(header *rtp.Header, payload []byte, attributes Attr
 
 // Read a rtp packet
 func (f RTPReaderFunc) Read(b []byte, a Attributes) (int, Attributes, error) {
-	return f(b, a)
-}
-
-// Write a batch of rtcp packets
-func (f RTCPWriterFunc) Write(pkts []rtcp.Packet, attributes Attributes) (int, error) {
-	return f(pkts, attributes)
-}
-
-// Read a batch of rtcp packets
-func (f RTCPReaderFunc) Read(b []byte, a Attributes) (int, Attributes, error) {
 	return f(b, a)
 }
 
