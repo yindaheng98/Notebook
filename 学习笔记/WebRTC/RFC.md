@@ -25,13 +25,13 @@ WebRTC 作为一个多媒体实时通信系统，实现了很多 RFC 标准，�
 
 此协议主要是描述了 RTP real-time transport protocol。RTP 协议主要是用于多人音视频会议的应用场景下。协议内定义了 RTP、RTCP 的基本报文格式和最初的算法。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc1889)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc1889)
 
 ## RFC 3550
 
 RFC 3550 是在 RFC 1889 的基础上进行了改进， 对 RTP 包头，RTCP 的 SR、RR、SDES、APP、BYE 做了介绍，对 RTCP 报文的收发算法、RTT 的计算做了规定。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc3550)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc3550)
 
 ## RFC 3551 RTP/AVP
 
@@ -41,7 +41,7 @@ RFC 3551 叫做 RTP Audio visual profile，是 RFC 3550 的补充，主要体现
 2. 对 AV codec 对应的 payload type 做了说明，历史上采用**静态 payload type** 并且和 name 绑定，后来发现 payload type 空间很有限，所以鼓励用**动态 payload type**，范围是 96-127。
 3. 对音频、视频 codec 做了一个说明，这些都是比较老的格式。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc3551)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc3551)
 
 ## rfc 4585 RTP/AVPF
 
@@ -69,7 +69,7 @@ a=rtcp-fb:101 nack
 a=rtcp-fb:101 nack pli
 ```
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc4585)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc4585)
 
 ## RFC 5104
 
@@ -77,19 +77,19 @@ RFC 4885 中只是定义了简单的反馈机制，比如 NACK。是适合于 P2
 
 RFC 5104 制定了更适合多人通信模式的相关反馈机制。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc5104)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc5104)
 
 ## RFC 5285
 
 定义 RTP 中的扩展头。其实 RFC 3550 中也提供了扩展头规范，但是只能有一种扩展头类型，不够灵活。而 RFC 5285 支持多种类型扩展头。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc5285)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc5285)
 
 ## RFC 5761
 
 解决 rtp 和 rtcp 共用同一个端口，数据包解复用的问题。这是通过 payload type 来解决。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc5761)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc5761)
 
 WebRTC 识别 RTCP 的方法，是按照 RFC 指示做的，如下：
 
@@ -113,11 +113,11 @@ webrtc 中实现了 single 模式和 STAP-A 模式。
 
 也实现了将一个 NALU 分片的机制。
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc6184)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc6184)
 
 ## RFC 2198
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc2198)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc2198)
 
 此 RFC 主要讲述音频冗余。通过实践来看，网络拥塞、带宽限制等都会造成网络丢包，丢包是互联网音视频通信音频差的主要原因。引入冗余可以让接收端根据冗余数据恢复丢失的数据。
 
@@ -147,7 +147,7 @@ block length: 数据长度。
 
 ## RFC 2733
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc2733)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc2733)
 
 此文档主要是讲 FEC ：Generic Forward Error Correction
 
@@ -157,7 +157,7 @@ FEC 主要是采用 xor 运算来实现。
 
 ## RFC 5109
 
-链接：[tools.ietf.org/html/rfc](https://link.zhihu.com/?target=https%3A//tools.ietf.org/html/rfc5109)
+链接：[tools.ietf.org/html/rfc](https://tools.ietf.org/html/rfc5109)
 
 此文也是讨论 FEC，理念是基于 RFC 2733，可以说是一个改进版本。
 
