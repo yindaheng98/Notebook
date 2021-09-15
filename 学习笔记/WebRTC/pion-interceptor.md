@@ -22,6 +22,8 @@
 
 此外，从逻辑上讲，一个协议必须得收发双方都实现了才能正常运行，而且由于WebRTC是对等连接通信，一方可能既是接收方又是发送方，所以`pion/interceptor`里的interceptor都必须得实现收发双方的功能。在程序里，这个思想体现为收发方基础接口不是分`SenderInterceptor`和`ReceiverInterceptor`两个，而是在一个基础接口`Interceptor`中同时包含收发双方的方法。
 
+本文可以和[《用实例学习pion interceptor - `nack`》](./pion-nack.md)搭配着看。
+
 ## 核心接口
 
 ```go
@@ -188,7 +190,7 @@ type RTCPFeedback struct {
 
 可以看到，这个`StreamInfo`里面放的是一些与流有关的配置信息。由于RTP包承载的是流，流中的包可以看成是一个整体，是一系列相互关联的连续包，不像RTCP包那样是一个个独立的包，一会是NACK、一会又是SenderReport。`StreamInfo`就是这些连续RTP包中与流相关的标记信息，它可以用来区分RTP包属于哪个流、区分媒体的类型、记录时钟频率等等。
 
-一些重要的`StreamInfo`参数：
+一些重要的`StreamInfo`参数：引自《RTP: audio and video for the Internet》
 * `SSRC`：Synchronization Source（SSRC）标识RTP会话中的参与者。它是一个临时的，每个会话的标识符通过RTP控制协议映射到一个长期的规范名称CNAME。SSRC是一个32位整数，由参与者加入会话时随机选择。具有相同SSRC的所有数据包均构成单个时序和序列号空间的一部分，因此接收方必须按SSRC对数据包进行分组才能进行播放。如果参加者在一个RTP会话中生成多个流（例如，来自不同的摄像机），每个流都必须标识为不同的SSRC，以便接收方可以区分哪些数据包属于每个流。
 * `PayloadType`：有效负载类型。RTP头的负载类型（或者PT）与RTP传输的媒体数据关联。接收者应用检测负载类型来甄别如何处理数据，例如，传递给特定的解压缩器。
 * `MimeType`：有效负载格式。有效负载格式是根据MIME名称空间命名的。该名称空间最初是为电子邮件定义的，用于标识附件的内容，但此后它已成为媒体格式的通用名称空间，并在许多应用程序中使用。所有有效负载格式都应该具有MIME类型注册。更新的有效负载格式将其包含在其各自规范中； 在线维护MIME类型的完整列表，网址为：[http://www.iana.org/assignments/media-types](http://www.iana.org/assignments/media-types)。
@@ -253,3 +255,91 @@ func (f RTPWriterFunc) Write(header *rtp.Header, payload []byte, attributes Attr
 }
 ```
 这里好理解，当要销毁这个`Interceptor`的时候，必须要解绑所有的`RTCPReader`、`RTCPWriter`、`RTPReader`、`RTPWriter`，并且停止所有的相关协程，这个只能由实现`Interceptor`的用户来做。所以在这里加上了一个`io.Closer`，要求用户自己实现一个`Close`方法。
+
+## 来自[《用实例学习pion interceptor - `nack`》](./pion-nack.md)的附加知识
+
+以下是一些关于级联和`Interceptor`具体如何调用的知识。[《用实例学习pion interceptor - `nack`》](./pion-nack.md)里的案例很是简洁，一看就能懂。
+
+从[《用实例学习pion interceptor - `nack`》](./pion-nack.md)中的案例看:
+* 在级联的开头，用户需要自行调用`Read`把包传进级联的Reader里
+* 在级联的末尾，用户需要自行在`Write`里写上发送包的函数，把级联的Writer传来的包发送出去
+
+比如NACK发送方接收RTP包就是首先获取到`RTPReader`：
+```go
+// Create the writer just for a single SSRC stream
+// this is a callback that is fired everytime a RTP packet is ready to be sent
+streamReader := chain.BindRemoteStream(&interceptor.StreamInfo{
+	SSRC:         ssrc,
+	RTCPFeedback: []interceptor.RTCPFeedback{{Type: "nack", Parameter: ""}},
+}, interceptor.RTPReaderFunc(func(b []byte, _ interceptor.Attributes) (int, interceptor.Attributes, error) { return len(b), nil, nil }))
+```
+
+然后在循环里从UDP处收包之后放进`RTPReader.Read`：
+```go
+i, addr, err := conn.ReadFrom(buffer)
+if err != nil {
+	panic(err)
+}
+
+log.Println("Received RTP")
+
+if _, _, err := streamReader.Read(buffer[:i], nil); err != nil {
+	panic(err)
+}
+```
+由于级联了NACK Interceptor，所以就能执行一些包统计的操作，找出未接收到的RTP包，构造NACK。
+
+然后NACK发送方发NACK包就是写在`RTCPWriter.Write`里的：
+```go
+chain.BindRTCPWriter(interceptor.RTCPWriterFunc(func(pkts []rtcp.Packet, _ interceptor.Attributes) (int, error) {
+	buf, err := rtcp.Marshal(pkts)
+	if err != nil {
+		return 0, err
+	}
+
+	return conn.WriteTo(buf, addr)
+}))
+```
+这样就能完成“收RTP包——统计丢包——发NACK”的操作。
+
+NACK接收方也是一样，先获取`RTCPReader`：
+```go
+// Set the interceptor wide RTCP Reader
+// this is a handle to send NACKs back into the interceptor.
+rtcpReader := chain.BindRTCPReader(interceptor.RTCPReaderFunc(func(in []byte, _ interceptor.Attributes) (int, interceptor.Attributes, error) {
+	return len(in), nil, nil
+}))
+```
+
+然后也是在循环里UDP收包之后放进`RTCPReader.Read`：
+```go
+i, err := conn.Read(rtcpBuf)
+if err != nil {
+	panic(err)
+}
+
+log.Println("Received NACK")
+
+if _, _, err = rtcpWriter.Read(rtcpBuf[:i], nil); err != nil {
+	panic(err)
+}
+```
+于是获取到NACK解包出来就知道要重发哪些RTP包了。
+
+然后NACK接收方重发RTP包就是写在`RTPWriter.Write`里的：
+```go
+// Create the writer just for a single SSRC stream
+// this is a callback that is fired everytime a RTP packet is ready to be sent
+streamWriter := chain.BindLocalStream(&interceptor.StreamInfo{
+	SSRC:         ssrc,
+	RTCPFeedback: []interceptor.RTCPFeedback{{Type: "nack", Parameter: ""}},
+}, interceptor.RTPWriterFunc(func(header *rtp.Header, payload []byte, attributes interceptor.Attributes) (int, error) {
+	headerBuf, err := header.Marshal()
+	if err != nil {
+		panic(err)
+	}
+
+	return conn.Write(append(headerBuf, payload...))
+}))
+```
+这样就能完成“接收NACK包——找出需要重发的RTP包——重发RTP包”的操作了。
