@@ -1,4 +1,17 @@
 {
+    "nuclear.md": {
+        "title": "【转载】核战保命概述",
+        "created": "2021-09-17 02:09:31",
+        "updated": "2021-09-17 02:09:31",
+        "date": "2021-09-17 02:09:31",
+        "tags": [
+            "Revolution"
+        ],
+        "categories": [
+            "Revolution"
+        ],
+        "cover": "/Revolution/./i/1629017837971.gif"
+    },
     "医.md": {
         "title": "关于医院晋升制度的拙见",
         "created": "2021-05-08 13:13:28",
@@ -10,6 +23,19 @@
         "categories": [
             "Revolution"
         ]
+    },
+    "摘录.md": {
+        "title": "摘录",
+        "created": "2021-09-17 02:09:31",
+        "updated": "2021-09-17 02:09:31",
+        "date": "2021-09-17 02:09:31",
+        "tags": [
+            "Revolution"
+        ],
+        "categories": [
+            "Revolution"
+        ],
+        "cover": "/Revolution/./i/stgkng.png"
     },
     "毛概.md": {
         "title": "毛选笔记",
