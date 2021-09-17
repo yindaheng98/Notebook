@@ -60,6 +60,8 @@ go func() {
 
 从注释上看，这里的读取只是为了`rtpSender`里面的那些操作能执行，那么也就是说如果没有`rtpSender.Read`发进来的包会阻塞？
 
+2021年9月16日更新：看了[《pion/interceptor浅析》](./pion-interceptor.md)和[《用实例学习pion interceptor - `nack`》](./pion-nack.md)之后就能明白这里为什么要搞个这样的协程：这个`rtpSender`是一个`RTPSender`，`Read`里面是调用的`interceptor.RTCPReader.Read`，所以这里是为了执行绑定的interceptor里面的操作，比如返回的SenderReport等，只是因为这个程序里不需要用到这些东西所以直接忽略读出来的东西。
+
 ```go
 // Set the handler for ICE connection state
 // This will notify you when the peer has connected/disconnected
