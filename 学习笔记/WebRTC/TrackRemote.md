@@ -49,7 +49,9 @@ func (t *TrackRemote) ReadRTP() (*rtp.Packet, interceptor.Attributes, error) {
 }
 ```
 
-因为不需要用户自定义什么操作，所以也没有什么继承之类的操作，最主要的操作就是在`OnTrack`里面用，当有track连接进来时处理之，比如在[用实例学习pion - `gocv-receive`](gocv-receive.md)里面就是：
+因为不需要用户自定义什么操作，所以也没有什么继承之类的操作，`TrackRemote`本身也不需要用户自己去构造，都是在框架里构造好的。
+
+用户要做的最主要的操作就是在`OnTrack`里面，当有track连接进来时处理之，比如在[《用实例学习pion - `gocv-receive`》](gocv-receive.md)里面就是：
 
 ```go
 // Set a handler for when a new remote track starts, this handler copies inbound RTP packets,
