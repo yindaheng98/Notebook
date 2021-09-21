@@ -156,9 +156,28 @@ func (s *TrackLocalStaticRTP) writeRTP(p *rtp.Packet) error {
 
 	return util.FlattenErrs(writeErrs)
 }
+
+// Write writes a RTP Packet as a buffer to the TrackLocalStaticRTP
+// If one PeerConnection fails the packets will still be sent to
+// all PeerConnections. The error message will contain the ID of the failed
+// PeerConnections so you can remove them
+func (s *TrackLocalStaticRTP) Write(b []byte) (n int, err error) {
+	ipacket := rtpPacketPool.Get()
+	packet := ipacket.(*rtp.Packet)
+	defer func() {
+		*packet = rtp.Packet{}
+		rtpPacketPool.Put(ipacket)
+	}()
+
+	if err = packet.Unmarshal(b); err != nil {
+		return 0, err
+	}
+
+	return len(b), s.writeRTP(packet)
+}
 ```
 
-可以看到，这基本上就是调用所有的`Bind`里添加进数组的`TrackLocalWriter`的`TrackLocalWriter.WriteRTP`。
+可以看到，这基本上就是调用所有的`Bind`里添加进数组的`TrackLocalWriter`的`TrackLocalWriter.WriteRTP`。注意这是一个`TrackLocal`，它不是`TrackLocalWriter`，它的`WriteRTP`和`Write`并不是继承的`TrackLocalWriter`里的`WriteRTP`和`Write`，只是自定义的用于外部数据写入的函数，不是继承的任何接口。
 
 在用这个类的时候，就是将其用`AddTrack`或者`AddTransceiverFromTrack`加进PeerConnection，然后调用这个`WriteRTP`方法就相当于是在向远端发送数据了。
 
