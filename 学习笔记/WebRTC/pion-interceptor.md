@@ -343,3 +343,27 @@ streamWriter := chain.BindLocalStream(&interceptor.StreamInfo{
 }))
 ```
 这样就能完成“接收NACK包——找出需要重发的RTP包——重发RTP包”的操作了。
+
+## 总结一下`Interceptor`的创建过程
+
+首先是继承`interceptor.NoOp`，因为实际情况下不一定需要把`BindLocalStream`、`BindRTCPWriter`、`BindRemoteStream`、`BindRTCPReader`四个全实现。
+
+### 实现`BindLocalStream`
+
+1. 实现一个`RTPWriter`，在其中保存另一个`RTPWriter`，并在其`Write`函数中调用保存的`RTPWriter.Write`
+2. 实现`BindLocalStream`，将输入的`RTPWriter`保存到你实现的`RTPWriter`中并返回
+3. (常见操作)让你实现的`RTPWriter`可以读到`Interceptor`里的数据，然后在`BindLocalStream`里开goroutine调用`RTPWriter`定期获取`Interceptor`里的数据并据此调用保存的另一个`RTPWriter`写一些特殊功能的包
+
+### 实现`BindRTCPWriter`
+
+同上，只不过`RTPWriter`变成`RTCPWriter`
+
+### 实现`BindRemoteStream`
+
+1. 实现一个`RTPReader`，在其中保存另一个`RTPReader`，并在其`Read`函数中调用保存的`RTPReader.Read`
+2. 实现`BindRemoteStream`，将输入的`RTPReader`保存到你实现的`RTPReader`中并返回
+3. (常见操作)让`RTPReader`可以操作`Interceptor`里的数据，从而可以根据`RTPReader.Read`输入的数据修改`Interceptor`里的数据，进而影响其绑定的`RTPWriter`和`RTCPWriter`的行为
+
+### 实现`BindRTCPReader`
+
+同上，只不过`RTPReader`变成`RTCPReader`
