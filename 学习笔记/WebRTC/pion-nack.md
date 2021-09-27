@@ -214,3 +214,16 @@ func sendRoutine() {
 }
 ```
 结束。
+
+## 总结一下interceptor的调用过程
+
+### 发送方的调用
+
+1. 实现`RTPWriter`和`RTCPWriter`，在它们的`Write`中调用网络接口发送数据包
+2. 调用`BindLocalStream`绑定上一步实现的`RTPWriter`、调用`BindRTCPWriter`绑定上一步实现的`RTCPWriter`，获得`RTPWriter`和`RTCPWriter`
+3. 按需执行`RTPWriter.Write`和`RTCPWriter.Write`发送数据
+
+### 接收方的调用
+
+1. 调用`BindRemoteStream`绑定不执行任何操作的`RTPReader`、调用`BindRTCPReader`绑定不执行任何操作的`RTCPReader`，获得`RTPReader`和`RTCPReader`
+2. 实现调用网络接口接收数据包的过程，以接收到的数据包为输入调用`RTPReader.Read`和`RTCPReader.Read`
