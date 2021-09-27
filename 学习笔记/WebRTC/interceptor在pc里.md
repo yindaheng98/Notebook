@@ -1,6 +1,6 @@
 # interceptor寻踪：`pion/interceptor`在`pion/webrtc`里的用法解析
 
-## 初始化
+## 初始化：`NewPeerConnection`
 
 本节主要讲解WebRTC标准接口`NewPeerConnection`内部和调用前所需要进行的interceptor初始化操作。在开始前，你首先需要去[《用实例学习pion - `rtp-forwarder`》](./rtp-forwarder.md)和[《pion学习总结：等待传入track的一般流程》](./传入总结.md)里看看`NewPeerConnection`的用法以及在调用`NewPeerConnection`前所需要进行的操作；然后你还需要理解[《pion/interceptor浅析》](./pion-interceptor.md)中关于级联的思想和[《用实例学习pion interceptor - `nack`》](./pion-nack.md)里出现的`interceptor.NewChain`是什么。
 
@@ -56,82 +56,22 @@ pc.interceptorRTCPWriter = api.interceptor.BindRTCPWriter(interceptor.RTCPWriter
 
 然后当然也有关闭的操作，在`PeerConnection.Close`里，就是在关闭`PeerConnection`时要关闭interceptor，很好理解。
 
-## 在`TrackLocal`里
+## 准备好，要开始加速了
 
-本节介绍`TrackLocal`与interceptor之间的关系。在开始前，你首先需要去[《pion中的`TrackLocal`》](./TrackLocal.md)里看看`TrackLocal`是什么和怎么用。
+在PeerConnection里，与RTP包收发相关的操作当属`AddTrack`和`OnTrack`。
 
-从[《pion中的`TrackLocal`》](./TrackLocal.md)里可以看到`TrackLocal`只是一个接口，interceptor应该是隐藏在`Bind`函数所输入的`TrackLocalContext`的`writeStream`里的：
+其中，`AddTrack`接受一个`TrackLocal`，返回一个`RTPSender`：
 ```go
-// TrackLocalWriter is the Writer for outbound RTP Packets
-type TrackLocalWriter interface {
-	// WriteRTP encrypts a RTP packet and writes to the connection
-	WriteRTP(header *rtp.Header, payload []byte) (int, error)
-
-	// Write encrypts and writes a full RTP packet
-	Write(b []byte) (int, error)
-}
-
-// TrackLocalContext is the Context passed when a TrackLocal has been Binded/Unbinded from a PeerConnection, and used
-// in Interceptors.
-type TrackLocalContext struct {
-	id          string
-	params      RTPParameters
-	ssrc        SSRC
-	writeStream TrackLocalWriter
-}
-
-......
-
-// TrackLocal is an interface that controls how the user can send media
-// The user can provide their own TrackLocal implementations, or use
-// the implementations in pkg/media
-type TrackLocal interface {
-	// Bind should implement the way how the media data flows from the Track to the PeerConnection
-	// This will be called internally after signaling is complete and the list of available
-	// codecs has been determined
-	Bind(TrackLocalContext) (RTPCodecParameters, error)
-	
-	......
-}
+func (pc *PeerConnection) AddTrack(track TrackLocal) (*RTPSender, error)
 ```
-从[《pion中的`TrackLocal`》](./TrackLocal.md)里最后面介绍的`TrackLocalStaticRTP`案例可以看到，`TrackLocalWriter`应该就是`TrackLocal`发送数据用的东西。从注释上看，这个`TrackLocalWriter`是由框架构造好了再传进去的，所以与interceptor相关的操作都是在外面定义好了封进`TrackLocalWriter`再传进来的，`TrackLocal`里面本身不涉及interceptor相关的操作。
-
-## 在`TrackRemote`里
-
-本节介绍`TrackRemote`与interceptor之间的关系。在开始前，你首先需要去[《pion中的`TrackRemote`》](./TrackRemote.md)里看看`TrackRemote`是什么和怎么用。
-
-从[《pion中的`TrackRemote`》](./TrackRemote.md)里的调用链可以看到，最核心的函数就只有一个`Read`：
+而`OnTrack`回调的输入也是一个`TrackRemote`和一个`RTPReceiver`：
 ```go
-// Read reads data from the track.
-func (t *TrackRemote) Read(b []byte) (n int, attributes interceptor.Attributes, err error) {
-	t.mu.RLock()
-	r := t.receiver
-	peeked := t.peeked != nil
-	t.mu.RUnlock()
-
-	......
-
-	n, attributes, err = r.readRTP(b, t)
-	if err != nil {
-		return
-	}
-
-	err = t.checkAndUpdateTrack(b)
-	return
-}
+func (pc *PeerConnection) OnTrack(f func(*TrackRemote, *RTPReceiver))
 ```
-而`Read`里最核心的明显就是这句`r.readRTP(b, t)`，而这个`r`就是来自于上面那句`r := t.receiver`。再去看看`TrackRemote`的定义，可以发现这个`t.receiver`是个`RTPReceiver`：
-```go
-type TrackRemote struct {
-	......
+一眼看去，两个函数，`AddTrack`主发，`OnTrack`主收，其输入输出参数遥相呼应。显然，他们之间必有共通之处。
 
-	receiver         *RTPReceiver
+顺着`AddTrack`和`OnTrack`深入一层，我们就来到了Track的领域，这里的主角是`TrackLocal`和`TrackRemote`，分别主导RTP发送和接收的过程。下面两篇文章分别从`TrackLocal`和`TrackRemote`入手，深挖interceptor在发送RTP包和接收RTP包的场景下的调用方式。在开始前，你首先需要去[《pion中的`TrackLocal`》](./TrackLocal.md)和[《pion中的`TrackRemote`》](./TrackRemote.md)里看看`TrackLocal`和`TrackRemote`是什么以及怎么用。
 
-	......
-}
-```
-所以这个`TrackRemote`里的interceptor相关操作是在外面定义好了封进`RTPReceiver`传进来的，`TrackRemote`里面本身也不涉及interceptor相关的操作。
+* [《interceptor寻踪：从`TrackLocal`开始深入》](./interceptor在tracklocal里.md)
 
-## 在`RTPSender`里
-
-## 在`RTPReceiver`里
+* [《interceptor寻踪：从`TrackRemote`开始深入》](./interceptor在trackremote里.md)
