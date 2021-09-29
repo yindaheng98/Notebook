@@ -24,15 +24,25 @@ jobs:
     - name: Insert Heads
       run: |
         python travisPorcess.py
+    - name: Prepare Theme
+      run: |
+        rm -rf .git
+        git clone -b master https://github.com/yindaheng98/vuepress-blog.git ./theme
+        cp -r 学习笔记/. ./theme/blogs
+        cp -r 学习笔记/. ./theme/blogs/.vuepress/public
     - name: Use Node.js 12
       uses: actions/setup-node@v2
       with:
         node-version: 12.x
         cache: 'npm'
     - name: Build Pages
+      working-directory: ./theme
       run: |
-        bash build.sh
+        npm install
+        npm run build
+        touch ./public/.nojekyll
     - name: Publish Pages
+      working-directory: ./theme/blogs/.vuepress/public
       run: |
         git config user.name "Github Action"
         git config user.email "yindaheng98@163.com"
