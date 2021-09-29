@@ -46,8 +46,8 @@ jobs:
     - name: Publish Pages
       working-directory: ./blogs/.vuepress/public
       run: |
-        git config user.name "Github Action"
-        git config user.email "yindaheng98@163.com"
+        git config --global user.name "Github Action"
+        git config --global user.email "yindaheng98@163.com"
         git init
         git add -A
         git commit -m 'Github Action Deploy'
