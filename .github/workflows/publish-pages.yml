@@ -29,7 +29,9 @@ jobs:
         rm -rf .git
         git clone -b master https://github.com/yindaheng98/vuepress-blog.git ./theme
         cp -r 学习笔记/. ./theme/blogs
-        cp -r 学习笔记/. ./theme/blogs/.vuepress/public
+        mv -r 学习笔记/. ./theme/blogs/.vuepress/public
+        rm -rf 学习笔记
+        mv -r ./theme/. ./
     - name: Use Node.js 12
       uses: actions/setup-node@v2
       with:
