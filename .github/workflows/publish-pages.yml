@@ -51,4 +51,4 @@ jobs:
         git init
         git add -A
         git commit -m 'Github Action Deploy'
-        git push -u https://${{ secrets.GITHUB_TOKEN }}@github.com/yindaheng98/yindaheng98.github.io.git HEAD:master --force
+        git push -u https://${{ secrets.GH_TOKEN }}@github.com/yindaheng98/yindaheng98.github.io.git HEAD:master --force
