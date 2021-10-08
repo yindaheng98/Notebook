@@ -68,7 +68,7 @@ func (pc *PeerConnection) WriteRTCP(pkts []rtcp.Packet) error {
 ## 中场休息
 
 截至目前，我们在`NewPeerConnection`找到了一堆初始化操作，我们看到：
-* `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`pc.WriteRTCP`里调用，供用户发送一些自定义的RTCP包
+* `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`PeerConnection`的`WriteRTCP`里调用，供用户发送一些自定义的RTCP包
 
 根据[《pion/interceptor浅析》](./pion-interceptor.md)，还差`BindRTCPReader`、`BindRemoteStream`、`BindLocalStream`的相关操作没用找到。
 
