@@ -142,7 +142,7 @@ PS：这里还有个操作比较迷惑。对每个`currentTransceivers`执行`se
 ## 中场休息
 
 截至目前，我们已经找到了传输数据的操作，我们看到：
-* `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`pc.WriteRTCP`里调用，供用户发送一些自定义的RTCP包
+* `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`PeerConnection`的`WriteRTCP`里调用，供用户发送一些自定义的RTCP包
 * `BindLocalStream`在`RTPSender.Send`里被调用，并且在最顶层上都是在`SetLocalDescription`和`SetRemoteDescription`里调用的，实际的包发送操作由用户在自己实现的`TrackLocal`里调用
 * 负责处理传入链接的两个操作`BindRemoteStream`和`BindRTCPReader`还没找到
 
@@ -260,3 +260,11 @@ func (r *RTPSender) ReadRTCP() ([]rtcp.Packet, interceptor.Attributes, error) {
 ![](./i/RTPSenderReadMain.png)
 
 很熟悉啊！从[《用实例学习pion - `rtp-to-webrtc`》](./rtp-to-webrtc.md)开始就一直没搞懂的奇怪操作，学了这么多到现在就能搞懂了：因为RTCP包的处理操作都在`RTCPReader.Read`里，所以必须主动调用它才能够让RTCP的各种功能有效。比如在NACK功能里面，读取NACK包并识别哪些包要重发的操作就是在`RTCPReader.Read`里，必须调用它才能让interceptor知道哪些包要重发。
+
+## 结束
+
+目前为止，我们看到：
+* `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`PeerConnection`的`WriteRTCP`里调用，供用户发送一些自定义的RTCP包
+* `BindLocalStream`在`RTPSender.Send`里被调用，并且在最顶层上都是在`SetLocalDescription`和`SetRemoteDescription`里调用的，实际的包发送操作由用户在自己实现的`TrackLocal`里调用
+* `BindRTCPReader`在`NewRTPSender`里被调用，返回的`RTCPReader.Read`在`RTPSender`的`Read`里调用，供用户读取一些自定义的RTCP包
+* 没有`BindRemoteStream`，毕竟`TrackLocal`是发送数据流的，没有接收RTP包的相关操作，很合理
