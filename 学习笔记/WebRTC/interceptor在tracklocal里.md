@@ -265,6 +265,8 @@ func (r *RTPSender) ReadRTCP() ([]rtcp.Packet, interceptor.Attributes, error) {
 
 目前为止，我们看到：
 * `BindRTCPWriter`在`NewPeerConnection`里被调用，返回的`RTCPWriter.Write`在`PeerConnection`的`WriteRTCP`里调用，供用户发送一些自定义的RTCP包
-* `BindLocalStream`在`RTPSender.Send`里被调用，并且在最顶层上都是在`SetLocalDescription`和`SetRemoteDescription`里调用的，实际的包发送操作由用户在自己实现的`TrackLocal`里调用
-* `BindRTCPReader`在`NewRTPSender`里被调用，返回的`RTCPReader.Read`在`RTPSender`的`Read`里调用，供用户读取一些自定义的RTCP包
+* `BindRTCPReader`在`NewRTPSender`里被调用，返回的`RTCPReader.Read`在`RTPSender`的`Read`里调用，供用户从`RTPSender`里读取自定义的RTCP包
+* `BindLocalStream`在`RTPSender.Send`里被调用，并且在最顶层上都是在`SetLocalDescription`和`SetRemoteDescription`里初始化时调用的。在`RTPSender.Send`里，`RTPSender`构造为`TrackLocalWriter`封装进`TrackLocalContext`然后绑定给用户定义的`TrackLocal`里，实际发送RTP包需要用户在自己实现的`TrackLocal`里调用`TrackLocalWriter.Write`
 * 没有`BindRemoteStream`，毕竟`TrackLocal`是发送数据流的，没有接收RTP包的相关操作，很合理
+
+本篇主要解析了发送方的interceptor调用链，接下来解析接收方的interceptor调用链：[《interceptor寻踪：从`TrackRemote`开始深入挖掘`pion/interceptor`的用法》](./interceptor在trackremote里.md)
