@@ -46,8 +46,8 @@
     "interceptor在tracklocal里.md": {
         "title": "interceptor寻踪：从`TrackLocal`开始深入挖掘`pion/interceptor`的用法",
         "created": "2021-10-08 08:28:09",
-        "updated": "2021-10-08 08:42:04",
-        "date": "2021-10-08 08:42:04",
+        "updated": "2021-10-08 11:57:52",
+        "date": "2021-10-08 11:57:52",
         "tags": [
             "WebRTC",
             "编程框架",
@@ -61,9 +61,9 @@
     },
     "interceptor在trackremote里.md": {
         "title": "interceptor寻踪：从`TrackRemote`开始深入挖掘`pion/interceptor`的用法",
-        "created": "2021-09-27 20:24:17",
-        "updated": "2021-09-27 20:24:17",
-        "date": "2021-09-27 20:24:17",
+        "created": "2021-10-08 08:44:32",
+        "updated": "2021-10-08 12:52:28",
+        "date": "2021-10-08 12:52:28",
         "tags": [
             "WebRTC",
             "编程框架",
@@ -72,7 +72,8 @@
         ],
         "categories": [
             "WebRTC"
-        ]
+        ],
+        "cover": "/WebRTC/./i/trackStreamsRTP.png"
     },
     "pion-interceptor.md": {
         "title": "[pion/interceptor](https://github.com/pion/interceptor)浅析",
