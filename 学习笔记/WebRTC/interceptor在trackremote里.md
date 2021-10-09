@@ -127,9 +127,9 @@ func (r *RTPReceiver) Receive(parameters RTPReceiveParameters) error {
 		codec = globalParams.Codecs[0].RTPCodecCapability
 	}
 
-	for i := range parameters.Encodings {
-		t := trackStreams{
-			track: newTrackRemote(
+	for i := range parameters.Encodings { // 对每种编码方式都进行初始化
+		t := trackStreams{ // 创建trackStreams
+			track: newTrackRemote( // 这就是系统内生成TrackRemote的地方
 				r.kind,
 				parameters.Encodings[i].SSRC,
 				parameters.Encodings[i].RID,
@@ -138,29 +138,92 @@ func (r *RTPReceiver) Receive(parameters RTPReceiveParameters) error {
 		}
 
 		if parameters.Encodings[i].SSRC != 0 {
-			t.streamInfo = createStreamInfo("", parameters.Encodings[i].SSRC, 0, codec, globalParams.HeaderExtensions)
+			t.streamInfo = createStreamInfo("", parameters.Encodings[i].SSRC, 0, codec, globalParams.HeaderExtensions) // 生成trackStreams.streamInfo
 			var err error
 			if t.rtpReadStream, t.rtpInterceptor, t.rtcpReadStream, t.rtcpInterceptor, err = r.transport.streamsForSSRC(parameters.Encodings[i].SSRC, *t.streamInfo); err != nil {
 				return err
-			}
+			} // 创建RTPReader和RTCPReader
 		}
 
 		r.tracks = append(r.tracks, t)
 
 		if rtxSsrc := parameters.Encodings[i].RTX.SSRC; rtxSsrc != 0 {
-			streamInfo := createStreamInfo("", rtxSsrc, 0, codec, globalParams.HeaderExtensions)
+			streamInfo := createStreamInfo("", rtxSsrc, 0, codec, globalParams.HeaderExtensions) // 生成trackStreams.streamInfo
 			rtpReadStream, rtpInterceptor, rtcpReadStream, rtcpInterceptor, err := r.transport.streamsForSSRC(rtxSsrc, *streamInfo)
 			if err != nil {
 				return err
-			}
+			} // 创建RTPReader和RTCPReader
 
 			if err = r.receiveForRtx(rtxSsrc, "", streamInfo, rtpReadStream, rtpInterceptor, rtcpReadStream, rtcpInterceptor); err != nil {
 				return err
-			}
+			} // 这个操作和repair stream以及传输层拥塞控制TWCC有关，暂时还不了解
 		}
 	}
 
 	return nil
 }
 ```
+可以看到，主要是对传入的`RTPReceiveParameters`构造`trackStreams`并填入里面的各种东西，很好理解。
 
+但这里仍然不是最根本的，我们看到interceptor还是在`r.transport.streamsForSSRC`里生成的。进一步找这个`r.transport.streamsForSSRC`，发现在一个`DTLSTransport`的类里：
+```go
+// DTLSTransport allows an application access to information about the DTLS
+// transport over which RTP and RTCP packets are sent and received by
+// RTPSender and RTPReceiver, as well other data such as SCTP packets sent
+// and received by data channels.
+type DTLSTransport struct {
+	......
+}
+
+......
+
+func (t *DTLSTransport) streamsForSSRC(ssrc SSRC, streamInfo interceptor.StreamInfo) (*srtp.ReadStreamSRTP, interceptor.RTPReader, *srtp.ReadStreamSRTCP, interceptor.RTCPReader, error) {
+	srtpSession, err := t.getSRTPSession()
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	rtpReadStream, err := srtpSession.OpenReadStream(uint32(ssrc))
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	rtpInterceptor := t.api.interceptor.BindRemoteStream(&streamInfo, interceptor.RTPReaderFunc(func(in []byte, a interceptor.Attributes) (n int, attributes interceptor.Attributes, err error) {
+		n, err = rtpReadStream.Read(in)
+		return n, a, err
+	}))
+
+	srtcpSession, err := t.getSRTCPSession()
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	rtcpReadStream, err := srtcpSession.OpenReadStream(uint32(ssrc))
+	if err != nil {
+		return nil, nil, nil, nil, err
+	}
+
+	rtcpInterceptor := t.api.interceptor.BindRTCPReader(interceptor.RTPReaderFunc(func(in []byte, a interceptor.Attributes) (n int, attributes interceptor.Attributes, err error) {
+		n, err = rtcpReadStream.Read(in)
+		return n, a, err
+	}))
+
+	return rtpReadStream, rtpInterceptor, rtcpReadStream, rtcpInterceptor, nil
+}
+
+......
+```
+
+从注释里可以看到，这是一个和SRTP以及SRTCP有关的类。所以这个类的存在也好理解，就是为了透明地实现SRTP和SRTCP的功能。在[《interceptor寻踪：从`TrackLocal`开始深入挖掘`pion/interceptor`的用法》](./interceptor在tracklocal里.md)里我们也见到过发送端实现的SRTP和SRTCP功能，就是在`NewRTPSender`里给RTPSender所用的interceptor绑一个SRTCP发送RTCP包的操作，以及在`Send`里给RTPSender所用的interceptor绑一个SRTP发送RTP包的操作，和这里绑SRTP以及SRTCP接收操作的思想如出一辙。在用户那边看来好像是SRTP和STCP是透明的一样。
+
+## 最后一点
+
+截至目前，我们以及找到了interceptor初始化的位置和初始化的方式，但还不知道初始化是在哪里进行的。于是顺着`Receive`开始往上找：
+![](./i/RTPReceiver1.png)
+![](./i/RTPReceiver2.png)
+![](./i/RTPReceiver3.png)
+![](./i/RTPReceiver4.png)
+
+啊哈！果不其然，和[《interceptor寻踪：从`TrackLocal`开始深入挖掘`pion/interceptor`的用法》](./interceptor在tracklocal里.md)里一样，这些初始化过程在最上层也是在`SetLocalDescription`和`SetRemoteDescription`里调用的。
+
+也好理解，`SetLocalDescription`和`SetRemoteDescription`里进行的就是根据SDP创建连接的过程，在这之后就能直接开始传输了，这些创建interceptor的初始化过程放在这个里面很合理。
