@@ -235,3 +235,5 @@ func (t *DTLSTransport) streamsForSSRC(ssrc SSRC, streamInfo interceptor.StreamI
 * 读取RTCP包：`OnTrack`里用户获取到`RTPReceiver`，调用`RTPReceiver`里的`Read`就是实际读取RTCP包的操作
 * 初始化：在`SetLocalDescription`和`SetRemoteDescription`里，interceptor相关类被初始化（`BindRemoteStream`和`BindRTCPReader`）后放入`TrackRemote`和`RTPReceiver`里，在`OnTrack`里里用户获取到的就是这些初始化好的类
 * 接收方不负责发送，没有`BindLocalStream`和`BindRTCPWriter`，很合理
+
+接下来是最终总结：[《interceptor寻踪：总结》](./interceptor总结.md)
