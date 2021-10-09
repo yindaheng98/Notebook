@@ -44,9 +44,8 @@ jobs:
         npm run build
         touch ./public/.nojekyll
     - name: Publish Pages
-      working-directory: ./blogs/.vuepress/public
+      working-directory: ./public
       run: |
-        touch .nojekyll
         git config --global user.name "Github Action"
         git config --global user.email "yindaheng98@163.com"
         git init
