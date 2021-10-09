@@ -227,3 +227,11 @@ func (t *DTLSTransport) streamsForSSRC(ssrc SSRC, streamInfo interceptor.StreamI
 啊哈！果不其然，和[《interceptor寻踪：从`TrackLocal`开始深入挖掘`pion/interceptor`的用法》](./interceptor在tracklocal里.md)里一样，这些初始化过程在最上层也是在`SetLocalDescription`和`SetRemoteDescription`里调用的。
 
 也好理解，`SetLocalDescription`和`SetRemoteDescription`里进行的就是根据SDP创建连接的过程，在这之后就能直接开始传输了，这些创建interceptor的初始化过程放在这个里面很合理。
+
+## 总结
+
+总结一下，`TrackRemote`接收流的相关操作其实还挺简单的：
+* 读取RTP包：`OnTrack`里用户获取到`TrackRemote`，调用`TrackRemote`里的`Read`，`Read`调用`RTPReceiver`里的非导出类执行发RTP包的操作
+* 读取RTCP包：`OnTrack`里用户获取到`RTPReceiver`，调用`RTPReceiver`里的`Read`就是实际读取RTCP包的操作
+* 初始化：在`SetLocalDescription`和`SetRemoteDescription`里，interceptor相关类被初始化（`BindRemoteStream`和`BindRTCPReader`）后放入`TrackRemote`和`RTPReceiver`里，在`OnTrack`里里用户获取到的就是这些初始化好的类
+* 接收方不负责发送，没有`BindLocalStream`和`BindRTCPWriter`，很合理
