@@ -122,7 +122,7 @@ NOTE：示例中`vpx_codec_dec_init()`的第三项是解码器配置，本案例
 
 本示例中没有什么特殊的需要处理的错误。
 
-## 正文
+## 正文开头
 
 ```c
 #include <stdio.h>
@@ -164,7 +164,9 @@ int main(int argc, char **argv) {
 
   if (argc != 3) die("Invalid number of arguments.");
 ```
-主函数开始。
+一堆后面要用到的变量定义。
+
+## 打开待解码的文件
 
 ```c
   reader = vpx_video_reader_open(argv[1]);
@@ -179,6 +181,8 @@ int main(int argc, char **argv) {
   info = vpx_video_reader_get_info(reader);
 ```
 这个函数的定义里面只有一句话：`return &reader->info`😂。
+
+## 获取所需的解码器
 
 ```c
   decoder = get_vpx_decoder_by_fourcc(info->codec_fourcc);
@@ -216,42 +220,103 @@ int main(int argc, char **argv) {
 
 还记得`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`的类型吗？它们应该是返回值是`vpx_codec_iface_t *`且无输入参数的函数，但这里看怎么像是在给`vpx_codec_iface_t`赋值？注意到`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`都被一个宏`CODEC_INTERFACE`包裹着，那看看这个宏是什么：
 ![](./i/CODEC_INTERFACE.png)
+
 哇，秒懂，赋值之后放进函数里。一个小trick而已，和[《pion/interceptor浅析》](../WebRTC/pion-interceptor.md)里介绍的`RTCPReaderFunc`之流差不多的想法。
+
+## 初始化解码器
 
 好了，继续看示例的代码：
 ```c
   if (vpx_codec_dec_init(&codec, decoder->codec_interface(), NULL, 0))
     die("Failed to initialize decoder.");
 ```
-开头的说明里讲过的初始化操作。
+开头的说明里讲过的初始化操作。看着像个函数，其实是被套了个宏的函数：
+![](./i/vpx_codec_dec_init.png)
 
+被套的函数是这个：
+![](./i/vpx_codec_dec_init_ver.png)
+
+套个宏就是替换最后一个变量用于ABI版本检查。
+
+初始化函数的核心就是给这个上下文变量`ctx`赋了一堆值，还调用了传进来的`iface`里面的`init`函数，这就是`vpx_codec_iface`里的函数之一，前面介绍过，不用多讲。
+
+这个`ctx`是传进来的结构体指针，所以调用这个函数之后，在函数外面用户就可以用赋好值的`ctx`进行各种操作了。
+
+## 解码过程
+
+继续看示例：
 ```c
   while (vpx_video_reader_read_frame(reader)) {
+```
+上来就是直接一个`while`循环，这个`vpx_video_reader_read_frame`长这样：
+![](./i/vpx_video_reader_read_frame.png)
+
+看来就是个ivf读取器啊，看样子是根据`reader`里的文件信息把文件数据写进`reader->buffer`里
+
+```c
     vpx_codec_iter_t iter = NULL;
     vpx_image_t *img = NULL;
     size_t frame_size = 0;
     const unsigned char *frame =
         vpx_video_reader_get_frame(reader, &frame_size);
+```
+`while`循环里每轮来一个`vpx_video_reader_get_frame`，这个`vpx_video_reader_get_frame`也很简单：
+![](./i/vpx_video_reader_get_frame.png)
+
+就直接返回`vpx_video_reader_read_frame`里写入的`reader->buffer`然后把数据长度传给`frame_size`。看这个`frame`的类型应该就是个`unsigned char`数组，看来这个libvpx里的压缩帧数据没有专门指定数据类型。
+
+```c
     if (vpx_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0))
       die_codec(&codec, "Failed to decode frame.");
+```
+`vpx_video_reader_read_frame`之后就是`vpx_codec_decode`对帧数据进行解码。这个`vpx_codec_decode`依然很短
+![](./i/vpx_codec_decode.png)
 
+其实就是在调用`vpx_codec_iface`接口里定义好的解码函数`dec.decode`。
+
+```c
     while ((img = vpx_codec_get_frame(&codec, &iter)) != NULL) {
       vpx_img_write(img, outfile);
       ++frame_cnt;
     }
-  }
+```
+最后就是一个`vpx_codec_get_frame`获取到解码出来的帧。这个传入的`iter`在前后都没有用到，看来只是为了提供一点内存空间（既然外面用不到为什么还要这样定义？应该是有别的用处吧）。这个`vpx_codec_get_frame`依旧很短：
+![](./i/vpx_codec_get_frame.png)
 
+和`vpx_codec_decode`差不多，封装了一下`vpx_codec_iface`接口里定义好的`dec.get_frame`。
+
+```c
+  }
+```
+解码过程结束。
+
+## 一些收尾操作
+
+```c
   printf("Processed %d frames.\n", frame_cnt);
   if (vpx_codec_destroy(&codec)) die_codec(&codec, "Failed to destroy codec");
+```
+关闭解码器。
 
+```c
   printf("Play: ffplay -f rawvideo -pix_fmt yuv420p -s %dx%d %s\n",
          info->frame_width, info->frame_height, argv[2]);
 
   vpx_video_reader_close(reader);
 
   fclose(outfile);
+```
+关闭文件读取器。
 
+```c
   return EXIT_SUCCESS;
+```
+退出。
+
+## 完
+
+```c
 }
 
 ```
+主函数结束
