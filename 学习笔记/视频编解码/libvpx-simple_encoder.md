@@ -154,6 +154,8 @@ PS：`frame_cnt`这里是什么意思？没理解
 ```
 容错性机制由编码器配置中的`g_error_resilient`成员控制把这个案例和[`decode_with_drops`](https://github.com/webmproject/libvpx/blob/master/examples/decode_with_drops.c)进行比较就能知道这是干嘛用的。
 
+## 正文开头
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -163,6 +165,10 @@ PS：`frame_cnt`这里是什么意思？没理解
 
 #include "../tools_common.h"
 #include "../video_writer.h"
+```
+一堆`include`不用多讲。
+
+```c
 
 static const char *exec_name;
 
@@ -174,36 +180,28 @@ void usage_exit(void) {
           exec_name);
   exit(EXIT_FAILURE);
 }
+```
+这是一个输出错误并退出程序的函数，用在接下来会经常见到的`die`函数里面，就是输出一些错误而已，不用太在意。
 
+## 
+
+```c
 static int encode_frame(vpx_codec_ctx_t *codec, vpx_image_t *img,
                         int frame_index, int flags, VpxVideoWriter *writer) {
-  int got_pkts = 0;
-  vpx_codec_iter_t iter = NULL;
-  const vpx_codec_cx_pkt_t *pkt = NULL;
-  const vpx_codec_err_t res =
-      vpx_codec_encode(codec, img, frame_index, 1, flags, VPX_DL_GOOD_QUALITY);
-  if (res != VPX_CODEC_OK) die_codec(codec, "Failed to encode frame");
 
-  while ((pkt = vpx_codec_get_cx_data(codec, &iter)) != NULL) {
-    got_pkts = 1;
+    ......
 
-    if (pkt->kind == VPX_CODEC_CX_FRAME_PKT) {
-      const int keyframe = (pkt->data.frame.flags & VPX_FRAME_IS_KEY) != 0;
-      if (!vpx_video_writer_write_frame(writer, pkt->data.frame.buf,
-                                        pkt->data.frame.sz,
-                                        pkt->data.frame.pts)) {
-        die_codec(codec, "Failed to write compressed frame");
-      }
-      printf(keyframe ? "K" : ".");
-      fflush(stdout);
-    }
-  }
-
-  return got_pkts;
 }
+```
+从名称上看，这个就是对帧进行编码的函数，后面再解释。
 
+```c
 // TODO(tomfinegan): Improve command line parsing and add args for bitrate/fps.
 int main(int argc, char **argv) {
+```
+主函数开始。
+
+```c
   FILE *infile = NULL;
   vpx_codec_ctx_t codec;
   vpx_codec_enc_cfg_t cfg;
@@ -228,7 +226,12 @@ int main(int argc, char **argv) {
   exec_name = argv[0];
 
   if (argc != 9) die("Invalid number of arguments");
+```
+一堆后面要用到的变量定义。
 
+注意到帧率和比特率都是在这固定好的。
+
+```c
   codec_arg = argv[1];
   width_arg = argv[2];
   height_arg = argv[3];
@@ -236,10 +239,22 @@ int main(int argc, char **argv) {
   outfile_arg = argv[5];
   keyframe_interval_arg = argv[6];
   max_frames = (int)strtol(argv[8], NULL, 0);
+```
+结合上面的变量定义，和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里的解码器例程一对比，发现所需的设置和命令行参数多了不少，看来libvpx的编码过程比解码复杂很多。
 
+## 获取所需的编码器
+
+```c
   encoder = get_vpx_encoder_by_name(codec_arg);
   if (!encoder) die("Unsupported codec.");
+```
+这里用命令行里传入的参数查找了编码器，看看这个`get_vpx_encoder_by_name`是怎么找编码器的：
 
+![](./i/get_vpx_encoder_by_name.png)
+
+和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里面介绍的`get_vpx_decoder_by_fourcc`基本没什么差别，返回的也都是这个`VpxInterface`，不用多讲，不懂的看[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)即可。而且这段代码就在`get_vpx_decoder_by_fourcc`的上面，它们都在`tools_common.c`里。
+
+```c
   info.codec_fourcc = encoder->fourcc;
   info.frame_width = (int)strtol(width_arg, NULL, 0);
   info.frame_height = (int)strtol(height_arg, NULL, 0);
@@ -250,36 +265,98 @@ int main(int argc, char **argv) {
       (info.frame_width % 2) != 0 || (info.frame_height % 2) != 0) {
     die("Invalid frame size: %dx%d", info.frame_width, info.frame_height);
   }
+```
+获取到了编码器之后还给前面定义的`VpxVideoInfo`类型的变量赋了一堆值，可以看到前面定义的`fps`和一些命令行里指定的值都赋进去了。
 
+## 给即将到来的帧分配内存空间
+
+```c
   if (!vpx_img_alloc(&raw, VPX_IMG_FMT_I420, info.frame_width,
                      info.frame_height, 1)) {
     die("Failed to allocate image.");
   }
+```
+这个函数长这样：
 
+![](./i/vpx_img_alloc.png)
+
+这里传入的`vpx_image_t *img`应该就是一个存储帧数据的结构体，其定义如下：
+![](./i/vpx_image.png)
+
+有很多的元数据啊，不过一看便知，这个`img_data`就是存帧数据的地方，`vpx_img_alloc`应该就是请求一段内存空间然后把指针赋值给这个结构体成员。
+
+具体请求大呢？这应该是通过后面几个参数计算出来的。从例程里的传入看，这个`fmt`应该是帧数据格式，后面三个是长宽和对齐方式。这样，函数知道了像素数据的存储格式和长宽还有对齐方式，就能计算所需的内存空间大小了。
+
+## 生成一个配置项
+
+```c
   keyframe_interval = (int)strtol(keyframe_interval_arg, NULL, 0);
   if (keyframe_interval < 0) die("Invalid keyframe interval value.");
+```
+首先获取了一下`keyframe_interval`，这应该就是开头说明里讲的强制关键帧的固定间隔。
 
+```c
   printf("Using %s\n", vpx_codec_iface_name(encoder->codec_interface()));
+```
+输出了编码器的名字。
 
+```c
   res = vpx_codec_enc_config_default(encoder->codec_interface(), &cfg, 0);
   if (res) die_codec(&codec, "Failed to get default codec config.");
+```
+这个`vpx_codec_enc_config_default`看着像是给编码器配置上了默认值。这个函数长这样：
+![](./i/vpx_codec_enc_config_default.png)
 
+就是把传入的`iface`里面的一个结构体`iface->enc.cfg_maps->cfg`赋值给传入的`cfg`指针所指向的内存空间。
+
+按照这种赋值方式，对这个配置项的赋值和修改显然不会影响到`iface->enc.cfg_maps->cfg`里的值，所以这个函数应该是给一个包含默认配置的模板，让用户修改之后传给其他的函数用于一些初始化操作，而不是用于直接控制`iface`的配置。
+
+```c
   cfg.g_w = info.frame_width;
   cfg.g_h = info.frame_height;
   cfg.g_timebase.num = info.time_base.numerator;
   cfg.g_timebase.den = info.time_base.denominator;
   cfg.rc_target_bitrate = bitrate;
   cfg.g_error_resilient = (vpx_codec_er_flags_t)strtoul(argv[7], NULL, 0);
+```
+这个默认配置输出出来了之后就把前面赋值好的一堆帧长宽之类的变量给设置进去了。
 
+## 打开文件
+
+```c
   writer = vpx_video_writer_open(outfile_arg, kContainerIVF, &info);
   if (!writer) die("Failed to open %s for writing.", outfile_arg);
 
   if (!(infile = fopen(infile_arg, "rb")))
     die("Failed to open %s for reading.", infile_arg);
+```
+调用了`vpx_video_writer_open`，看这名字应该是用于写入编码后的数据。下面的`fopen`应该就是输入的无压缩帧数据了。
 
+这个`vpx_video_writer_open`长这样：
+![](./i/vpx_video_writer_open.png)
+
+也就是打开文件然后赋值给一个`VpxVideoWriter`，没什么特殊的。
+
+## 编码器初始化
+
+```c
   if (vpx_codec_enc_init(&codec, encoder->codec_interface(), &cfg, 0))
     die("Failed to initialize encoder");
+```
+前面看到的`cfg`果然是用到了初始化里面。
 
+看看这个`vpx_codec_enc_init`：
+![](./i/vpx_codec_enc_init.png)
+
+不出所料和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的`vpx_codec_dec_init`一样都是宏封装了一个函数：
+
+![](./i/vpx_codec_enc_init_ver.png)
+
+不仔细看甚至都找不出来和`vpx_codec_dec_init_ver`有什么差别。
+
+## 编码过程
+
+```c
   // Encode frames.
   while (vpx_img_read(&raw, infile)) {
     int flags = 0;
@@ -289,11 +366,31 @@ int main(int argc, char **argv) {
     frames_encoded++;
     if (max_frames > 0 && frames_encoded >= max_frames) break;
   }
+```
+就是不断的调用`vpx_img_read`读帧数据然后传给`encode_frame`去编码。然后就是按照开头说明里讲的，每隔`keyframe_interval`帧传入一个`VPX_EFLAG_FORCE_KF`的flag产生强制关键帧。
 
+这个`vpx_img_read`函数长这样：
+![](./i/vpx_img_read.png)
+
+应该是每个帧有三个通道(`plane`)，每个通道数据顺序排列，然后通道内的数据是一行一行的像素数据按顺序排列，然后就按照这个规则执行`fread`把数据读进buffer里即可。
+
+```c
   // Flush encoder.
   while (encode_frame(&codec, NULL, -1, 0, writer)) {
   }
+```
+最后一帧输入进去之后还会出来几个压缩包，最后把剩下的这些包也处理完。
 
+## `encode_frame`
+
+是时候解析`encode_frame`函数了：
+```c
+
+```
+
+## 收尾
+
+```c
   printf("\n");
   fclose(infile);
   printf("Processed %d frames.\n", frame_count);
