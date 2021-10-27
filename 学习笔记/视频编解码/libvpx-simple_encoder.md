@@ -381,13 +381,6 @@ int main(int argc, char **argv) {
 ```
 最后一帧输入进去之后还会出来几个压缩包，最后把剩下的这些包也处理完。
 
-## `encode_frame`
-
-是时候解析`encode_frame`函数了：
-```c
-
-```
-
 ## 收尾
 
 ```c
@@ -403,3 +396,97 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 ```
+`vpx_img_free`释放内存、`vpx_codec_destroy`销毁编码器、`vpx_video_writer_close`关闭文件，不用多讲。
+
+## `encode_frame`
+
+是时候解析`encode_frame`函数了：
+```c
+static int encode_frame(vpx_codec_ctx_t *codec, vpx_image_t *img,
+                        int frame_index, int flags, VpxVideoWriter *writer) {
+  int got_pkts = 0;
+  vpx_codec_iter_t iter = NULL;
+  const vpx_codec_cx_pkt_t *pkt = NULL;
+  const vpx_codec_err_t res =
+      vpx_codec_encode(codec, img, frame_index, 1, flags, VPX_DL_GOOD_QUALITY);
+  if (res != VPX_CODEC_OK) die_codec(codec, "Failed to encode frame");
+
+  while ((pkt = vpx_codec_get_cx_data(codec, &iter)) != NULL) {
+    got_pkts = 1;
+
+    if (pkt->kind == VPX_CODEC_CX_FRAME_PKT) {
+      const int keyframe = (pkt->data.frame.flags & VPX_FRAME_IS_KEY) != 0;
+      if (!vpx_video_writer_write_frame(writer, pkt->data.frame.buf,
+                                        pkt->data.frame.sz,
+                                        pkt->data.frame.pts)) {
+        die_codec(codec, "Failed to write compressed frame");
+      }
+      printf(keyframe ? "K" : ".");
+      fflush(stdout);
+    }
+  }
+
+  return got_pkts;
+}
+```
+
+其实也不复杂，就是调用`vpx_codec_encode`对帧进行编码，然后调用`vpx_codec_get_cx_data`获取编码压缩后的压缩包，然后用`vpx_video_writer_write_frame`写入文件。
+
+可以看到和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里的解码过程有异曲同工之妙。只不过编码时一个帧会编码出多个压缩包，然后还有输出是否是关键帧的步骤，所以稍微复杂一点。
+
+具体来看这个`vpx_codec_encode`：
+![](./i/vpx_codec_encode.png)
+
+前面都和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的解码器差不多，本质上就是调用`vpx_codec_iface`接口里定义好的编码函数`enc.encode`。但是这个编码器后面多了一个“Multi-resolution encoding”？先码住，以后学习一下看看是什么东西。
+
+再看看这个输出压缩包的`vpx_codec_get_cx_data`：
+
+```c
+const vpx_codec_cx_pkt_t *vpx_codec_get_cx_data(vpx_codec_ctx_t *ctx,
+                                                vpx_codec_iter_t *iter) {
+  const vpx_codec_cx_pkt_t *pkt = NULL;
+
+  if (ctx) {
+    if (!iter)
+      ctx->err = VPX_CODEC_INVALID_PARAM;
+    else if (!ctx->iface || !ctx->priv)
+      ctx->err = VPX_CODEC_ERROR;
+    else if (!(ctx->iface->caps & VPX_CODEC_CAP_ENCODER))
+      ctx->err = VPX_CODEC_INCAPABLE;
+    else
+      pkt = ctx->iface->enc.get_cx_data(get_alg_priv(ctx), iter);
+  }
+
+  if (pkt && pkt->kind == VPX_CODEC_CX_FRAME_PKT) {
+    // If the application has specified a destination area for the
+    // compressed data, and the codec has not placed the data there,
+    // and it fits, copy it.
+    vpx_codec_priv_t *const priv = ctx->priv; //ctx->priv是用于在框架内部改变的值
+    char *const dst_buf = (char *)priv->enc.cx_data_dst_buf.buf; //把一个buf赋值给dst_buf。应该是注释里写的destination area for the compressed data
+
+    if (dst_buf && pkt->data.raw.buf != dst_buf && //先判断这个dst_buf和pkt里存数据的buf不是同一个
+        pkt->data.raw.sz + priv->enc.cx_data_pad_before +
+                priv->enc.cx_data_pad_after <=
+            priv->enc.cx_data_dst_buf.sz) { //再判断这个buf存得下ptk里的数据
+      vpx_codec_cx_pkt_t *modified_pkt = &priv->enc.cx_data_pkt;
+
+      memcpy(dst_buf + priv->enc.cx_data_pad_before, pkt->data.raw.buf,
+             pkt->data.raw.sz); //把pkt里的数据拷贝进dst_buf里
+      *modified_pkt = *pkt;
+      modified_pkt->data.raw.buf = dst_buf;
+      modified_pkt->data.raw.sz +=
+          priv->enc.cx_data_pad_before + priv->enc.cx_data_pad_after;
+      pkt = modified_pkt; //然后再把dst_buf赋值回pkt里
+    }
+    //如果无法拷贝？
+    if (dst_buf == pkt->data.raw.buf) { 
+      priv->enc.cx_data_dst_buf.buf = dst_buf + pkt->data.raw.sz;
+      priv->enc.cx_data_dst_buf.sz -= pkt->data.raw.sz;
+    }
+  }
+
+  return pkt;
+}
+```
+
+前面也都和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的解码器差不多，本质上就是调用`vpx_codec_iface`接口里定义好的编码函数`enc.get_cx_data`。然后后面也多了一段不太理解的内容，看逻辑是把压缩包数据拷到别的地方，先码住，以后再看看这个操作是为什么存在。
