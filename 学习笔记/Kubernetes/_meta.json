@@ -88,5 +88,18 @@
             "Kubernetes"
         ],
         "cover": "/Kubernetes/i/NeteaseN1.webp"
+    },
+    "边缘Kubernetes问题.md": {
+        "title": "kubernetes管理边缘设备需要解决什么样的问题",
+        "created": "2021-10-11 08:42:35",
+        "updated": "2021-10-11 08:42:35",
+        "date": "2021-10-11 08:42:35",
+        "tags": [
+            "Kubernetes",
+            "边缘计算"
+        ],
+        "categories": [
+            "Kubernetes"
+        ]
     }
 }
