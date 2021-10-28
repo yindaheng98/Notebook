@@ -254,6 +254,11 @@ int main(int argc, char **argv) {
 
 和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里面介绍的`get_vpx_decoder_by_fourcc`基本没什么差别，返回的也都是这个`VpxInterface`，不用多讲，不懂的看[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)即可。而且这段代码就在`get_vpx_decoder_by_fourcc`的上面，它们都在`tools_common.c`里。
 
+这个`vpx_codec_vp9_cx`的定义也和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里`vpx_codec_vp9_dx`的定义方式差不多：
+![](./i/vpx_codec_vp9_cx.png)
+
+区别只在于`vpx_codec_vp9_dx`初始化的都是解码器`dec`那边的函数，`vpx_codec_vp9_cx`初始化的都是编码器`enc`那边的函数
+
 ```c
   info.codec_fourcc = encoder->fourcc;
   info.frame_width = (int)strtol(width_arg, NULL, 0);
