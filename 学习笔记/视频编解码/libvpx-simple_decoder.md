@@ -290,7 +290,9 @@ int main(int argc, char **argv) {
       ++frame_cnt;
     }
 ```
-最后就是一个`vpx_codec_get_frame`获取到解码出来的帧。这个传入的`iter`在前后都没有用到，看来只是为了提供一点内存空间（既然外面用不到为什么还要这样定义？应该是有别的用处吧）。这个`vpx_codec_get_frame`依旧很短：
+最后就是一个`vpx_codec_get_frame`获取到解码出来的帧。~~这个传入的`iter`在前后都没有用到，看来只是为了提供一点内存空间（既然外面用不到为什么还要这样定义？应该是有别的用处吧）~~。注意到有个传入的迭代器参数`iter`只传入了`vpx_codec_get_frame`却没有其他任何操作。这个参数是历史遗留问题，具体可以看`decoder_get_frame`函数里面有一段注释的解释，[《`libvpx`再深入一点》](./libvpx-insight.md)的解析里也有。
+
+这个`vpx_codec_get_frame`依旧很短：
 
 ![](./i/vpx_codec_get_frame.png)
 
