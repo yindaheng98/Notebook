@@ -191,7 +191,9 @@ int main(int argc, char **argv) {
   printf("Using %s\n", vpx_codec_iface_name(decoder->codec_interface()));
 ```
 这个函数顺着一查，发现下图：
+
 ![](./i/get_vpx.png)
+
 `get_vpx_decoder_by_fourcc`调用了`get_vpx_decoder_by_index`，而`get_vpx_decoder_by_index`直接从一个列表里选出了一个解码器。从这列表看，这就是在选vp8还是vp9。
 
 返回值都是`VpxInterface`类型，说明vp8和vp9的decoder都是继承的同一个接口类。那看看这个`VpxInterface`又是什么：
@@ -203,9 +205,11 @@ int main(int argc, char **argv) {
 定义看着有点复杂，这就是个函数指针。变量名是`codec_interface`，接受返回值是`vpx_codec_iface_t *`，无输入参数的函数。
 
 那这个`vpx_codec_iface_t`又是什么？找找：
+
 ![](./i/vpx_codec_iface_t.png)
 
 一个`typedef`😂，好吧，再找这个`vpx_codec_iface`：
+
 ![](./i/vpx_codec_iface.png)
 
 这应该就是vp8和vp9的统一接口了。这里面这些类型随便点进去几个，发现它们都是在`vpx/internal/vpx_codec_internal.h`里面定义的函数指针类型。哇，简单粗暴，确实称得上是“接口”。
@@ -213,12 +217,14 @@ int main(int argc, char **argv) {
 那么再回去看`vpx_decoders[]`数组里的值，`codec_interface`对应的是这个`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`，显然这两个就是返回值是`vpx_codec_iface_t *`且无输入参数的函数，也是解码器的主要部分。
 
 那看看这个`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`是什么：
+
 ![](./i/vpx_codec_vp8_dx.png)
 ![](./i/vpx_codec_vp9_dx.png)
 
 哇这个赋值，显然这就是在给`vpx_codec_iface`里的函数指针变量赋值，那被赋的这些值就是vp8和vp9解码器的具体实现了，记下来以后慢慢看。
 
 还记得`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`的类型吗？它们应该是返回值是`vpx_codec_iface_t *`且无输入参数的函数，但这里看怎么像是在给`vpx_codec_iface_t`赋值？注意到`vpx_codec_vp8_dx`和`vpx_codec_vp9_dx`都被一个宏`CODEC_INTERFACE`包裹着，那看看这个宏是什么：
+
 ![](./i/CODEC_INTERFACE.png)
 
 哇，秒懂，赋值之后放进函数里。一个小trick而已，和[《pion/interceptor浅析》](../WebRTC/pion-interceptor.md)里介绍的`RTCPReaderFunc`之流差不多的想法。
@@ -231,9 +237,11 @@ int main(int argc, char **argv) {
     die("Failed to initialize decoder.");
 ```
 开头的说明里讲过的初始化操作。看着像个函数，其实是被套了个宏的函数：
+
 ![](./i/vpx_codec_dec_init.png)
 
 被套的函数是这个：
+
 ![](./i/vpx_codec_dec_init_ver.png)
 
 套个宏就是替换最后一个变量用于ABI版本检查。
@@ -249,6 +257,7 @@ int main(int argc, char **argv) {
   while (vpx_video_reader_read_frame(reader)) {
 ```
 上来就是直接一个`while`循环，这个`vpx_video_reader_read_frame`长这样：
+
 ![](./i/vpx_video_reader_read_frame.png)
 
 看来就是个ivf读取器啊，看样子是根据`reader`里的文件信息把文件数据写进`reader->buffer`里
@@ -269,7 +278,8 @@ int main(int argc, char **argv) {
     if (vpx_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0))
       die_codec(&codec, "Failed to decode frame.");
 ```
-`vpx_video_reader_read_frame`之后就是`vpx_codec_decode`对帧数据进行解码。这个`vpx_codec_decode`依然很短
+`vpx_video_reader_read_frame`之后就是`vpx_codec_decode`对帧数据进行解码。这个`vpx_codec_decode`依然很短：
+
 ![](./i/vpx_codec_decode.png)
 
 其实就是在调用`vpx_codec_iface`接口里定义好的解码函数`dec.decode`。
@@ -281,6 +291,7 @@ int main(int argc, char **argv) {
     }
 ```
 最后就是一个`vpx_codec_get_frame`获取到解码出来的帧。这个传入的`iter`在前后都没有用到，看来只是为了提供一点内存空间（既然外面用不到为什么还要这样定义？应该是有别的用处吧）。这个`vpx_codec_get_frame`依旧很短：
+
 ![](./i/vpx_codec_get_frame.png)
 
 和`vpx_codec_decode`差不多，封装了一下`vpx_codec_iface`接口里定义好的`dec.get_frame`。

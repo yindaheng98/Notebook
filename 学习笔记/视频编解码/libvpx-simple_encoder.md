@@ -255,6 +255,7 @@ int main(int argc, char **argv) {
 和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里面介绍的`get_vpx_decoder_by_fourcc`基本没什么差别，返回的也都是这个`VpxInterface`，不用多讲，不懂的看[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)即可。而且这段代码就在`get_vpx_decoder_by_fourcc`的上面，它们都在`tools_common.c`里。
 
 这个`vpx_codec_vp9_cx`的定义也和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里`vpx_codec_vp9_dx`的定义方式差不多：
+
 ![](./i/vpx_codec_vp9_cx.png)
 
 区别只在于`vpx_codec_vp9_dx`初始化的都是解码器`dec`那边的函数，`vpx_codec_vp9_cx`初始化的都是编码器`enc`那边的函数
@@ -286,6 +287,7 @@ int main(int argc, char **argv) {
 ![](./i/vpx_img_alloc.png)
 
 这里传入的`vpx_image_t *img`应该就是一个存储帧数据的结构体，其定义如下：
+
 ![](./i/vpx_image.png)
 
 有很多的元数据啊，不过一看便知，这个`img_data`就是存帧数据的地方，`vpx_img_alloc`应该就是请求一段内存空间然后把指针赋值给这个结构体成员。
@@ -310,6 +312,7 @@ int main(int argc, char **argv) {
   if (res) die_codec(&codec, "Failed to get default codec config.");
 ```
 这个`vpx_codec_enc_config_default`看着像是给编码器配置上了默认值。这个函数长这样：
+
 ![](./i/vpx_codec_enc_config_default.png)
 
 就是把传入的`iface`里面的一个结构体`iface->enc.cfg_maps->cfg`赋值给传入的`cfg`指针所指向的内存空间。
@@ -338,6 +341,7 @@ int main(int argc, char **argv) {
 调用了`vpx_video_writer_open`，看这名字应该是用于写入编码后的数据。下面的`fopen`应该就是输入的无压缩帧数据了。
 
 这个`vpx_video_writer_open`长这样：
+
 ![](./i/vpx_video_writer_open.png)
 
 也就是打开文件然后赋值给一个`VpxVideoWriter`，没什么特殊的。
@@ -351,6 +355,7 @@ int main(int argc, char **argv) {
 前面看到的`cfg`果然是用到了初始化里面。
 
 看看这个`vpx_codec_enc_init`：
+
 ![](./i/vpx_codec_enc_init.png)
 
 不出所料和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的`vpx_codec_dec_init`一样都是宏封装了一个函数：
@@ -375,6 +380,7 @@ int main(int argc, char **argv) {
 就是不断的调用`vpx_img_read`读帧数据然后传给`encode_frame`去编码。然后就是按照开头说明里讲的，每隔`keyframe_interval`帧传入一个`VPX_EFLAG_FORCE_KF`的flag产生强制关键帧。
 
 这个`vpx_img_read`函数长这样：
+
 ![](./i/vpx_img_read.png)
 
 应该是每个帧有三个通道(`plane`)，每个通道数据顺序排列，然后通道内的数据是一行一行的像素数据按顺序排列，然后就按照这个规则执行`fread`把数据读进buffer里即可。
@@ -440,6 +446,7 @@ static int encode_frame(vpx_codec_ctx_t *codec, vpx_image_t *img,
 可以看到和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里的解码过程有异曲同工之妙。只不过编码时一个帧会编码出多个压缩包，然后还有输出是否是关键帧的步骤，所以稍微复杂一点。
 
 具体来看这个`vpx_codec_encode`：
+
 ![](./i/vpx_codec_encode.png)
 
 前面都和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的解码器差不多，本质上就是调用`vpx_codec_iface`接口里定义好的编码函数`enc.encode`。但是这个编码器后面多了一个“Multi-resolution encoding”？先码住，以后学习一下看看是什么东西。
@@ -495,3 +502,5 @@ const vpx_codec_cx_pkt_t *vpx_codec_get_cx_data(vpx_codec_ctx_t *ctx,
 ```
 
 前面也都和[《`libvpx`的使用方法简析 - simple_decoder.c》](./libvpx-simple_decoder.md)里介绍的解码器差不多，本质上就是调用`vpx_codec_iface`接口里定义好的编码函数`enc.get_cx_data`。然后后面也多了一段不太理解的内容，看逻辑是把压缩包数据拷到别的地方，先码住，以后再看看这个操作是为什么存在。
+
+PS：注意到有个传入的迭代器参数`iter`在`ctx->iface->enc.get_cx_data(get_alg_priv(ctx), iter)`里用上了，但是没有其他任何操作。这个参数是历史遗留问题，具体可以看`decoder_get_frame`函数里面有一段注释的解释，[《`libvpx`再深入一点》](./libvpx-insight.md)的解析里也有。
