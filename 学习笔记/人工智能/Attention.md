@@ -231,6 +231,11 @@ $$
 
 多头注意力就比较简单了，就是直接把多个独立的注意力模块拼接在一起再乘上一个矩阵就完事了：
 
+$$
+MultiHead(Q,K,V) = Concat(head_1, ..., head_h)W^O\\
+where\ head_i = Attention(QW_i^Q,KW_i^K,VW_i^V)
+$$
+
 ![](./i/transformer_attention_heads_z.png)
 
 ![](./i/transformer_attention_heads_weight_matrix_o.png)
