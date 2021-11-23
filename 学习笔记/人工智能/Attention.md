@@ -108,7 +108,7 @@ $$
 
 从而包含输出单词对每个输入单词的“注意力”。具体地，相比于Encoder-Decoder模式中的直接抛弃中间数据的方法，**注意力机制将Encoder的RNN中间输出用了起来**：
 $$S_i=\alpha_{i,1}s_1+\alpha_{i,2}s_2+\dots\alpha_{i,m}s_m$$
-$$\alpha_{i,j}=\mathcal{H}(s_j,H_{i-1})$$
+$$\alpha_{i,j}=\mathcal{H}(H_{i-1},s_j)$$
 
 其中，$\alpha_{i,j}$就是生成输出语句中第$i$个单词时对源语句中的第$j$个单词分配的注意力，其**由一个函数$\mathcal{H}$计算而来，这个函数在不同的论文中有不同的实现**，其输入为：
 * $s_j$：输入句子第$j$个单词在Encoder的隐层输出
@@ -130,18 +130,41 @@ Encoder最终状态作为语义编码：
 $$C=s_m$$
 
 Decoder以语义编码作为初始状态，在第$i$轮中输入$y_{i-1}$和注意力项输出$y_i$，进而逐个生成输出序列：
-$$\alpha_{i,j}=\mathcal{H}(s_j,H_{i-1})$$
+$$\alpha_{i,j}=\mathcal{H}(H_{i-1},s_j)$$
 $$S_i=\alpha_{i,1}s_1+\alpha_{i,2}s_2+\dots\alpha_{i,m}s_m$$
 $$y_i=\mathcal{G}(C,S_i,y_1,y_2,\dots y_{i-1})$$
 
 输出序列(Target)：
 $$\langle y_1,y_2,\dots y_n\rangle$$
 
+### 附注：网上流行的$K$、$Q$、$V$表示法
+
+网上流行的$K$、$Q$、$V$表示法比上面带Attention的Encoder-Decoder的这些公式更接近Attention机制的本质。上面这些公式可以说只是$K$、$Q$、$V$表示法的一种特殊情况。
+
+网上流行的$K$、$Q$、$V$表示法可以表示为：
+
+$$
+Attention(Query, Source)=\sum_{i=1}^{|Source|}Similarity(Query, Key_i)\ast Value_i
+$$
+
+照着前文中的公式对应一下是这样：
+$$
+S_i=Attention(\bm\alpha_{i}, \bm s)=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)\ast s_j
+$$
+
+所以你看上面带Attention的Encoder-Decoder的这些公式其实就是$K$、$Q$、$V$表示法在$K=V$时的特殊情况。真正的注意力机制可以这么描述：
+
+>把输入看成是一堆$(Key, Value)$对，给定输出中的某个元素$Query$，通过**计算$Query$和各个$Key$的相似性或者相关性**，得到**每个$Key$对应$Value$的权重系数**，然后**对Value进行加权求和**，即得到了最终的Attention数值。所以本质上Attention机制是对$Source$中元素的$Value$值进行加权求和，而$Query$和$Key$用来计算对应Value的权重系数。
+>
+>从概念上理解，把Attention仍然理解为从大量信息中有选择地筛选出少量重要信息并聚焦到这些重要信息上，忽略大多不重要的信息，这种思路仍然成立。聚焦的过程体现在权重系数的计算上，权重越大越聚焦于其对应的$Value$值上，即权重代表了信息的重要性，而$Value$是其对应的信息。
+
+——引自[《深度学习中的注意力机制》](https://cloud.tencent.com/developer/article/1143127)
+
 ### 案例
 
-第一篇Attention论文中使用的$\mathcal{H}(s_j,H_{i-1})$函数是将$s_j$向量和$H_{i-1}$向量拼成一个长向量与一个矩阵$W$相乘，经过tanh之后再与一个向量$v$相乘成为标量：
+第一篇Attention论文中使用的$\mathcal{H}(H_{i-1},s_j)$函数是将$s_j$向量和$H_{i-1}$向量拼成一个长向量与一个矩阵$W$相乘，经过tanh之后再与一个向量$v$相乘成为标量：
 
-$$\mathcal{H}(s_j,H_{i-1})=v^T\cdot tanh(W\cdot (s_j,H_{i-1})^T)$$
+$$\mathcal{H}(H_{i-1},s_j)=v^T\cdot tanh(W\cdot (s_j,H_{i-1})^T)$$
 
 在训练时，除了训练神经网络的参数，还要训练$W$和$v$。
 
