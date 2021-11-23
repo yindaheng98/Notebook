@@ -14,11 +14,12 @@
     "Attention.md": {
         "title": "机器学习中的Attention机制",
         "created": "2021-03-24 08:14:29",
-        "updated": "2021-03-24 08:14:29",
-        "date": "2021-03-24 08:14:29",
+        "updated": "2021-11-23 09:05:49",
+        "date": "2021-11-23 09:05:49",
         "tags": [
             "人工智能",
             "LSTM",
+            "Transformer",
             "神经网络",
             "注意力机制"
         ],
@@ -108,5 +109,21 @@
             "人工智能"
         ],
         "cover": "/人工智能/i/Alchemy.jpg"
+    },
+    "transformer.md": {
+        "title": "Transformer结构",
+        "created": "2021-11-23 11:43:15",
+        "updated": "2021-11-23 11:43:15",
+        "date": "2021-11-23 11:43:15",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "神经网络",
+            "注意力机制"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/./i/Transformer-official.png"
     }
 }

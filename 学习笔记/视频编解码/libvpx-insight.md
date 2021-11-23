@@ -26,6 +26,8 @@ vp9解码器实现是`vpx_codec_vp9_dx`：
 
 而其中`decoder_decode`就是`dec.decode`、`decoder_get_frame`就是`dec.get_frame`。
 
+### `decoder_get_frame`
+
 先看比较简单的`decoder_get_frame`：
 ```c
 static vpx_image_t *decoder_get_frame(vpx_codec_alg_priv_t *ctx,
@@ -107,3 +109,107 @@ static vpx_image_t *decoder_get_frame(vpx_codec_alg_priv_t *ctx,
 }
 ```
 函数结束。
+
+### `decoder_decode`
+
+再来看稍微复杂一点的`decoder_decode`：
+
+```c
+static vpx_codec_err_t decoder_decode(vpx_codec_alg_priv_t *ctx,
+                                      const uint8_t *data, unsigned int data_sz,
+                                      void *user_priv, long deadline) {
+```
+函数开始。
+
+```c
+  const uint8_t *data_start = data;
+  const uint8_t *const data_end = data + data_sz;
+```
+首先是计算原始数据的起始和终止地址。
+
+```c
+  vpx_codec_err_t res;
+  uint32_t frame_sizes[8];
+  int frame_count;
+```
+初始化了返回值和两个变量。
+
+```c
+  if (data == NULL && data_sz == 0) {
+    ctx->flushed = 1;
+    return VPX_CODEC_OK;
+  }
+```
+如果没有数据就直接返回。
+
+```c
+  // Reset flushed when receiving a valid frame.
+  ctx->flushed = 0;
+```
+有数据就先flush。
+
+```c
+  // Initialize the decoder on the first frame.
+  if (ctx->pbi == NULL) {
+    const vpx_codec_err_t res = init_decoder(ctx);
+    if (res != VPX_CODEC_OK) return res;
+  }
+```
+如果没有`ctx->pbi`就先初始化。从注释上看，这个`ctx->pbi`为空是在第一帧才会出现的情况。
+
+这个`ctx->pbi`前面经常见到，从这种在第一帧初始化的操作，看来是用来在解码过程中存储一些临时数据的变量。
+
+```c
+  res = vp9_parse_superframe_index(data, data_sz, frame_sizes, &frame_count,
+                                   ctx->decrypt_cb, ctx->decrypt_state);
+  if (res != VPX_CODEC_OK) return res;
+```
+首先是读取superframe。
+
+vpx可以将多个帧放在一个压缩包里，这就是superframe。
+
+```c
+  if (ctx->svc_decoding && ctx->svc_spatial_layer < frame_count - 1)
+    frame_count = ctx->svc_spatial_layer + 1;
+```
+SVC是指可适性视频编码(Scalable Video Coding)。
+
+```c
+  // Decode in serial mode.
+  if (frame_count > 0) {
+    int i;
+
+    for (i = 0; i < frame_count; ++i) {
+      const uint8_t *data_start_copy = data_start;
+      const uint32_t frame_size = frame_sizes[i];
+      vpx_codec_err_t res;
+      if (data_start < data || frame_size > (uint32_t)(data_end - data_start)) {
+        set_error_detail(ctx, "Invalid frame size in index");
+        return VPX_CODEC_CORRUPT_FRAME;
+      }
+
+      res = decode_one(ctx, &data_start_copy, frame_size, user_priv, deadline);
+      if (res != VPX_CODEC_OK) return res;
+
+      data_start += frame_size;
+    }
+  } else {
+    while (data_start < data_end) {
+      const uint32_t frame_size = (uint32_t)(data_end - data_start);
+      const vpx_codec_err_t res =
+          decode_one(ctx, &data_start, frame_size, user_priv, deadline);
+      if (res != VPX_CODEC_OK) return res;
+
+      // Account for suboptimal termination by the encoder.
+      while (data_start < data_end) {
+        const uint8_t marker =
+            read_marker(ctx->decrypt_cb, ctx->decrypt_state, data_start);
+        if (marker) break;
+        ++data_start;
+      }
+    }
+  }
+
+  return res;
+}
+```
