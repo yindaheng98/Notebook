@@ -287,6 +287,19 @@
             "WebRTC"
         ]
     },
+    "webrtc延迟分析.md": {
+        "title": "【纯转载】webrtc延迟分析",
+        "created": "2021-11-16 11:41:14",
+        "updated": "2021-11-16 11:41:14",
+        "date": "2021-11-16 11:41:14",
+        "tags": [
+            "WebRTC",
+            "编程框架"
+        ],
+        "categories": [
+            "WebRTC"
+        ]
+    },
     "传入总结.md": {
         "title": "pion学习总结：等待传入track的一般流程",
         "created": "2021-09-01 08:50:01",
@@ -312,18 +325,6 @@
             "编程框架",
             "pion",
             "实操"
-        ],
-        "categories": [
-            "WebRTC"
-        ]
-    },
-    "计划.md": {
-        "title": "WebRTC开发计划",
-        "created": "2021-09-06 16:35:13",
-        "updated": "2021-09-06 16:35:13",
-        "date": "2021-09-06 16:35:13",
-        "tags": [
-            "WebRTC"
         ],
         "categories": [
             "WebRTC"
