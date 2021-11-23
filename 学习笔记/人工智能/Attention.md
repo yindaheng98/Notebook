@@ -177,6 +177,8 @@ $$
 
 有了“输入看成是一堆$(Key, Value)$对”的概念并且以“$K$、$Q$、$V$表示法”理解了注意力机制之后，就可以开始学习自注意力机制了(Self Attention)了。
 
+自注意力是Transformer中使用的注意力机制，随着Transformer的大火一起为人所知。本节就参考Transformer原论文[《Attention Is All You Need》](https://arxiv.org/pdf/1706.03762.pdf)介绍自注意力机制。
+
 上面介绍Attention RNN和自注意力网络最大的区别在于$K$、$Q$、$V$的计算方式。在Attention RNN中，$K$和$V$都是输入$s_i$(词向量)；$Q$是RNN的中间输出$H_{i}$，每一个$H_{i}$的计算都需要上一个$H_{i-1}$作为输入，所以Attention RNN和普通RNN一样只能顺序计算。而Self Attention的$K$、$Q$、$V$是直接由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得来的，即：
 $$
 \begin{aligned}
@@ -205,9 +207,9 @@ $$
 
 结合上一节的介绍可以看到，这个$softmax(\frac{QK^T}{\sqrt{d_k}})$算的就是Similarity，其结果就是一个长宽都等于输入词数量的矩阵，其中的每个值就是第$i$个词和第$j$个词的Similarity：$Similarity_{i,j}=Q_iK_j^T$；输出的$Z=Attention(Q,K,V)$中的每一行就是每个词准备的注意力向量。
 
-至此，self attention的注意力计算已经完成了，可以看到没有涉及任何解码器那边的东西，全部是在输入句子上操作，这也是它被叫做“self” attention的原因：只提取了输入句子内部的词之间的联系构成注意力参数。
+至此，Self Attention的注意力计算已经完成了，可以看到没有涉及任何解码器那边的东西，全部是在输入句子上操作，这也是它被叫做“self” attention的原因：只提取了输入句子内部的词之间的联系构成注意力参数。
 
-并且我们还发现，这个self attention的注意力计算不涉及什么时序的步骤，可以并行计算。这是自自注意力的一个主要优势，也是现在大家喜欢用它的原因之一。
+并且我们还发现，这个Self Attention的注意力计算不涉及什么时序的步骤，可以并行计算。这是自自注意力的一个主要优势，也是现在大家喜欢用它的原因之一。
 
 ### 自注意力与顺序
 
@@ -224,6 +226,18 @@ $$
 可以看到它从中间分裂成两半。这是因为左半部分的值由一个函数(使用正弦)生成，而右半部分由另一个函数(使用余弦)生成。然后将它们拼在一起而得到每一个位置编码向量。
 
 >Transformer原论文里描述了位置编码的公式(第3.5节)。你可以在`get_timing_signal_1d()`中看到生成位置编码的代码。这不是唯一可能的位置编码方法。然而，它的优点是能够扩展到未知的序列长度(例如，当我们训练出的模型需要翻译远比训练集里的句子更长的句子时)。
+
+## 多头注意力
+
+多头注意力就比较简单了，就是直接把多个独立的注意力模块拼接在一起再乘上一个矩阵就完事了：
+
+![](./i/transformer_attention_heads_z.png)
+
+![](./i/transformer_attention_heads_weight_matrix_o.png)
+
+Transformer里也用到了多头注意力，具体用了8个头。看Transformer原论文[《Attention Is All You Need》](https://arxiv.org/pdf/1706.03762.pdf)里的图：
+
+![](./i/MultiHeadAtt.png)
 
 ## 图像识别领域的注意力机制
 
