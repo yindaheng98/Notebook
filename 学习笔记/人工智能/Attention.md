@@ -137,29 +137,6 @@ $$y_i=\mathcal{G}(C,S_i,y_1,y_2,\dots y_{i-1})$$
 输出序列(Target)：
 $$\langle y_1,y_2,\dots y_n\rangle$$
 
-### 附注：网上流行的$K$、$Q$、$V$表示法
-
-网上流行的$K$、$Q$、$V$表示法比上面带Attention的Encoder-Decoder的这些公式更接近Attention机制的本质。上面这些公式可以说只是$K$、$Q$、$V$表示法的一种特殊情况。
-
-网上流行的$K$、$Q$、$V$表示法可以表示为：
-
-$$
-Attention(Query, Source)=\sum_{i=1}^{|Source|}Similarity(Query, Key_i)\ast Value_i
-$$
-
-照着前文中的公式对应一下是这样：
-$$
-S_i=Attention(\bm\alpha_{i}, \bm s)=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)\ast s_j
-$$
-
-所以你看上面带Attention的Encoder-Decoder的这些公式其实就是$K$、$Q$、$V$表示法在$K=V$时的特殊情况。真正的注意力机制可以这么描述：
-
->把输入看成是一堆$(Key, Value)$对，给定输出中的某个元素$Query$，通过**计算$Query$和各个$Key$的相似性或者相关性**，得到**每个$Key$对应$Value$的权重系数**，然后**对Value进行加权求和**，即得到了最终的Attention数值。所以本质上Attention机制是对$Source$中元素的$Value$值进行加权求和，而$Query$和$Key$用来计算对应Value的权重系数。
->
->从概念上理解，把Attention仍然理解为从大量信息中有选择地筛选出少量重要信息并聚焦到这些重要信息上，忽略大多不重要的信息，这种思路仍然成立。聚焦的过程体现在权重系数的计算上，权重越大越聚焦于其对应的$Value$值上，即权重代表了信息的重要性，而$Value$是其对应的信息。
-
-——引自[《深度学习中的注意力机制》](https://cloud.tencent.com/developer/article/1143127)
-
 ### 案例
 
 第一篇Attention论文中使用的$\mathcal{H}(H_{i-1},s_j)$函数是将$s_j$向量和$H_{i-1}$向量拼成一个长向量与一个矩阵$W$相乘，经过tanh之后再与一个向量$v$相乘成为标量：
@@ -172,6 +149,81 @@ $$\mathcal{H}(H_{i-1},s_j)=v^T\cdot tanh(W\cdot (s_j,H_{i-1})^T)$$
 
 ![效果1](i/AttentionT1.png)
 ![效果1](i/AttentionT2.png)
+
+## 流行的$K$、$Q$、$V$表示法和上面这些公式的关系
+
+网上流行的$K$、$Q$、$V$表示法比上面Attention RNN的这些公式更接近Attention机制的本质。上面这些公式可以说只是$K$、$Q$、$V$表示法的一种特殊情况。
+
+网上流行的$K$、$Q$、$V$表示法可以表示为：
+
+$$
+Attention(Query, Source)=\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i
+$$
+
+照着前文中的公式对应一下是这样：
+$$
+S_i=Attention(\bm\alpha_{i}, \bm s)=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)s_j
+$$
+
+所以你看上面Attention RNN的这些公式其实就是$K$、$Q$、$V$表示法在$K=V$时的特殊情况。真正的注意力机制可以这么描述：
+
+>把输入看成是一堆$(Key, Value)$对，给定输出中的某个元素$Query$，通过**计算$Query$和各个$Key$的相似性或者相关性**，得到**每个$Key$对应$Value$的权重系数**，然后**对Value进行加权求和**，即得到了最终的Attention数值。所以本质上Attention机制是对$Source$中元素的$Value$值进行加权求和，而$Query$和$Key$用来计算对应Value的权重系数。
+>
+>从概念上理解，把Attention仍然理解为从大量信息中有选择地筛选出少量重要信息并聚焦到这些重要信息上，忽略大多不重要的信息，这种思路仍然成立。聚焦的过程体现在权重系数的计算上，权重越大越聚焦于其对应的$Value$值上，即权重代表了信息的重要性，而$Value$是其对应的信息。
+
+——引自[《深度学习中的注意力机制》](https://cloud.tencent.com/developer/article/1143127)
+
+## 自注意力机制
+
+有了“输入看成是一堆$(Key, Value)$对”的概念并且以“$K$、$Q$、$V$表示法”理解了注意力机制之后，就可以开始学习自注意力机制了(Self Attention)了。
+
+上面介绍Attention RNN和自注意力网络最大的区别在于$K$、$Q$、$V$的计算方式。在Attention RNN中，$K$和$V$都是输入$s_i$(词向量)；$Q$是RNN的中间输出$H_{i}$，每一个$H_{i}$的计算都需要上一个$H_{i-1}$作为输入，所以Attention RNN和普通RNN一样只能顺序计算。而Self Attention的$K$、$Q$、$V$是直接由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得来的，即：
+$$
+\begin{aligned}
+Q_i=s_iW^Q\\
+K_i=s_iW^K\\
+V_i=s_iW^V\\
+\end{aligned}
+$$
+
+于是可以用矩阵运算一次算出一个句子里所有词的$K_i$、$Q_i$、$V_i$：
+
+![](./i/self-attention-matrix-calculation.png)
+
+（图中的X表示所有的词向量$s_i$组成的矩阵）
+
+最后，直接用矩阵计算出输出Attention值：
+$$
+Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+其中，$d_k$是$K_i$、$Q_i$、$V_i$的维度，除以$\sqrt{d_k}$是为了保证训练时梯度的稳定。
+
+矩阵图示为：
+
+![](./i/self-attention-matrix-calculation-2.png)
+
+结合上一节的介绍可以看到，这个$softmax(\frac{QK^T}{\sqrt{d_k}})$算的就是Similarity，其结果就是一个长宽都等于输入词数量的矩阵，其中的每个值就是第$i$个词和第$j$个词的Similarity：$Similarity_{i,j}=Q_iK_j^T$；输出的$Z=Attention(Q,K,V)$中的每一行就是每个词准备的注意力向量。
+
+至此，self attention的注意力计算已经完成了，可以看到没有涉及任何解码器那边的东西，全部是在输入句子上操作，这也是它被叫做“self” attention的原因：只提取了输入句子内部的词之间的联系构成注意力参数。
+
+并且我们还发现，这个self attention的注意力计算不涉及什么时序的步骤，可以并行计算。这是自自注意力的一个主要优势，也是现在大家喜欢用它的原因之一。
+
+### 自注意力与顺序
+
+但是问题又来了，没有时序步骤，怎么知道词的顺序信息？
+
+答案是把位置信息搞成位置编码放进输入向量$s_i$里：
+
+![](./i/SelfAttPos.jpg)
+
+比如Transformer里的词向量为512维，位置编码长下图这样，图中每一行对应一个词向量的位置编码，所以第一行对应着输入序列的第一个词。每行包含512个值，每个值介于1和-1之间，颜色越深表示值越大：
+
+![](./i/transformer_positional_encoding_large_example.png)
+
+可以看到它从中间分裂成两半。这是因为左半部分的值由一个函数(使用正弦)生成，而右半部分由另一个函数(使用余弦)生成。然后将它们拼在一起而得到每一个位置编码向量。
+
+>Transformer原论文里描述了位置编码的公式(第3.5节)。你可以在`get_timing_signal_1d()`中看到生成位置编码的代码。这不是唯一可能的位置编码方法。然而，它的优点是能够扩展到未知的序列长度(例如，当我们训练出的模型需要翻译远比训练集里的句子更长的句子时)。
 
 ## 图像识别领域的注意力机制
 
