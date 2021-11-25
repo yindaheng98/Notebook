@@ -129,10 +129,14 @@ static vpx_codec_err_t decoder_decode(vpx_codec_alg_priv_t *ctx,
 
 ```c
   vpx_codec_err_t res;
+```
+初始化了返回值。这返回只返回了错误信息。
+
+```c
   uint32_t frame_sizes[8];
   int frame_count;
 ```
-初始化了返回值和两个变量。
+这个是给后面一个压缩包解码出多个帧的情况用的。从这个`frame_sizes`尺寸看应该是最多8帧。
 
 ```c
   if (data == NULL && data_sz == 0) {
@@ -164,42 +168,83 @@ static vpx_codec_err_t decoder_decode(vpx_codec_alg_priv_t *ctx,
                                    ctx->decrypt_cb, ctx->decrypt_state);
   if (res != VPX_CODEC_OK) return res;
 ```
-首先是读取superframe。
+首先是读取superframe。vpx可以将多个帧放在一个压缩包里，这就是superframe。
 
-vpx可以将多个帧放在一个压缩包里，这就是superframe。
+这里的`frame_sizes`和`frame_count`应该就是“输出结果”，读取superframe就是读取出帧数量和每个帧数据的大小。
 
 ```c
   if (ctx->svc_decoding && ctx->svc_spatial_layer < frame_count - 1)
     frame_count = ctx->svc_spatial_layer + 1;
 ```
-SVC是指可适性视频编码(Scalable Video Coding)。
+SVC是指可适性视频编码(Scalable Video Coding)，详情请看[《SVC和视频通信》](./SVC和视频通信.md)。
 
 ```c
   // Decode in serial mode.
   if (frame_count > 0) {
+```
+首先是`frame_count>0`的情况。这个应该是解包superframe一个数据包有好几个帧的情况。
+
+```c
     int i;
 
     for (i = 0; i < frame_count; ++i) {
+```
+一个循环对每个帧进行解压。
+
+```c
       const uint8_t *data_start_copy = data_start;
       const uint32_t frame_size = frame_sizes[i];
+```
+首先是获取帧数据起点和大小。
+
+```c
       vpx_codec_err_t res;
       if (data_start < data || frame_size > (uint32_t)(data_end - data_start)) {
         set_error_detail(ctx, "Invalid frame size in index");
         return VPX_CODEC_CORRUPT_FRAME;
       }
+```
+数据错误就报错返回。
 
+```c
       res = decode_one(ctx, &data_start_copy, frame_size, user_priv, deadline);
       if (res != VPX_CODEC_OK) return res;
+```
+这个`decode_one`应该就是解码的核心函数了。
 
+```c
       data_start += frame_size;
+```
+每次解码完成后就更新帧数据起点，很合理。
+
+```c
     }
+```
+帧解码循环结束。
+
+```c
   } else {
+```
+接下来是`frame_count<=0`时的操作
+
+```c
     while (data_start < data_end) {
+```
+这里应该就是没有`frame_count`采用直接扫描的方式
+
+```c
       const uint32_t frame_size = (uint32_t)(data_end - data_start);
+```
+`frame_size`也是计算出来的
+
+```c
       const vpx_codec_err_t res =
           decode_one(ctx, &data_start, frame_size, user_priv, deadline);
       if (res != VPX_CODEC_OK) return res;
+```
+核心操作依旧是这个`decode_one`。
 
+```c
       // Account for suboptimal termination by the encoder.
       while (data_start < data_end) {
         const uint8_t marker =
@@ -207,9 +252,17 @@ SVC是指可适性视频编码(Scalable Video Coding)。
         if (marker) break;
         ++data_start;
       }
+```
+接下来这个应该是扫描直到找到下一个帧的起始标记。
+
+```c
     }
   }
+```
+循环结束。
 
+```c
   return res;
 }
 ```
+函数结束。
