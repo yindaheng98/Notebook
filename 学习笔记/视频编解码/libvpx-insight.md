@@ -338,3 +338,5 @@ static INLINE void check_resync(vpx_codec_alg_priv_t *const ctx,
 ```
 
 这里面注释写道解码器会在接收到关键帧或仅帧内编码帧时进行resync，相对应的就是在收到帧间编码帧时不会resync。这个操作应该是和帧间编码有关的，可能是在收到无帧间编码的帧时清除帧间编码遗留的数据。
+
+下接[《libvpx解码过程解读》](./libvpx-decode.md)
