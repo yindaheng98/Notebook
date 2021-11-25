@@ -168,9 +168,9 @@ static vpx_codec_err_t decoder_decode(vpx_codec_alg_priv_t *ctx,
                                    ctx->decrypt_cb, ctx->decrypt_state);
   if (res != VPX_CODEC_OK) return res;
 ```
-首先是读取superframe。vpx可以将多个帧放在一个压缩包里，这就是superframe。
+从这个函数名上看，首先是读取superframe。
 
-这里的`frame_sizes`和`frame_count`应该就是“输出结果”，读取superframe就是读取出帧数量和每个帧数据的大小。
+查一下superframe的概念，就是vpx可以将多个帧放在一个压缩包里。所以这里的`frame_sizes`和`frame_count`应该就是“输出结果”，读取superframe就是读取出superframe里面帧的数量和每个帧数据的大小。
 
 ```c
   if (ctx->svc_decoding && ctx->svc_spatial_layer < frame_count - 1)
@@ -266,3 +266,75 @@ SVC是指可适性视频编码(Scalable Video Coding)，详情请看[《SVC和�
 }
 ```
 函数结束。
+
+可以看出，这个`decoder_decode`主要是解析出数据包中帧的数量，然后对每一帧调用`decode_one`进行解码。
+
+## `decode_one`
+
+再看看这个`decode_one`又是什么
+
+```c
+static vpx_codec_err_t decode_one(vpx_codec_alg_priv_t *ctx,
+                                  const uint8_t **data, unsigned int data_sz,
+                                  void *user_priv, int64_t deadline) {
+  (void)deadline;
+```
+函数开始。
+
+```c
+  // Determine the stream parameters. Note that we rely on peek_si to
+  // validate that we have a buffer that does not wrap around the top
+  // of the heap.
+  if (!ctx->si.h) {
+    int is_intra_only = 0;
+    const vpx_codec_err_t res =
+        decoder_peek_si_internal(*data, data_sz, &ctx->si, &is_intra_only,
+                                 ctx->decrypt_cb, ctx->decrypt_state);
+    if (res != VPX_CODEC_OK) return res;
+
+    if (!ctx->si.is_kf && !is_intra_only) return VPX_CODEC_ERROR;
+  }
+```
+这是什么操作，没懂。
+
+```c
+  ctx->user_priv = user_priv;
+
+  // Set these even if already initialized.  The caller may have changed the
+  // decrypt config between frames.
+  ctx->pbi->decrypt_cb = ctx->decrypt_cb;
+  ctx->pbi->decrypt_state = ctx->decrypt_state;
+
+  if (vp9_receive_compressed_data(ctx->pbi, data_sz, data)) {
+    ctx->pbi->cur_buf->buf.corrupted = 1;
+    ctx->pbi->need_resync = 1;
+    ctx->need_resync = 1;
+    return update_error_state(ctx, &ctx->pbi->common.error);
+  }
+
+  check_resync(ctx, ctx->pbi);
+```
+核心操作应该就是这个`vp9_receive_compressed_data`了。
+
+看这样子应该是出错返回1，不出错返回0。
+
+```c
+
+  return VPX_CODEC_OK;
+}
+```
+函数结束。
+
+特别注意一下最后调用的这个`check_resync`：
+
+```c
+static INLINE void check_resync(vpx_codec_alg_priv_t *const ctx,
+                                const VP9Decoder *const pbi) {
+  // Clear resync flag if the decoder got a key frame or intra only frame.
+  if (ctx->need_resync == 1 && pbi->need_resync == 0 &&
+      (pbi->common.intra_only || pbi->common.frame_type == KEY_FRAME))
+    ctx->need_resync = 0;
+}
+```
+
+这里面注释写道解码器会在接收到关键帧或仅帧内编码帧时进行resync，相对应的就是在收到帧间编码帧时不会resync。这个操作应该是和帧间编码有关的，可能是在收到无帧间编码的帧时清除帧间编码遗留的数据。
