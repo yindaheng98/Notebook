@@ -150,64 +150,126 @@ int vp9_receive_compressed_data(VP9Decoder *pbi, size_t size,
   return retcode;
 }
 ```
-函数结束
+函数结束。
+
+这个`vp9_receive_compressed_data`也没有触及到解码的核心操作，它只是为解码准备好了各种变量。真正的解码操作在`vp9_decode_frame`里面。
 
 ## `vp9_decode_frame`
 
 ```c
 void vp9_decode_frame(VP9Decoder *pbi, const uint8_t *data,
                       const uint8_t *data_end, const uint8_t **p_data_end) {
+```
+函数开始。从之前的解析看，这个`data`就是存放压缩帧数据的buffer起点地址，`data_end`是终止地址。在`vp9_receive_compressed_data`里面`p_data_end`赋的值是`psource`，是`source`的地址。所以这里的`p_data_end`就是`data`的地址。
+
+```c
   VP9_COMMON *const cm = &pbi->common;
   MACROBLOCKD *const xd = &pbi->mb;
+```
+取出两个context，一个是已经见过很多次的运行时变量，另外一个看名字应该是解码用的宏块结构体。
+
+```c
   struct vpx_read_bit_buffer rb;
   int context_updated = 0;
   uint8_t clear_data[MAX_VP9_HEADER_SIZE];
   const size_t first_partition_size = read_uncompressed_header(
       pbi, init_read_bit_buffer(pbi, &rb, data, data_end, clear_data));
+```
+这应该是读取数据包包头。点进去一看，其实就是调用一堆`vp9_read_sync_code`读取包头，根据读到的值给`cm`赋值。
+
+```c
   const int tile_rows = 1 << cm->log2_tile_rows;
   const int tile_cols = 1 << cm->log2_tile_cols;
+```
+初始化了两个tile数量相关的变量。点进去发现是在`read_uncompressed_header`调用的`setup_tile_info`的里面从包头中读取并赋值的。放在包头的只能是2的次方的值，压缩成log2存储，非常合理。
+
+```c
   YV12_BUFFER_CONFIG *const new_fb = get_frame_new_buffer(cm);
+```
+调用的这个：
+
+![](./i/get_frame_new_buffer.png)
+
+直接取了`vp9_receive_compressed_data`里面弄好的buffer，没毛病嗷。
+
+```c
 #if CONFIG_BITSTREAM_DEBUG || CONFIG_MISMATCH_DEBUG
   bitstream_queue_set_frame_read(cm->current_video_frame * 2 + cm->show_frame);
 #endif
 #if CONFIG_MISMATCH_DEBUG
   mismatch_move_frame_idx_r();
 #endif
-  xd->cur_buf = new_fb;
+```
+两个Debug用的东西？不懂
 
+```c
+  xd->cur_buf = new_fb;
+```
+应该是把存储压缩帧信息的buffer赋值给了一个解码用的宏块结构体。
+
+```c
   if (!first_partition_size) {
     // showing a frame directly
     *p_data_end = data + (cm->profile <= PROFILE_2 ? 1 : 2);
     return;
   }
+```
+`first_partition_size`为false就直接showing a frame？什么操作
 
+```c
   data += vpx_rb_bytes_read(&rb);
   if (!read_is_valid(data, first_partition_size, data_end))
     vpx_internal_error(&cm->error, VPX_CODEC_CORRUPT_FRAME,
                        "Truncated packet or corrupt header length");
+```
+这一看就是`read_uncompressed_header`读完包头之后来读一下标志位验证包头长度对不对
 
+```c
   cm->use_prev_frame_mvs =
       !cm->error_resilient_mode && cm->width == cm->last_width &&
       cm->height == cm->last_height && !cm->last_intra_only &&
       cm->last_show_frame && (cm->last_frame_type != KEY_FRAME);
+```
+如果满足条件就`use_prev_frame_mvs`用上一帧的运动矢量？
 
+```c
   vp9_setup_block_planes(xd, cm->subsampling_x, cm->subsampling_y);
+```
+设置`block_planes`块平面？应该是帧内分块编码相关的操作。看这函数：
 
+![](./i/vp9_setup_block_planes.png)
+
+😂就是设置了一下长宽吧这是。
+
+```c
   *cm->fc = cm->frame_contexts[cm->frame_context_idx];
   if (!cm->fc->initialized)
     vpx_internal_error(&cm->error, VPX_CODEC_CORRUPT_FRAME,
                        "Uninitialized entropy context.");
+```
+entropy context？熵上下文？应该是和熵解码相关。不太懂，以后再学
 
+总之这里是初始化了帧解码时的上下文，里面应该是存储的帧解码出来从数据。
+
+```c
   xd->corrupted = 0;
   new_fb->corrupted = read_compressed_header(pbi, data, first_partition_size);
   if (new_fb->corrupted)
     vpx_internal_error(&cm->error, VPX_CODEC_CORRUPT_FRAME,
                        "Decode failed. Frame data header is corrupted.");
+```
+又是一个读包头的操作，不过这次是在读compressed_header。
 
+```c
   if (cm->lf.filter_level && !cm->skip_loop_filter) {
     vp9_loop_filter_frame_init(cm, cm->lf.filter_level);
   }
+```
+如果不跳过环路滤波的话就初始化环路滤波器。
 
+>由于FDCT变换后的量化（Quant）过程是一个有损（lossy）过程，会照成信息损失。再经过反量化（Rescale）和IDCT后恢复的矩阵与原矩阵存在一定的误差，特别宏块的边界，会照常恢复的图像呈现方块化，而方块化的图片对于后面的图片预测存在极大的影响，所以我们需要通过环路滤波进行去方块化。
+
+```c
   if (pbi->tile_worker_data == NULL ||
       (tile_cols * tile_rows) != pbi->total_tiles) {
     const int num_tile_workers =
@@ -220,12 +282,23 @@ void vp9_decode_frame(VP9Decoder *pbi, const uint8_t *data,
     CHECK_MEM_ERROR(cm, pbi->tile_worker_data, vpx_memalign(32, twd_size));
     pbi->total_tiles = tile_rows * tile_cols;
   }
+```
+接着上面的`tile_rows`和`tile_cols`处理，这里应该是确认`pbi->tile_worker_data`的大小足够并且`pbi->total_tiles`的值正确。
 
+```c
   if (pbi->max_threads > 1 && tile_rows == 1 &&
       (tile_cols > 1 || pbi->row_mt == 1)) {
+```
+这一看就是准备开始多线程了。
+
+```c
     if (pbi->row_mt == 1) {
       *p_data_end =
           decode_tiles_row_wise_mt(pbi, data + first_partition_size, data_end);
+```
+一行多列多线程的情况，就调用解码单行的函数`decode_tiles_row_wise_mt`。
+
+```c
     } else {
       // Multi-threaded tile decoder
       *p_data_end = decode_tiles_mt(pbi, data + first_partition_size, data_end);
@@ -244,10 +317,17 @@ void vp9_decode_frame(VP9Decoder *pbi, const uint8_t *data,
         }
       }
     }
+```
+多行多列多线程的情况，除了解码多行多列的`decode_tiles_mt`还要调用多线程的环路滤波`vp9_loop_filter_frame_mt`。
+
+```c
   } else {
     *p_data_end = decode_tiles(pbi, data + first_partition_size, data_end);
   }
+```
+这单线程的代码，就只有一个`decode_tiles`解码所有的块。
 
+```c
   if (!xd->corrupted) {
     if (!cm->error_resilient_mode && !cm->frame_parallel_decoding_mode) {
       vp9_adapt_coef_probs(cm);
@@ -261,9 +341,19 @@ void vp9_decode_frame(VP9Decoder *pbi, const uint8_t *data,
     vpx_internal_error(&cm->error, VPX_CODEC_CORRUPT_FRAME,
                        "Decode failed. Frame data is corrupted.");
   }
+```
+一些错误处理，里面有三个看着像是自适应的函数`vp9_adapt_coef_probs`、`vp9_adapt_mode_probs`、`vp9_adapt_mv_probs`应该就是正常解码解不出来的时候的一些尝试吧。
 
+```c
   // Non frame parallel update frame context here.
   if (cm->refresh_frame_context && !context_updated)
     cm->frame_contexts[cm->frame_context_idx] = *cm->fc;
+```
+最后更新帧上下文？
+
+```c
 }
 ```
+函数结束。
+
+离真相又进了一步！这个`vp9_decode_frame`负责读取帧压缩数据包头、初始化上下文结构体值，最后调用了多线程的`decode_tiles_row_wise_mt`和`decode_tiles_mt`以及单线程的`decode_tiles`进行解码。所以`decode_tiles_row_wise_mt`、`decode_tiles_mt`、`decode_tiles`这三个函数就是更深层的核心代码。
