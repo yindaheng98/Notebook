@@ -1,0 +1,31 @@
+{
+    "HuaweiOpenFlow.md": {
+        "title": "Huawei的OpenFlow交换机调研",
+        "created": "2021-11-05 12:33:52",
+        "updated": "2021-11-05 12:33:52",
+        "date": "2021-11-05 12:33:52",
+        "tags": [
+            "计算机网络",
+            "SDN"
+        ],
+        "categories": [
+            "计算机网络",
+            "SDN"
+        ],
+        "cover": "/计算机网络/SDN/./i/HUAWEISOpenFlow.png"
+    },
+    "OpenDaylight.md": {
+        "title": "OpenDaylight 调研",
+        "created": "2021-11-05 11:12:32",
+        "updated": "2021-11-05 11:12:32",
+        "date": "2021-11-05 11:12:32",
+        "tags": [
+            "计算机网络",
+            "SDN"
+        ],
+        "categories": [
+            "计算机网络",
+            "SDN"
+        ]
+    }
+}
