@@ -216,11 +216,18 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
   const int aligned_cols = mi_cols_aligned_to_sb(cm->mi_cols);
   const int tile_cols = 1 << cm->log2_tile_cols;
   const int tile_rows = 1 << cm->log2_tile_rows;
+```
+初始化的方式和`decode_tiles_mt`里面差不多。但是这里多一个`aligned_cols`，从后面的代码看应该是和buffer大小有关的量。
+
+```c
   TileBuffer tile_buffers[4][1 << 6];
   int tile_row, tile_col;
   int mi_row, mi_col;
   TileWorkerData *tile_data = NULL;
+```
+`TileBuffer`直接在这初始化了，`TileWorkerData`也只有一个不像`decode_tiles_mt`里面每个线程都有一个`TileWorkerData`，果然是单线程，很合理。
 
+```c
   if (cm->lf.filter_level && !cm->skip_loop_filter &&
       pbi->lf_worker.data1 == NULL) {
     CHECK_MEM_ERROR(cm, pbi->lf_worker.data1,
@@ -231,7 +238,11 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
                          "Loop filter thread creation failed");
     }
   }
+```
+从[《libvpx解码过程解读》](./libvpx-decode.md)里已经知道，多线程`decode_tiles_mt`的情况下环路滤波的过程是在外面调用的，`decode_tiles_row_wise_mt`和单线程的`decode_tiles`里面自带环路滤波。
+这里就是给环路滤波分配数据，并且`pbi->lf_worker.hook = vp9_loop_filter_worker`给环路滤波的hook赋了值。
 
+```c
   if (cm->lf.filter_level && !cm->skip_loop_filter) {
     LFWorkerData *const lf_data = (LFWorkerData *)pbi->lf_worker.data1;
     // Be sure to sync as we might be resuming after a failed frame decode.
@@ -239,10 +250,16 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
     vp9_loop_filter_data_reset(lf_data, get_frame_new_buffer(cm), cm,
                                pbi->mb.plane);
   }
+```
+从注释上看应该是确保环路滤波的hook已经正确退出。
 
+```c
   assert(tile_rows <= 4);
   assert(tile_cols <= (1 << 6));
+```
+两个判断，这里怎么是`assert(tile_rows <= 4)`，多线程`decode_tiles_mt`那里却是`assert(tile_rows == 1)`？怪
 
+```c
   // Note: this memset assumes above_context[0], [1] and [2]
   // are allocated as part of the same buffer.
   memset(cm->above_context, 0,
@@ -252,9 +269,17 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
          sizeof(*cm->above_seg_context) * aligned_cols);
 
   vp9_reset_lfm(cm);
+```
+重置了一些内存空间。
 
+这里的context应该是是指熵解码context，lfm应该是指用于环路滤波的内存空间。
+
+```c
   get_tile_buffers(pbi, data, data_end, tile_cols, tile_rows, tile_buffers);
+```
+和`decode_tiles_mt`里一样，一个`get_tile_buffers`把`data`里的tile数据加载到buffer里。只不过前面的多线程是加载到`pbi->tile_buffers`里，这里直接是加载到函数开头定义的`tile_buffers`里
 
+```c
   // Load all tile information into tile_data.
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
@@ -272,7 +297,10 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
       vp9_init_macroblockd(cm, &tile_data->xd, tile_data->dqcoeff);
     }
   }
+```
+这个操作对应的是`decode_tiles_mt`里的排序之后分配任务的操作。从前面`decode_tiles_mt`里可以看到，分配任务本质上就是给每个线程专用的buffer里面放上数据。这里是单线程，所以也不需要什么排序，直接无脑拷贝就行了。
 
+```c
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     TileInfo tile;
     vp9_tile_set_row(&tile, cm, tile_row);
@@ -338,7 +366,12 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
       }
     }
   }
+```
+这就是主要的处理操作了。这一看就是几个for循环一行一行一列一列地在处理数据。到这里都没有`decode_tiles_mt`里看到的`tile_worker_hook`出场，说明`tile_worker_hook`肯定是被分解了放在这个循环里面了，所以这循环里面的操作应该和我们之后要研究的`tile_worker_hook`里的操作大差不离。
 
+再仔细看看，除了一堆赋值的操作和最后明显是执行环路滤波的操作之外，就只有`pbi->row_mt == 1`时最后调用的`process_partition`还有else时调用的`decode_partition`了，这两个操作应该就是更底层的解码函数，`tile_worker_hook`里调用的应该也是这两个。并且从它们的执行条件看，`process_partition`是`pbi->row_mt == 1`时调用的，那`decode_partition`估计也就是通过多次调用`process_partition`实现的。
+
+```c
   // Loopfilter remaining rows in the frame.
   if (cm->lf.filter_level && !cm->skip_loop_filter) {
     LFWorkerData *const lf_data = (LFWorkerData *)pbi->lf_worker.data1;
@@ -350,7 +383,13 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
 
   // Get last tile data.
   tile_data = pbi->tile_worker_data + tile_cols * tile_rows - 1;
+```
+看来是上面的循环里面不一定能完成全部的环路滤波？
 
+```c
   return vpx_reader_find_end(&tile_data->bit_reader);
 }
 ```
+最后是读完终止数据后结束。
+
+总结一下，多线程解码底层每个线程都是在调用`tile_worker_hook`，而从这个函数看，更底层的除了函数应该就是`process_partition`和`decode_partition`，`tile_worker_hook`应该也是调用的`process_partition`和`decode_partition`。

@@ -296,7 +296,7 @@ entropy context？熵上下文？应该是和熵解码相关。不太懂，以�
       *p_data_end =
           decode_tiles_row_wise_mt(pbi, data + first_partition_size, data_end);
 ```
-一行多列多线程的情况，就调用解码单行的函数`decode_tiles_row_wise_mt`。
+一行多列多线程的情况，就调用解码单行的函数`decode_tiles_row_wise_mt`，环路滤波应该是包含在里面了（确实如此，见[《libvpx中的`decode_tiles`》](./libvpx-decode-tile.md)）。
 
 ```c
     } else {
@@ -325,7 +325,7 @@ entropy context？熵上下文？应该是和熵解码相关。不太懂，以�
     *p_data_end = decode_tiles(pbi, data + first_partition_size, data_end);
   }
 ```
-这单线程的代码，就只有一个`decode_tiles`解码所有的块。
+这单线程的代码，就只有一个`decode_tiles`解码所有的块，环路滤波应该是包含在里面了（确实如此，见[《libvpx中的`decode_tiles`》](./libvpx-decode-tile.md)）。
 
 ```c
   if (!xd->corrupted) {
