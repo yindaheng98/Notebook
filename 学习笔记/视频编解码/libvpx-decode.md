@@ -357,3 +357,5 @@ entropy context？熵上下文？应该是和熵解码相关。不太懂，以�
 函数结束。
 
 离真相又进了一步！这个`vp9_decode_frame`负责读取帧压缩数据包头、初始化上下文结构体值，最后调用了多线程的`decode_tiles_row_wise_mt`和`decode_tiles_mt`以及单线程的`decode_tiles`进行解码。所以`decode_tiles_row_wise_mt`、`decode_tiles_mt`、`decode_tiles`这三个函数就是更深层的核心代码。
+
+接下来就来框框`decode_tiles_row_wise_mt`、`decode_tiles_mt`、`decode_tiles`这三个函数是怎么“decode tiles”的：[《libvpx中的`decode_tiles`》](./libvpx-decode-tile.md)。
