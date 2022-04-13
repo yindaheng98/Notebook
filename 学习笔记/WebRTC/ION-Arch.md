@@ -183,6 +183,8 @@ url = "nats://127.0.0.1:4222"
 
 可以看到这就是[`pion/ion-sfu`中配置文件](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/config.toml)加了几个配置项而已。其中就有nats的配置项，比如地址和数据库名称啥的。
 
+具体原理的解析，且看[《ION中的SFU服务》](sfu-in-ion.md)。
+
 ### islb
 
 在官网教程中，单独启动islb的指令如下：

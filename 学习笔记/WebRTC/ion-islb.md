@@ -78,7 +78,7 @@ message FindNodeReply {
 ```
 😂太简单了8
 
-没有一点复杂的协议在里面，就只有FindNode相关的两个操作
+没有一点复杂的协议在里面，就只有FindNode相关的两个操作，而且`ISLB`服务居然是空的？
 
 在`newISLBServer`这里面有一大段被注释的代码：
 ![](i/PostISLBEvent.png)
