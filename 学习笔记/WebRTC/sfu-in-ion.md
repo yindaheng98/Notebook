@@ -549,6 +549,10 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 			}
 			var err error = nil
 			switch desc.Type {
+```
+
+如果是对面发来的Offer就Answer它
+```go
 			case webrtc.SDPTypeOffer:
 				log.Debugf("[C=>S] description: offer %v", desc.SDP)
 
@@ -574,93 +578,89 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 					log.Errorf("grpc send error: %v", err)
 					return status.Errorf(codes.Internal, err.Error())
 				}
+```
 
+如果是对面发来的Answer就建立连接
+```go
 			case webrtc.SDPTypeAnswer:
 				log.Debugf("[C=>S] description: answer %v", desc.SDP)
 				err = peer.SetRemoteDescription(desc)
 			}
+```
 
+错误处理，没啥好说的
+```go
 			if err != nil {
-				switch err {
-				case ion_sfu.ErrNoTransportEstablished:
-					err = sig.Send(&rtc.Reply{
-						Payload: &rtc.Reply_Join{
-							Join: &rtc.JoinReply{
-								Success: false,
-								Error: &rtc.Error{
-									Code:   int32(error_code.UnsupportedMediaType),
-									Reason: fmt.Sprintf("set remote description error: %v", err),
-								},
-							},
-						},
-					})
-					if err != nil {
-						log.Errorf("grpc send error: %v", err)
-						return status.Errorf(codes.Internal, err.Error())
-					}
-				default:
-					return status.Errorf(codes.Unknown, err.Error())
-				}
+				......
 			}
+```
 
+### 处理`Trickle`信令
+
+```go
 		case *rtc.Request_Trickle:
+```
+
+看样子这个`Trickle`代表的应该是SDP传完之后传的ICECandidate：
+```go
 			var candidate webrtc.ICECandidateInit
 			err := json.Unmarshal([]byte(payload.Trickle.Init), &candidate)
 			if err != nil {
-				log.Errorf("error parsing ice candidate, error -> %v", err)
-				err = sig.Send(&rtc.Reply{
-					Payload: &rtc.Reply_Error{
-						Error: &rtc.Error{
-							Code:   int32(error_code.InternalError),
-							Reason: fmt.Sprintf("unmarshal ice candidate error:  %v", err),
-						},
-					},
-				})
-				if err != nil {
-					log.Errorf("grpc send error: %v", err)
-					return status.Errorf(codes.Internal, err.Error())
-				}
+				......
 				continue
 			}
+```
+这里发现出错了也没事，直接`continue`了
+
+然后接下来就是处理这个candidate了：
+```go
 			log.Debugf("[C=>S] trickle: target %v, candidate %v", int(payload.Trickle.Target), candidate.Candidate)
 			err = peer.Trickle(candidate, int(payload.Trickle.Target))
 			if err != nil {
-				switch err {
-				case ion_sfu.ErrNoTransportEstablished:
-					log.Errorf("peer hasn't joined, error -> %v", err)
-					err = sig.Send(&rtc.Reply{
-						Payload: &rtc.Reply_Error{
-							Error: &rtc.Error{
-								Code:   int32(error_code.InternalError),
-								Reason: fmt.Sprintf("trickle error:  %v", err),
-							},
-						},
-					})
-					if err != nil {
-						log.Errorf("grpc send error: %v", err)
-						return status.Errorf(codes.Internal, err.Error())
-					}
-				default:
-					return status.Errorf(codes.Unknown, fmt.Sprintf("negotiate error: %v", err))
-				}
+				......
 			}
+```
 
+### 处理`SubscriptionRequest`信令
+
+这个顾名思义应该是要请求订阅别人的某个流。不过从proto文件里看应该是更新订阅列表，选择订阅谁和不订阅谁。
+```go
 		case *rtc.Request_Subscription:
 			log.Debugf("[C=>S] subscription: %v", payload.Subscription)
 			subscription := payload.Subscription
 			needNegotiate := false
+```
+
+遍历Request里的所有的Track配置：
+```go
 			for _, trackInfo := range subscription.Subscriptions {
+```
+
+如果是要订阅这个Track：
+```go
 				if trackInfo.Subscribe {
+```
+
+就找到这个Track（排除自身）：
+```go
 					// Add down tracks
 					for _, p := range peer.Session().Peers() {
 						if p.ID() != peer.ID() {
 							for _, track := range p.Publisher().PublisherTracks() {
 								if track.Receiver.TrackID() == trackInfo.TrackId && track.Track.RID() == trackInfo.Layer {
+```
+
+然后把这个Track加进这个发请求的peer里：
+```go
 									log.Infof("Add RemoteTrack: %v to peer %v %v %v", trackInfo.TrackId, peer.ID(), track.Track.Kind(), track.Track.RID())
 									dt, err := peer.Publisher().GetRouter().AddDownTrack(peer.Subscriber(), track.Receiver)
 									if err != nil {
 										log.Errorf("AddDownTrack error: %v", err)
 									}
+```
+
+当然还要调一下SVC相关的配置：
+```go
 									// switchlayer
 									switch trackInfo.Layer {
 									case "f":
@@ -681,11 +681,23 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 							}
 						}
 					}
+```
+
+如果是要取消这个Track的订阅：
+```go
 				} else {
+```
+
+就按照ID找到这个Track：
+```go
 					// Remove down tracks
 					for _, downTrack := range peer.Subscriber().DownTracks() {
 						streamID := downTrack.StreamID()
 						if downTrack != nil && downTrack.ID() == trackInfo.TrackId {
+```
+
+然后取消它：
+```go
 							peer.Subscriber().RemoveDownTrack(streamID, downTrack)
 							_ = downTrack.Stop()
 							needNegotiate = true
@@ -693,10 +705,17 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 					}
 				}
 			}
+```
+
+有Track的变动就重新协商一下：
+```go
 			if needNegotiate {
 				peer.Subscriber().Negotiate()
 			}
+```
 
+最后返回成功与否：
+```go
 			_ = sig.Send(&rtc.Reply{
 				Payload: &rtc.Reply_Subscription{
 					Subscription: &rtc.SubscriptionReply{
