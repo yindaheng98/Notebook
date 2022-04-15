@@ -235,4 +235,67 @@ type Config struct {
 
 这个问题比较复杂，详见[《ION中的islb服务》](ion-islb.md)。总的来说，islb实际上就是一个服务注册中心，并没有所谓的负载均衡功能，存储和查询流信息的功能不知道被移到哪去了。推测这个模块后面应该会改个名字，比如改成“Registry”啥的，更符合它现在的功能。
 
-### Room
+### Signal
+
+从[《ION中的SFU服务》](sfu-in-ion.md)中我们可以看出，信令服务都在SFU里面写好了，那这个Signal是干嘛用的？
+
+先看启动过程。在官网教程中，单独启动Signal的指令如下：
+
+```sh
+docker pull nats
+docker run -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
+docker run -p 5551:5551/tcp --network host -v $PWD/configs/signal.toml:/configs/signal.toml pionwebrtc/ion:latest-signal
+```
+可以看出，Signal的启动只需要有nats就行了
+
+这个配置文件是这样：
+```toml
+[global]
+# data center id
+dc = "dc1"
+
+[log]
+level = "info"
+# level = "debug"
+
+[nats]
+url = "nats://127.0.0.1:4222"
+
+
+[signal.grpc]
+#listen ip port
+host = "0.0.0.0"
+port = "5551"
+allow_all_origins = true
+# cert= "configs/certs/cert.pem"
+# key= "configs/certs/key.pem"
+
+[signal.jwt]
+enabled = false 
+key_type = "HMAC"
+key = "1q2dGu5pzikcrECJgW3ADfXX3EsmoD99SYvSVCpDsJrAqxou5tUNbHPvkEFI4bTS"
+
+[signal.svc]
+services = ["rtc", "room"]
+```
+前面都没啥特殊的。
+
+这个`signal.grpc`应该是指明Signal服务的对外接口；`signal.jwt`应该是验证功能；`signal.svc`这是什么，看着像是什么服务名，不知道有什么用？
+
+打开[Signal的主函数](https://github.com/pion/ion/blob/65dbd12eaad0f0e0a019b4d8ee80742930bcdc28/cmd/signal/main.go)看一眼，服务注册之类的代码都和前面介绍的一样，最重要的代码应该就是这段：
+```go
+	srv := grpc.NewServer(
+		grpc.CustomCodec(nrpc.Codec()), // nolint:staticcheck
+		grpc.UnknownServiceHandler(nproxy.TransparentLongConnectionHandler(sig.Director)))
+
+	s := util.NewWrapperedGRPCWebServer(util.NewWrapperedServerOptions(
+		addr, conf.Signal.GRPC.Cert, conf.Signal.GRPC.Key, true), srv)
+
+	if err := s.Serve(); err != nil {
+		log.Panicf("failed to serve: %v", err)
+	}
+	select {}
+```
+滴滴🤯！！捕捉到关键词`proxy`！看这样子Signal应该是个GRPC代理，把外面来的标准GRPC请求转换为`nats-grpc`的请求。
+
+进一步解析详见[《ION中的Signal服务》](ion-signal.md)。
