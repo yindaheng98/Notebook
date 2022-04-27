@@ -488,7 +488,7 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 ```
 这个`BoardcastTrackEvent`长这样：
 ![](i/BoardcastTrackEvent.png)
-就是给所有的其他对端用GRPC发`TrackEvent`
+就是给所有的其他对端用GRPC发`TrackEvent`（居然没有直接给所有对端发？都不验证一下Session？）
 
 然后开始设置把本地的流发到对面：
 ```go
@@ -641,7 +641,7 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 				if trackInfo.Subscribe {
 ```
 
-就找到这个Track（排除自身）：
+就在当前Session下的所有Peer（排除自身）的Publisher中找到这个Track：
 ```go
 					// Add down tracks
 					for _, p := range peer.Session().Peers() {
@@ -649,6 +649,7 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 							for _, track := range p.Publisher().PublisherTracks() {
 								if track.Receiver.TrackID() == trackInfo.TrackId && track.Track.RID() == trackInfo.Layer {
 ```
+（`BoardcastTrackEvent`里为何可以没有验证Session的原因就在这，就算用户知道了别人Session里的Track也没法订阅）（不过这也还是感觉不太好，能看到别人Session里的Track也算一种漏洞吧）
 
 然后把这个Track加进这个发请求的peer里：
 ```go
@@ -727,4 +728,85 @@ func (s *SFUService) Signal(sig rtc.RTC_SignalServer) error {
 		}
 	}
 }
+```
+
+## 信令流总结
+
+### 建立连接
+
+```mermaid
+sequenceDiagram
+SDK->>+SDK: pc.CreateOffer
+Note over SDK: 从Offer创建一个JoinRequest
+SDK->>-SFU: JoinRequest(sid, uid, Offer)
+Note over SFU: Create a peer/Join a session
+SFU->>+SFU: peer.Answer
+Note over SFU: 从Answer创建一个JoinReply
+SFU->>-SDK: JoinReply(Answer)
+SDK->>SDK: pc.SetRemoteDescription
+Note over SDK,SFU: OnIceCandidate
+par SFU发送ICE Candidate
+SFU->>SDK: Reply_Trickle(webrtc.ICECandidateInit)
+SDK->>SDK: pc.AddICECandidate
+and SDK发送ICE Candidate
+SDK->>SFU: Request_Trickle(webrtc.ICECandidateInit)
+SFU->>SFU: peer.Trickle
+end
+Note over SDK,SFU: 后续操作：视频流收发等
+```
+
+### 发送上行视频流
+
+```mermaid
+sequenceDiagram
+Note over SDK,SFU: 建立连接,过程略
+SDK->>SDK: pc.AddTrack
+SDK->>+SDK: pc.CreateOffer
+Note over SDK: 从Offer创建一个Request_Description
+SDK->>-SFU: Request_Description(Offer)
+SFU->>+SFU: peer.Answer
+Note over SFU: 从Answer创建一个Reply_Description
+SFU->>-SDK: Reply_Description(Answer)
+SDK->>SDK: pc.SetRemoteDescription
+Note over SDK,SFU: 于是，经过协商，webrtc连接中添加上了新的上行视频流Track
+```
+
+### 请求下行视频流
+
+```mermaid
+sequenceDiagram
+Note over SDK,SFU: 建立连接,过程略
+Note over SDK: 从要订阅的Track的信息创建一个SubscriptionRequest
+SDK->>SFU: SubscriptionRequest(Track ID, Layer, ...)
+Note over SFU: 在该用户所在Session中的其他用户上行流处查找Track ID对应的Track
+SFU->>SFU: peer.Publisher().GetRouter().AddDownTrack
+Note over SFU: AddDownTrack的调用将会触发OnOffer
+SFU->>SFU: peer.OnOffer
+Note over SFU: 从Offer创建一个Reply_Description
+SFU->>SDK: Reply_Description(Offer)
+SDK->>SDK: pc.SetRemoteDescription
+par 重新协商ICE Candidate
+SDK->>SFU: Request_Trickle(webrtc.ICECandidateInit)
+SFU->>SFU: peer.Trickle
+and 重新协商SDP
+SDK->>SDK: pc.CreateAnswer
+Note over SDK: 从Answer创建一个Request_Description
+SDK->>SFU: Request_Description(Answer)
+SFU->>SFU: peer.SetRemoteDescription
+end
+Note over SDK,SFU: 于是，经过协商，webrtc连接中添加上了新的下行视频流Track
+```
+
+### 何时请求下行视频流？
+
+```mermaid
+sequenceDiagram
+Note over SDK,SFU: 建立连接,过程略
+SFU->>SFU: 有其他用户发起连接
+SFU->>SDK: Reply_TrackEvent
+Note over SDK: 通过设置OnTrackEvent选择收到TrackEvent时要进行什么操作
+alt
+SDK->>SDK: SubscribeFromEvent
+Note over SDK,SFU: SubscribeFromEvent将调用上述请求下行视频流的过程
+end
 ```
