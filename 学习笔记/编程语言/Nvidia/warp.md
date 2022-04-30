@@ -64,7 +64,7 @@ Warp的划分是由处理器自动进行的。
 
 >`__shfl_sync()` returns the value of `var` held by the thread whose ID is given by `srcLane`. If `width` is less than `warpSize` then each subsection of the warp behaves as a separate entity with a starting logical lane ID of 0. If `srcLane` is outside the range [0:`width-1`], the value returned corresponds to the value of var held by the `srcLane` modulo `width` (i.e. within the same subsection).
 
-所以这些函数的第一个参数`mask`和地四个参数`width`分别通过掩码和范围限定了操作涉及的Thread的ID范围，第二个参数`var`指定了要传哪个变量的值，第三个参数用于指定具体要找哪个Thread。
+所以这些函数的第一个参数`mask`和地四个参数`width`分别通过掩码和范围限定了操作涉及的Thread的ID范围，第二个参数`var`指定了要传哪个变量的值，第三个参数用于指定具体要找哪个Thread，最后返回值是要取的那个参数的值。
 
 ## 其他
 
