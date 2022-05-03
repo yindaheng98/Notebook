@@ -165,3 +165,124 @@ type JoinConfig struct {
 	NoAutoSubscribe bool
 }
 ```
+
+首先，在[Peer的初始化过程](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/peer.go#L107)中有`NoSubscribe`和`NoPublish`发挥作用：
+
+```go
+	if !conf.NoSubscribe {
+		p.subscriber, err = NewSubscriber(uid, cfg)
+		if err != nil {
+			return fmt.Errorf("error creating transport: %v", err)
+		}
+
+		p.subscriber.noAutoSubscribe = conf.NoAutoSubscribe
+
+		p.subscriber.OnNegotiationNeeded(func() {
+			p.Lock()
+			defer p.Unlock()
+
+			if p.remoteAnswerPending {
+				p.negotiationPending = true
+				return
+			}
+
+			Logger.V(1).Info("Negotiation needed", "peer_id", p.id)
+			offer, err := p.subscriber.CreateOffer()
+			if err != nil {
+				Logger.Error(err, "CreateOffer error")
+				return
+			}
+
+			p.remoteAnswerPending = true
+			if p.OnOffer != nil && !p.closed.get() {
+				Logger.V(0).Info("Send offer", "peer_id", p.id)
+				p.OnOffer(&offer)
+			}
+		})
+
+		p.subscriber.OnICECandidate(func(c *webrtc.ICECandidate) {
+			Logger.V(1).Info("On subscriber ice candidate called for peer", "peer_id", p.id)
+			if c == nil {
+				return
+			}
+
+			if p.OnIceCandidate != nil && !p.closed.get() {
+				json := c.ToJSON()
+				p.OnIceCandidate(&json, subscriber)
+			}
+		})
+	}
+```
+```go
+	if !conf.NoSubscribe {
+		p.session.Subscribe(p)
+	}
+```
+显然，这`NoSubscribe`在生成`PeerLocal`时控制`Subscriber`的初始化，如果`NoSubscribe=true`就不会有`Subscriber`生成。从而也就没法`AddDownTrack`向外传出Track。
+
+```go
+	if !conf.NoPublish {
+		p.publisher, err = NewPublisher(uid, p.session, &cfg)
+		if err != nil {
+			return fmt.Errorf("error creating transport: %v", err)
+		}
+		if !conf.NoSubscribe {
+			for _, dc := range p.session.GetDCMiddlewares() {
+				if err := p.subscriber.AddDatachannel(p, dc); err != nil {
+					return fmt.Errorf("setting subscriber default dc datachannel: %w", err)
+				}
+			}
+		}
+
+		p.publisher.OnICECandidate(func(c *webrtc.ICECandidate) {
+			Logger.V(1).Info("on publisher ice candidate called for peer", "peer_id", p.id)
+			if c == nil {
+				return
+			}
+
+			if p.OnIceCandidate != nil && !p.closed.get() {
+				json := c.ToJSON()
+				p.OnIceCandidate(&json, publisher)
+			}
+		})
+
+		p.publisher.OnICEConnectionStateChange(func(s webrtc.ICEConnectionState) {
+			if p.OnICEConnectionStateChange != nil && !p.closed.get() {
+				p.OnICEConnectionStateChange(s)
+			}
+		})
+	}
+```
+显然，这`NoPublish`在生成`PeerLocal`时控制`Publisher`的初始化，如果`NoPublish=true`就不会有`Publisher`生成。根据上一节的分析，`PublisherTrack`增减相关的操作主要就是在`Publisher`的初始化过程中执行的，没有了`Publisher`也就不会有对传入的`PublisherTrack`的那些操作了，从而也就不会接收传入的Track。
+
+此外，我们发现`NoAutoSubscribe`被赋值给了`p.subscriber.noAutoSubscribe`这个值主要在[`AddDownTracks`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/router.go#L210)的里面发挥作用：
+```go
+func (r *router) AddDownTracks(s *Subscriber, recv Receiver) error {
+	r.Lock()
+	defer r.Unlock()
+
+	if s.noAutoSubscribe {
+		Logger.Info("peer turns off automatic subscription, skip tracks add")
+		return nil
+	}
+
+	if recv != nil {
+		if _, err := r.AddDownTrack(s, recv); err != nil {
+			return err
+		}
+		s.negotiate()
+		return nil
+	}
+
+	if len(r.receivers) > 0 {
+		for _, rcv := range r.receivers {
+			if _, err := r.AddDownTrack(s, rcv); err != nil {
+				return err
+			}
+		}
+		s.negotiate()
+	}
+	return nil
+}
+```
+所以，当调用[`Publish`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/session.go#L222)的时候，`NoAutoSubscribe=true`的router不会被调用`AddDownTrack`。根据前面对[`Publisher`的初始化函数](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L77)的分析，`Publisher`有新Track到达的时候会对所有Session里的Peer调用`Publish`，所以`NoAutoSubscribe=true`不调用`AddDownTrack`就意味着新Track到达的时候这个Peer没法`AddDownTrack`，所以达到了“No Auto Subscribe”的目的。
