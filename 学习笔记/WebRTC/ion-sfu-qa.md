@@ -19,7 +19,7 @@
 * [`Publisher`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L18)和[`PublisherTrack`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L44)：处理从外面“Publish”到本SFU的流，即上行流
 * [`Subscriber`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/subscriber.go#L16)和[`DownTrack`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/downtrack.go#L27)：处理外面“Subscribe”本SFU的流，即下行流
 
-这两种传输控制类分别有各自的PeerConnection，所以`pion/ion-sfu`中是没有双向的PeerConnection的，收和发分别由两个PeerConnection控制。
+这两种传输控制类分别有各自的PeerConnection，所以`pion/ion-sfu`中是没有双向的PeerConnection的，收和发分别由两个PeerConnection控制。两个PeerConnection怎么处理Offer和Answer过程见后文。
 
 `Publisher`和`Subscriber`的初始化函数大体相同，都会创建PeerConnection。而在`Publisher`的初始化函数比`Subscriber`的初始化函数多了这么[一段代码](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L77)：
 ```go
@@ -147,6 +147,27 @@ func (s *SessionLocal) AddDatachannel(owner string, dc *webrtc.DataChannel) {
 }
 ```
 一看就是在搞消息转发，就不细看了
+
+##  `pion/ion-sfu`中是如何处理关闭track的？
+
+
+相关操作[在`AddDownTrack`的时候就已经通过`OnCloseHandler`定好了](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/router.go#L269)
+```go
+	downTrack.OnCloseHandler(func() {
+		if sub.pc.ConnectionState() != webrtc.PeerConnectionStateClosed {
+			if err := sub.pc.RemoveTrack(downTrack.transceiver.Sender()); err != nil {
+				if err == webrtc.ErrConnectionClosed {
+					return
+				}
+				Logger.Error(err, "Error closing down track")
+			} else {
+				sub.RemoveDownTrack(recv.StreamID(), downTrack)
+				sub.negotiate()
+			}
+		}
+	})
+```
+一个`Publisher`里过来的Track可能会通过`AddDownTrack`加到很多个`Subscriber`里，当Publish侧的SDK通过`UnPublish`函数关闭了一个流，`Publisher`里会有流关闭，进而触发所有这些`Subscriber`里的`OnCloseHandler`函数，从而达到删除流的目的。
 
 ## `pion/ion-sfu`中的`JoinConfig`是如何控制SFU的转发逻辑的？
 
@@ -286,3 +307,86 @@ func (r *router) AddDownTracks(s *Subscriber, recv Receiver) error {
 }
 ```
 所以，当调用[`Publish`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/session.go#L222)的时候，`NoAutoSubscribe=true`的router不会被调用`AddDownTrack`。根据前面对[`Publisher`的初始化函数](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L77)的分析，`Publisher`有新Track到达的时候会对所有Session里的Peer调用`Publish`，所以`NoAutoSubscribe=true`不调用`AddDownTrack`就意味着新Track到达的时候这个Peer没法`AddDownTrack`，所以达到了“No Auto Subscribe”的目的。
+
+## `Publisher`和`Subscriber`两个PeerConnection怎么处理Offer和Answer的？
+
+从[SDK的代码](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L654)上看，信令的传输也会被分类为两种。在SDK侧，接收到的所有Offer都交给[`negotiate`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L364)函数处理，接收到的所有Answer都交给[`setRemoteSDP`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L540)函数处理：
+```go
+			var sdpType webrtc.SDPType
+			if payload.Description.Type == "offer" {
+				sdpType = webrtc.SDPTypeOffer
+			} else {
+				sdpType = webrtc.SDPTypeAnswer
+			}
+			sdp := webrtc.SessionDescription{
+				SDP:  payload.Description.Sdp,
+				Type: sdpType,
+			}
+			if sdp.Type == webrtc.SDPTypeOffer {
+				log.Infof("[%v] [description] got offer call s.OnNegotiate sdp=%+v", r.uid, sdp)
+				err := r.negotiate(sdp)
+				if err != nil {
+					log.Errorf("error: %v", err)
+				}
+			} else if sdp.Type == webrtc.SDPTypeAnswer {
+				log.Infof("[%v] [description] got answer call sdp=%+v", r.uid, sdp)
+				err = r.setRemoteSDP(sdp)
+				if err != nil {
+					log.Errorf("[%v] [description] setRemoteSDP err=%s", r.uid, err)
+				}
+			}
+```
+并且可以看到[`negotiate`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L364)函数里基本上都是对Subscribe方向的操作、[`setRemoteSDP`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L540)函数里基本上都是对Publish方向的操作。
+
+所以，所有从SFU到SDK的流（即“Subscribe”）都是SFU向SDK发Offer、SDK向SFU回Answer；所有从SDK到SFU的流（即“Publish”）都是SDK向SFU发Offer、SFU向SDK回Answer。
+
+所以：
+* 如果在SFU那边收到了Offer，那必然是“Publish”流里的，应该给`Publisher`里的PeerConnection用，并且让`Publisher`里的PeerConnection回复一个Answer。代码位于[这里](https://github.com/pion/ion/blob/65dbd12eaad0f0e0a019b4d8ee80742930bcdc28/pkg/node/sfu/service.go#L338)。
+* 如果在SFU那边收到了Answer，那必然是“Subscribe”流里的，应该给`Subscriber`里的PeerConnection用。代码位于[这里](https://github.com/pion/ion/blob/65dbd12eaad0f0e0a019b4d8ee80742930bcdc28/pkg/node/sfu/service.go#L338)。
+* 如果在SDK这边收到了Offer，那必然是“Subscribe”流里的，应该给Subscribe方向的PeerConnection用，并且让Subscribe方向的PeerConnection回复一个Answer。代码就是上面介绍的[`negotiate`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L364)。
+* 如果在SDK这边收到了Answer，那必然是“Publish”流里的，应该给Publish方向的PeerConnection用。代码就是上面介绍的[`setRemoteSDP`](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L540)。
+
+### 那两个方向的Offer都是从哪来的？
+
+“Publish”流的Offer是SDK在[`Join`函数](https://github.com/pion/ion-sdk-go/blob/12e32a5871b905bf2bdf58bc45c2fdd2741c4f81/rtc.go#L195)里发出的：
+```go
+	offer, err := r.pub.pc.CreateOffer(nil)
+	if err != nil {
+		return err
+	}
+
+	err = r.pub.pc.SetLocalDescription(offer)
+	if err != nil {
+		return err
+	}
+
+	if len(config) > 0 {
+		err = r.SendJoin(sid, r.uid, offer, *config[0])
+	} else {
+		err = r.SendJoin(sid, r.uid, offer, nil)
+	}
+```
+这里的`SendJoin`就是将SDP打包在`rtc.Request_Join`里发出。
+
+“Subscribe”流的Offer是在SFU处理上面这SDK发的`rtc.Request_Join`请求时通过[设置`OnOffer`](https://github.com/pion/ion/blob/65dbd12eaad0f0e0a019b4d8ee80742930bcdc28/pkg/node/sfu/service.go#L164)发出的：
+```go
+			// Notify user of new offer
+			peer.OnOffer = func(o *webrtc.SessionDescription) {
+				log.Debugf("[S=>C] peer.OnOffer: %v", o.SDP)
+				err = sig.Send(&rtc.Reply{
+					Payload: &rtc.Reply_Description{
+						Description: &rtc.SessionDescription{
+							Target: rtc.Target(rtc.Target_SUBSCRIBER),
+							Sdp:    o.SDP,
+							Type:   o.Type.String(),
+						},
+					},
+				})
+				if err != nil {
+					log.Errorf("negotiation error: %v", err)
+				}
+			}
+```
+很明显，不用多讲。
+
+进一步，SDK接收“Subscribe”流和SFU接收“Publish”流用的都是`OnTrack`，SFU里的操作前面已经介绍了，SDK里的`OnTrack`在这：
