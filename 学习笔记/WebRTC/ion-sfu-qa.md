@@ -390,3 +390,238 @@ func (r *router) AddDownTracks(s *Subscriber, recv Receiver) error {
 很明显，不用多讲。
 
 进一步，SDK接收“Subscribe”流和SFU接收“Publish”流用的都是`OnTrack`，SFU里的操作前面已经介绍了，SDK里的`OnTrack`在这：
+
+## `pion/ion-sfu`里面是如何`AddDownTrack`的？
+
+### `NoAutoSubscribe=true`时的`AddDownTrack`
+
+从[SFU里的`Request_Subscription`处理函数](https://github.com/pion/ion/blob/65dbd12eaad0f0e0a019b4d8ee80742930bcdc28/pkg/node/sfu/service.go#L441)这里开始解析：
+```go
+					for _, p := range peer.Session().Peers() {
+						if p.ID() != peer.ID() {
+							for _, track := range p.Publisher().PublisherTracks() {
+								if track.Receiver.TrackID() == trackInfo.TrackId && track.Track.RID() == trackInfo.Layer {
+									log.Infof("Add RemoteTrack: %v to peer %v %v %v", trackInfo.TrackId, peer.ID(), track.Track.Kind(), track.Track.RID())
+									dt, err := peer.Publisher().GetRouter().AddDownTrack(peer.Subscriber(), track.Receiver)
+									if err != nil {
+										log.Errorf("AddDownTrack error: %v", err)
+									}
+```
+
+首先很显然这里的`peer.Publisher().GetRouter().AddDownTrack(peer.Subscriber(), track.Receiver)`就是把别人的接收到Track的`track.Receiver`加进自己的发送器`peer.Subscriber()`里。
+
+这个函数长[这样](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/router.go#L239)：
+```go
+func (r *router) AddDownTrack(sub *Subscriber, recv Receiver) (*DownTrack, error) {
+	for _, dt := range sub.GetDownTracks(recv.StreamID()) {
+		if dt.ID() == recv.TrackID() {
+			return dt, nil
+		}
+	}
+
+	codec := recv.Codec()
+	if err := sub.me.RegisterCodec(codec, recv.Kind()); err != nil {
+		return nil, err
+	}
+
+	downTrack, err := NewDownTrack(webrtc.RTPCodecCapability{
+		MimeType:     codec.MimeType,
+		ClockRate:    codec.ClockRate,
+		Channels:     codec.Channels,
+		SDPFmtpLine:  codec.SDPFmtpLine,
+		RTCPFeedback: []webrtc.RTCPFeedback{{"goog-remb", ""}, {"nack", ""}, {"nack", "pli"}},
+	}, recv, r.bufferFactory, sub.id, r.config.MaxPacketTrack)
+	if err != nil {
+		return nil, err
+	}
+	// Create webrtc sender for the peer we are sending track to
+	if downTrack.transceiver, err = sub.pc.AddTransceiverFromTrack(downTrack, webrtc.RTPTransceiverInit{
+		Direction: webrtc.RTPTransceiverDirectionSendonly,
+	}); err != nil {
+		return nil, err
+	}
+
+	// nolint:scopelint
+	downTrack.OnCloseHandler(func() {
+		if sub.pc.ConnectionState() != webrtc.PeerConnectionStateClosed {
+			if err := sub.pc.RemoveTrack(downTrack.transceiver.Sender()); err != nil {
+				if err == webrtc.ErrConnectionClosed {
+					return
+				}
+				Logger.Error(err, "Error closing down track")
+			} else {
+				sub.RemoveDownTrack(recv.StreamID(), downTrack)
+				sub.negotiate()
+			}
+		}
+	})
+
+	downTrack.OnBind(func() {
+		go sub.sendStreamDownTracksReports(recv.StreamID())
+	})
+
+	sub.AddDownTrack(recv.StreamID(), downTrack)
+	recv.AddDownTrack(downTrack, r.config.Simulcast.BestQualityFirst)
+	return downTrack, nil
+}
+```
+
+这里的`NewDownTrack`生成的`downTrack`是一个继承了`TrackLocal`的类，可以看到被`AddTransceiverFromTrack`加进PeerConnection里了，并且在最后用`sub.AddDownTrack`和`recv.AddDownTrack`加进Subscriber和Receiver里了。
+
+这两个`AddDownTrack`都是简单的用变量记录`DownTrack`：
+```go
+func (s *Subscriber) AddDownTrack(streamID string, downTrack *DownTrack) {
+	s.Lock()
+	defer s.Unlock()
+	if dt, ok := s.tracks[streamID]; ok {
+		dt = append(dt, downTrack)
+		s.tracks[streamID] = dt
+	} else {
+		s.tracks[streamID] = []*DownTrack{downTrack}
+	}
+}
+```
+```go
+func (w *WebRTCReceiver) AddDownTrack(track *DownTrack, bestQualityFirst bool) {
+
+	...
+
+	w.Lock()
+	w.storeDownTrack(layer, track)
+	w.Unlock()
+}
+
+...
+
+
+func (w *WebRTCReceiver) storeDownTrack(layer int, dt *DownTrack) {
+	dts := w.downTracks[layer].Load().([]*DownTrack)
+	ndts := make([]*DownTrack, len(dts)+1)
+	copy(ndts, dts)
+	ndts[len(ndts)-1] = dt
+	w.downTracks[layer].Store(ndts)
+}
+```
+那Receiver里收到的东西到底是怎么通过这个DownTrack进的Subscriber？
+在[Receiver的`AddUpTrack`](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/receiver.go#L166)里可以看见：
+
+```go
+func (w *WebRTCReceiver) AddUpTrack(track *webrtc.TrackRemote, buff *buffer.Buffer, bestQualityFirst bool) {
+	if w.closed.get() {
+		return
+	}
+
+	var layer int
+	switch track.RID() {
+	case fullResolution:
+		layer = 2
+	case halfResolution:
+		layer = 1
+	default:
+		layer = 0
+	}
+
+	w.Lock()
+	w.upTracks[layer] = track
+	w.buffers[layer] = buff
+	w.available[layer].set(true)
+	w.downTracks[layer].Store(make([]*DownTrack, 0, 10))
+	w.pendingTracks[layer] = make([]*DownTrack, 0, 10)
+	w.Unlock()
+
+	subBestQuality := func(targetLayer int) {
+		for l := 0; l < targetLayer; l++ {
+			dts := w.downTracks[l].Load()
+			if dts == nil {
+				continue
+			}
+			for _, dt := range dts.([]*DownTrack) {
+				_ = dt.SwitchSpatialLayer(int32(targetLayer), false)
+			}
+		}
+	}
+
+	subLowestQuality := func(targetLayer int) {
+		for l := 2; l != targetLayer; l-- {
+			dts := w.downTracks[l].Load()
+			if dts == nil {
+				continue
+			}
+			for _, dt := range dts.([]*DownTrack) {
+				_ = dt.SwitchSpatialLayer(int32(targetLayer), false)
+			}
+		}
+	}
+
+	if w.isSimulcast {
+		if bestQualityFirst && (!w.available[2].get() || layer == 2) {
+			subBestQuality(layer)
+		} else if !bestQualityFirst && (!w.available[0].get() || layer == 0) {
+			subLowestQuality(layer)
+		}
+	}
+	go w.writeRTP(layer)
+}
+```
+这个函数看样子只一个只能调用一次的函数，它最后创建了一个go程`w.writeRTP`，在[这个函数](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/receiver.go#L334)里面，我们终于看到了包转发`WriteRTP`的过程：
+```go
+func (w *WebRTCReceiver) writeRTP(layer int) {
+	defer func() {
+		w.closeOnce.Do(func() {
+			w.closed.set(true)
+			w.closeTracks()
+		})
+	}()
+
+	pli := []rtcp.Packet{
+		&rtcp.PictureLossIndication{SenderSSRC: rand.Uint32(), MediaSSRC: w.SSRC(layer)},
+	}
+
+	for {
+		pkt, err := w.buffers[layer].ReadExtended()
+		if err == io.EOF {
+			return
+		}
+
+		if w.isSimulcast {
+			if w.pending[layer].get() {
+				if pkt.KeyFrame {
+					w.Lock()
+					for idx, dt := range w.pendingTracks[layer] {
+						w.deleteDownTrack(dt.CurrentSpatialLayer(), dt.id)
+						w.storeDownTrack(layer, dt)
+						dt.SwitchSpatialLayerDone(int32(layer))
+						w.pendingTracks[layer][idx] = nil
+					}
+					w.pendingTracks[layer] = w.pendingTracks[layer][:0]
+					w.pending[layer].set(false)
+					w.Unlock()
+				} else {
+					w.SendRTCP(pli)
+				}
+			}
+		}
+
+		for _, dt := range w.downTracks[layer].Load().([]*DownTrack) {
+			if err = dt.WriteRTP(pkt, layer); err != nil {
+				if err == io.EOF && err == io.ErrClosedPipe {
+					w.Lock()
+					w.deleteDownTrack(layer, dt.id)
+					w.Unlock()
+				}
+				Logger.Error(err, "Error writing to down track", "id", dt.id)
+			}
+		}
+	}
+
+}
+```
+所以就是把包给所有DownTrack都写一份。
+
+所以这Receiver的结构也很清楚了，就是一个UpTrack和多个DownTrack，设置好UpTrack后开go程不断把包从UpTrack复制几份写进所有的DownTrack里面。
+
+所以综上所述，可以看出真正的包转发操作全是在Publisher相关代码里完成的，Subscriber实际上只起一个记录的作用。
+
+### `NoAutoSubscribe=false`时的`AddDownTrack`
+
+前面已经介绍过在`Publisher`的初始化函数比`Subscriber`的初始化函数多的这么[一段代码](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/publisher.go#L77)，可以看到最后也是回到[`Router`中的`AddDownTrack`函数](https://github.com/pion/ion-sfu/blob/68545cc25230220435ee028d5a0af6e768a0a79a/pkg/sfu/router.go#L239)里。
