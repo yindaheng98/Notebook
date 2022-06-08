@@ -268,6 +268,23 @@ H. Zhao, J. Jia, and V. Koltun, ‘Exploring Self-Attention for Image Recognitio
 
 ## 可学习的Embedding
 
+如果位置编码可学习得到，就不用去自己找合适的位置编码函数了。缺点是如果序列长度不固定的话靠后面的位置编码值可能就更新不了几次。所以训练用的的句子最好是比投入使用时的句子长一点。
+
+### BERT中的可学习位置编码
+
+```python
+self.word_embeddings = nn.Embedding(config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
+self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
+self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.hidden_size)
+```
+
+这个`word_embeddings`是预定义的词向量查询表；`position_embeddings`是位置编码，根本上就是一个矩阵，通过位置编号`123`查询出向量；`token_type_embeddings`对应的是论文里的Segments Embeddings，和位置编码同理，区别只是每一个句子对应一个Segments Embedding。
+
+```
+0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1
+| first sequence    | second sequence |
+```
+
 ### ViT中的可学习的Projection（将Patch映射为向量）
 ```python
 self.projection = nn.Conv2d(num_channels, embed_dim, kernel_size=patch_size, stride=patch_size)
