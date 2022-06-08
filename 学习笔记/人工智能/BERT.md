@@ -1,8 +1,11 @@
 # 【纯转载】什么是BERT？
 
+>前置知识：[Transformer结构](./transformer.md)
+
 >关键点总结：
 >* BERT在输入序列的开头放一个空单词用于聚集整个序列表征信息
 >* BERT的位置编码(Embeddings)分为分割和位置两种
+>* 可学习的Embeddings
 >* Masked Language Model(MLM)预训练任务
 
 BERT的全称为Bidirectional Encoder Representation from Transformers，是一个预训练的语言表征模型。它强调了不再像以往一样采用传统的单向语言模型或者把两个单向语言模型进行浅层拼接的方法进行预训练，而是采用新的**masked language model（MLM）**，以致能生成**深度的双向**语言表征。BERT论文发表时提及在11个NLP（Natural Language Processing，自然语言处理）任务中获得了新的state-of-the-art的结果，令人目瞪口呆。
