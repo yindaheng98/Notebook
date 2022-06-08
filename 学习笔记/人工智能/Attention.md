@@ -165,7 +165,7 @@ $$
 S_i=Attention(\bm\alpha_{i}, \bm s)=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)s_j
 $$
 
-所以你看上面Attention RNN的这些公式其实就是$K$、$Q$、$V$表示法在$K=V$时的特殊情况。真正的注意力机制可以这么描述：
+所以你看上面Attention RNN的这些公式中$\mathcal{H}(H_{i-1}, s_j)$其实就对应的是$Similarity(Query, Key_i)$，$K$和$Q$的计算就包含在$\mathcal{H}(H_{i-1}, s_j)$里；而$V$就直接是$s_j$。真正的注意力机制可以这么描述：
 
 >把输入看成是一堆$(Key, Value)$对，给定输出中的某个元素$Query$，通过**计算$Query$和各个$Key$的相似性或者相关性**，得到**每个$Key$对应$Value$的权重系数**，然后**对Value进行加权求和**，即得到了最终的Attention数值。所以本质上Attention机制是对$Source$中元素的$Value$值进行加权求和，而$Query$和$Key$用来计算对应Value的权重系数。
 >
@@ -173,9 +173,21 @@ $$
 
 ——引自[《深度学习中的注意力机制》](https://cloud.tencent.com/developer/article/1143127)
 
+与上面的Attention RNN公式中的$\mathcal{H}(H_{i-1}, s_j)$对应，可以明白$K$就应该是从$s_j$中计算出来的量，$Q$就应该是从$H_{i-1}$中计算出来的量，$V$就应该是$s_j$，$\sum_{i=1}^{|Source|}Similarity(Query, Key_i)$实际上就是在计算$s_j$和$H_{i-1}$的相似性得出注意力值。
+
 ## 自注意力机制
 
 有了“输入看成是一堆$(Key, Value)$对”的概念并且以“$K$、$Q$、$V$表示法”理解了注意力机制之后，就可以开始学习自注意力机制了(Self Attention)了。
+
+>一言以蔽之，自注意力机制实际上就是把用RNN才能算的注意力计算过程换成了简单的矩阵计算
+>
+>即将：
+>
+>$$\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)s_j$$
+>
+>换成：
+>
+>$$\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i=softmax(\frac{(W^Q\cdot\bm s)(W^K\cdot\bm s)^T}{\sqrt{d_k}})(W^V\cdot\bm s)$$
 
 自注意力是Transformer中使用的注意力机制，随着Transformer的大火一起为人所知。本节就参考Transformer原论文[《Attention Is All You Need》](https://arxiv.org/pdf/1706.03762.pdf)介绍自注意力机制。
 
