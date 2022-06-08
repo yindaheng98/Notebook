@@ -2,6 +2,8 @@
 
 原文：[《Attention Is All You Need》](https://arxiv.org/pdf/1706.03762.pdf)
 
+原文：[The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+
 学Transformer之前请先理解[《机器学习中的Attention机制》](Attention.md)，Transformer会用到里面讲的自注意力和多头注意力机制。
 
 先看论文里给出的结构：

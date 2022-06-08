@@ -265,3 +265,19 @@ F. Wang et al., ‘Residual Attention Network for Image Classification’, in 20
 H. Zhao, J. Jia, and V. Koltun, ‘Exploring Self-Attention for Image Recognition’, in 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), Seattle, WA, USA, Jun. 2020, pp. 10073–10082, doi: 10.1109/CVPR42600.2020.01009.
 
 截至2020，图像识别领域的注意力机制还在火热研究中。
+
+## 可学习的Embedding
+
+### ViT中的可学习的Projection（将Patch映射为向量）
+```python
+self.projection = nn.Conv2d(num_channels, embed_dim, kernel_size=patch_size, stride=patch_size)
+```
+实际上就是一个H $\times$ W $\times$ C都和Patch大小一样的卷积核，卷积核的输出尺寸是1 $\times$ 1 $\times$ EmbeddingSize，所以可以把Patch映射成向量。
+
+### ViT中可学习的位置编码
+```python
+self.position_embeddings = nn.Parameter(torch.zeros(1, num_patches + 1, config.hidden_size))
+```
+实际上就是一个矩阵。由于ViT输入是图片，所以可以固定序列长度`num_patches`，从而可以对位置编码进行训练。
+
+但如果输入图片尺寸变了，`num_patches`就会变，位置编码就需要重新训练。
