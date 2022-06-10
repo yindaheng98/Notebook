@@ -1,5 +1,7 @@
 # 【纯转载】什么是BERT？
 
+[原文](https://zhuanlan.zhihu.com/p/98855346)
+
 >前置知识：[Transformer结构](./transformer.md)
 
 >关键点总结：
