@@ -32,15 +32,15 @@ BERT的全称为Bidirectional Encoder Representation from Transformers，是一�
 
 最终，经过多层Transformer结构的堆叠后，形成BERT的主体结构：
 
-![BERT的主体结构](https://pic3.zhimg.com/v2-f0618dc2c2f62bd8d71c2195947be1d6_r.jpg)
+![BERT的主体结构](zhimg/v2-f0618dc2c2f62bd8d71c2195947be1d6_r.jpg)
 
-![该部分就是由多个Transformers所堆叠在一起](https://pic3.zhimg.com/v2-102728d6cf40fb22febd01d63dd1d7da_r.jpg)
+![该部分就是由多个Transformers所堆叠在一起](zhimg/v2-102728d6cf40fb22febd01d63dd1d7da_r.jpg)
 
 对于不同的下游任务，BERT的结构可能会有不同的轻微变化，因此接下来只介绍**预训练阶段**的模型结构。
 
 ##**1.1 BERT的输入**
 
-![BERT的输入](https://pic2.zhimg.com/v2-3d2a72e246eb12cf605726ce7b6fbf59_r.jpg)
+![BERT的输入](zhimg/v2-3d2a72e246eb12cf605726ce7b6fbf59_r.jpg)
 
 BERT的输入为每一个token对应的表征 *（图中的粉红色块就是token，黄色块就是token对应的表征）* ，并且单词字典是采用WordPiece算法来进行构建的。为了完成具体的分类任务，除了单词的token之外，作者还在输入的每一个序列开头都插入特定的**分类token（[CLS]）**，该分类token对应的最后一个Transformer层输出被用来起到聚集整个序列表征信息的作用。
 
@@ -62,7 +62,7 @@ BERT的输入为每一个token对应的表征 *（图中的粉红色块就是tok
 
 介绍完BERT的输入，实际上BERT的输出也就呼之欲出了，因为Transformer的特点就是有多少个输入就有多少个对应的输出，如下图：
 
-![BERT的输出](https://pic3.zhimg.com/v2-7e0666db23ec2c29358cc89e2f823a06_r.jpg)
+![BERT的输出](zhimg/v2-7e0666db23ec2c29358cc89e2f823a06_r.jpg)
 
 **C**为分类token（[CLS]）对应最后一个Transformer的输出，$T_i$则代表其他token对应最后一个Transformer的输出。对于一些token级别的任务 *（如，序列标注和问答任务）* ，就把$T_i$输入到额外的输出层中进行预测。对于一些句子级别的任务 *（如，自然语言推断和情感分类任务）* ，就把**C**输入到额外的输出层中，这里也就解释了为什么要在每一个token序列前都要插入特定的分类token。
 
@@ -87,7 +87,7 @@ MLM是BERT能够不受单向语言模型所限制的原因。简单来说就是�
 
 该策略令到BERT不再只对[MASK]敏感，而是对所有的token都敏感，以致能抽取出任何token的表征信息。这里给出论文中关于该策略的实验数据：
 
-![多种策略的实验结果](https://pic3.zhimg.com/v2-c8167e6b04726abe4421667abd027c3e_r.jpg)
+![多种策略的实验结果](zhimg/v2-c8167e6b04726abe4421667abd027c3e_r.jpg)
 
 ## 2.2 Next Sentence Prediction（NSP）
 
