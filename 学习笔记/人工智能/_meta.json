@@ -14,8 +14,8 @@
     "Attention.md": {
         "title": "机器学习中的Attention机制",
         "created": "2021-03-24 08:14:29",
-        "updated": "2021-11-23 09:05:49",
-        "date": "2021-11-23 09:05:49",
+        "updated": "2022-06-08 14:47:09",
+        "date": "2022-06-08 14:47:09",
         "tags": [
             "人工智能",
             "LSTM",
@@ -28,17 +28,18 @@
         ],
         "cover": "/人工智能/img/LSTM3-focus-f.png"
     },
-    "DenseNet.md": {
-        "title": "DenseNet",
-        "created": "2021-01-31 23:02:59",
-        "updated": "2021-01-31 23:02:59",
-        "date": "2021-01-31 23:02:59",
+    "BERT.md": {
+        "title": "【纯转载】什么是BERT？",
+        "created": "2022-06-08 12:12:43",
+        "updated": "2022-06-12 12:19:40",
+        "date": "2022-06-12 12:19:40",
         "tags": [
             "人工智能"
         ],
         "categories": [
             "人工智能"
-        ]
+        ],
+        "cover": "/人工智能/zhimg/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg"
     },
     "KnowledgeDistillation.md": {
         "title": "【纯转载】【经典简读】知识蒸馏(Knowledge Distillation) 经典之作",
@@ -70,18 +71,6 @@
         ],
         "cover": "/人工智能/img/RNN-rolled.png"
     },
-    "MSDNet.md": {
-        "title": "MSDNet",
-        "created": "2021-01-31 23:15:06",
-        "updated": "2021-01-31 23:15:06",
-        "date": "2021-01-31 23:15:06",
-        "tags": [
-            "人工智能"
-        ],
-        "categories": [
-            "人工智能"
-        ]
-    },
     "ResNet.md": {
         "title": "ResNet",
         "created": "2021-05-05 03:09:44",
@@ -95,6 +84,23 @@
             "人工智能"
         ],
         "cover": "/人工智能/i/Res.jpg"
+    },
+    "SwinTransformer.md": {
+        "title": "Swin Transformer解析",
+        "created": "2022-06-12 07:36:34",
+        "updated": "2022-06-12 12:22:21",
+        "date": "2022-06-12 12:22:21",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "SwinTransformer",
+            "神经网络",
+            "注意力机制"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/i/SwinTransformer.png"
     },
     "TheoreticalImpedimentstoMachineLearning.md": {
         "title": "NIPS2017 Theoretical impediments to machine learning：无人问津的图灵奖得主",
@@ -113,8 +119,8 @@
     "transformer.md": {
         "title": "Transformer结构",
         "created": "2021-11-23 11:43:15",
-        "updated": "2021-11-23 11:43:15",
-        "date": "2021-11-23 11:43:15",
+        "updated": "2022-06-08 14:04:06",
+        "date": "2022-06-08 14:04:06",
         "tags": [
             "人工智能",
             "Transformer",
@@ -125,5 +131,22 @@
             "人工智能"
         ],
         "cover": "/人工智能/./i/Transformer-official.png"
+    },
+    "图解SwinTransformer.md": {
+        "title": "【纯转载】图解Swin Transformer",
+        "created": "2022-06-12 08:02:17",
+        "updated": "2022-06-12 12:22:21",
+        "date": "2022-06-12 12:22:21",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "SwinTransformer",
+            "神经网络",
+            "注意力机制"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg/v2-74c856e61d60781c89c3813367289462_r.jpg"
     }
 }
