@@ -243,7 +243,7 @@ class WindowAttention(nn.Module):
 
 而对于Attention张量来说， **以不同元素为原点，其他元素的坐标也是不同的** ，以`window_size=2`为例，其相对位置编码如下图所示 
 
-![](zhimg/80/v2-c7140d26adf8a4c9d8b2609488ce71ee_1440w.jpg)
+![](zhimg/v2-c7140d26adf8a4c9d8b2609488ce71ee_1440w.jpg)
 
  首先我们利用`torch.arange`和`torch.meshgrid`函数生成对应的坐标，这里我们以`windowsize=2`为例子
 
@@ -341,10 +341,10 @@ self.register_buffer("relative_position_index", relative_position_index)
 ```
 
 1. 首先输入张量形状为 `numWindows*B, window_size * window_size, C`（后续会解释） 
-1. 然后经过`self.qkv`这个全连接层后，进行reshape，调整轴的顺序，得到形状为`3, numWindows*B, num_heads, window_size*window_size, c//num_heads`，并分配给`q,k,v`。 
-1. 根据公式，我们对`q`乘以一个`scale`缩放系数，然后与`k`（为了满足矩阵乘要求，需要将最后两个维度调换）进行相乘。得到形状为`(numWindows*B, num_heads, window_size*window_size, window_size*window_size)`的`attn`张量 
-1. 之前我们针对位置编码设置了个形状为`(2*window_size-1*2*window_size-1, numHeads)`的可学习变量。我们用计算得到的相对编码位置索引`self.relative_position_index`选取，得到形状为`(window_size*window_size, window_size*window_size, numHeads)`的编码，加到`attn`张量上 
-1. 暂不考虑mask的情况，剩下就是跟transformer一样的softmax，dropout，与`V`矩阵乘，再经过一层全连接层和dropout 
+2. 然后经过`self.qkv`这个全连接层后，进行reshape，调整轴的顺序，得到形状为`3, numWindows*B, num_heads, window_size*window_size, c//num_heads`，并分配给`q,k,v`。 
+3. 根据公式，我们对`q`乘以一个`scale`缩放系数，然后与`k`（为了满足矩阵乘要求，需要将最后两个维度调换）进行相乘。得到形状为`(numWindows*B, num_heads, window_size*window_size, window_size*window_size)`的`attn`张量 
+4. 之前我们针对位置编码设置了个形状为`(2*window_size-1*2*window_size-1, numHeads)`的可学习变量。我们用计算得到的相对编码位置索引`self.relative_position_index`选取，得到形状为`(window_size*window_size, window_size*window_size, numHeads)`的编码，加到`attn`张量上 
+5. 暂不考虑mask的情况，剩下就是跟transformer一样的softmax，dropout，与`V`矩阵乘，再经过一层全连接层和dropout 
 
 ##  **Shifted Window Attention** 
 

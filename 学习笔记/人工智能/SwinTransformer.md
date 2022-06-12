@@ -700,4 +700,6 @@ class WindowAttention(nn.Module):
 
 ## 总结
 
+![](i/SwinTransformerShiftWindow.png)
+
 还是看看大佬总结的吧[《图解Swin Transformer》](图解SwinTransformer.md)
