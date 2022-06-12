@@ -13,7 +13,7 @@
 
 其中滑窗操作包括 **不重叠的local window，和重叠的cross-window** 。将注意力计算限制在一个窗口中， **一方面能引入CNN卷积操作的局部性，另一方面能节省计算量** 。 
 
-![](https://pic3.zhimg.com/v2-74c856e61d60781c89c3813367289462_r.jpg)
+![](zhimg/v2-74c856e61d60781c89c3813367289462_r.jpg)
 
 在各大图像任务上，Swin Transformer都具有很好的性能。
 
@@ -23,7 +23,7 @@
 
 我们先看下Swin Transformer的整体架构 
 
-![](https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg)
+![](zhimg/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg)
 
  整个模型采取层次化的设计，一共包含4个Stage，每个stage都会缩小输入特征图的分辨率，像CNN一样逐层扩大感受野。
 
@@ -167,7 +167,7 @@ class PatchMerging(nn.Module):
 
 下面是一个示意图（输入张量N=1, H=W=8, C=1，不包含最后的全连接层调整） 
 
-![](https://pic3.zhimg.com/v2-a1a0ea5d9455083caed65006433c4efe_r.jpg)
+![](zhimg/v2-a1a0ea5d9455083caed65006433c4efe_r.jpg)
 
 >个人感觉这像是PixelShuffle的反操作
 
@@ -243,7 +243,7 @@ class WindowAttention(nn.Module):
 
 而对于Attention张量来说， **以不同元素为原点，其他元素的坐标也是不同的** ，以`window_size=2`为例，其相对位置编码如下图所示 
 
-![](https://pic3.zhimg.com/80/v2-c7140d26adf8a4c9d8b2609488ce71ee_1440w.jpg)
+![](zhimg/80/v2-c7140d26adf8a4c9d8b2609488ce71ee_1440w.jpg)
 
  首先我们利用`torch.arange`和`torch.meshgrid`函数生成对应的坐标，这里我们以`windowsize=2`为例子
 
@@ -288,7 +288,7 @@ relative_coords[:, :, 1] += self.window_size[1] - 1
 
 后续我们需要将其展开成一维偏移量。而对于(1，2）和（2，1）这两个坐标。在二维上是不同的， **但是通过将x,y坐标相加转换为一维偏移的时候，他的偏移量是相等的** 。 
 
-![](https://pic1.zhimg.com/v2-5b1f589ca71a4bc406a266296025b4b4_r.jpg)
+![](zhimg/v2-5b1f589ca71a4bc406a266296025b4b4_r.jpg)
 
  所以最后我们对其中做了个乘法操作，以进行区分
 
@@ -296,7 +296,7 @@ relative_coords[:, :, 1] += self.window_size[1] - 1
 relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
 ```
 
-![](https://pic3.zhimg.com/v2-0c99206fb39da67bae3415a650c38742_r.jpg)
+![](zhimg/v2-0c99206fb39da67bae3415a650c38742_r.jpg)
 
  然后再最后一维上进行求和，展开成一个一维坐标，并注册为一个不参与网络学习的变量
 
@@ -350,19 +350,19 @@ self.register_buffer("relative_position_index", relative_position_index)
 
 前面的Window Attention是在每个窗口下计算注意力的，为了更好的和其他window进行信息交互，Swin Transformer还引入了shifted window操作。 
 
-![](https://pic1.zhimg.com/v2-07a98325a29db1da6521e4ddaaed3c88_r.jpg)
+![](zhimg/v2-07a98325a29db1da6521e4ddaaed3c88_r.jpg)
 
  左边是没有重叠的Window Attention，而右边则是将窗口进行移位的Shift Window Attention。可以看到移位后的窗口包含了原本相邻窗口的元素。但这也引入了一个新问题，即 **window的个数翻倍了** ，由原本四个窗口变成了9个窗口。
 
 在实际代码里，我们是 **通过对特征图移位，并给Attention设置mask来间接实现的** 。能在 **保持原有的window个数下** ，最后的计算结果等价。 
 
-![](https://pic1.zhimg.com/v2-84b7dd5ba83bf0c686a133dec758d974_r.jpg)
+![](zhimg/v2-84b7dd5ba83bf0c686a133dec758d974_r.jpg)
 
 ##  **特征图移位操作** 
 
 代码里对特征图移位是通过`torch.roll`来实现的，下面是示意图 
 
-![](https://pic1.zhimg.com/v2-8d8274d62026e0732c8a7827de1070fc_r.jpg)
+![](zhimg/v2-8d8274d62026e0732c8a7827de1070fc_r.jpg)
 
 >如果需要`reverse cyclic shift`的话只需把参数`shifts`设置为对应的正数值。
 
@@ -372,13 +372,13 @@ self.register_buffer("relative_position_index", relative_position_index)
 
 首先我们对Shift Window后的每个窗口都给上index，并且做一个`roll`操作（window_size=2, shift_size=-1） 
 
-![](https://pic3.zhimg.com/v2-52b0bec2b0e2341e1eab1fd6342bc9e6_r.jpg)
+![](zhimg/v2-52b0bec2b0e2341e1eab1fd6342bc9e6_r.jpg)
 
  我们希望在计算Attention的时候， **让具有相同index QK进行计算，而忽略不同index QK计算结果** 。
 
 最后正确的结果如下图所示 
 
-![](https://pic3.zhimg.com/v2-af19485ae400a2f52ede6306fcfb078e_r.jpg)
+![](zhimg/v2-af19485ae400a2f52ede6306fcfb078e_r.jpg)
 
  而要想在原始四个窗口下得到正确的结果，我们就必须给Attention的结果加入一个mask（如上图最右边所示）
 
@@ -445,7 +445,7 @@ tensor([[[[[   0.,    0.,    0.,    0.],
 
 ##  **Transformer Block整体架构** 
 
-![](https://pic2.zhimg.com/v2-b1f64ea254af2c7b1cdbaf9288731371_r.jpg)
+![](zhimg/v2-b1f64ea254af2c7b1cdbaf9288731371_r.jpg)
 
  两个连续的Block架构如上图所示，需要注意的是一个Stage包含的Block个数必须是偶数，因为需要交替包含一个含有`Window Attention`的Layer和含有`Shifted Window Attention`的Layer。
 
@@ -504,7 +504,7 @@ tensor([[[[[   0.,    0.,    0.,    0.],
 1. 再通过一层LayerNorm+全连接层，以及dropout和残差连接
 
 ##  **实验结果** 
-![](https://pic4.zhimg.com/v2-bf00e048de979decd68ebc7c5372cb27_r.jpg)
+![](zhimg/v2-bf00e048de979decd68ebc7c5372cb27_r.jpg)
 
  在ImageNet22K数据集上，准确率能达到惊人的86.4%。另外在检测，分割等任务上表现也很优异，感兴趣的可以翻看论文最后的实验部分。
 

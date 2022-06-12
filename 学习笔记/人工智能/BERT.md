@@ -24,15 +24,17 @@ BERT的全称为Bidirectional Encoder Representation from Transformers，是一�
 
 当隐藏了Transformer的详细结构后，我们就可以用一个只有输入和输出的黑盒子来表示它了：
 
-![黑盒子Transformer](https://pic1.zhimg.com/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg)
+![黑盒子Transformer](zhimg/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg)
 
 而Transformer又可以进行堆叠，形成一个更深的神经网络：
 
-![对Transformers进行堆叠](https://pic1.zhimg.com/v2-3206310dd24e189a0580f8ab38e07424_r.jpg)
+![对Transformers进行堆叠](zhimg/v2-3206310dd24e189a0580f8ab38e07424_r.jpg)
 
 最终，经过多层Transformer结构的堆叠后，形成BERT的主体结构：
 
-![BERT的主体结构](https://pic3.zhimg.com/v2-f0618dc2c2f62bd8d71c2195947be1d6_r.jpg)![该部分就是由多个Transformers所堆叠在一起](https://pic3.zhimg.com/v2-102728d6cf40fb22febd01d63dd1d7da_r.jpg)
+![BERT的主体结构](https://pic3.zhimg.com/v2-f0618dc2c2f62bd8d71c2195947be1d6_r.jpg)
+
+![该部分就是由多个Transformers所堆叠在一起](https://pic3.zhimg.com/v2-102728d6cf40fb22febd01d63dd1d7da_r.jpg)
 
 对于不同的下游任务，BERT的结构可能会有不同的轻微变化，因此接下来只介绍**预训练阶段**的模型结构。
 
@@ -48,11 +50,11 @@ BERT的输入为每一个token对应的表征 *（图中的粉红色块就是tok
 2. 为每一个token表征都添加一个可学习的分割embedding来指示其属于句子A还是句子B。
 因此最后模型的输入序列tokens为下图 *（如果输入序列只包含一个句子的话，则没有[SEP]及之后的token）* ：
 
-![模型的输入序列](https://pic1.zhimg.com/v2-a12ee6f717cc8312c43d140eb173def8_r.jpg)
+![模型的输入序列](zhimg/v2-a12ee6f717cc8312c43d140eb173def8_r.jpg)
 
 上面提到了BERT的输入为每一个token对应的表征，实际上该表征是由三部分组成的，分别是对应的**token**，**分割**和**位置**embeddings *（位置embeddings的详细解释可参见[Attention Is All You Need](https://arxiv.org/abs/1706.03762) 或 [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)）* ，如下图：
 
-![token表征的组成](https://pic1.zhimg.com/v2-ee823df66560850baa34128af76a6334_r.jpg)
+![token表征的组成](zhimg/v2-ee823df66560850baa34128af76a6334_r.jpg)
 
 到此为止，BERT的输入已经介绍完毕，可以看到其设计的思路十分简洁而且有效。
 
@@ -85,7 +87,9 @@ MLM是BERT能够不受单向语言模型所限制的原因。简单来说就是�
 
 该策略令到BERT不再只对[MASK]敏感，而是对所有的token都敏感，以致能抽取出任何token的表征信息。这里给出论文中关于该策略的实验数据：
 
-![多种策略的实验结果](https://pic3.zhimg.com/v2-c8167e6b04726abe4421667abd027c3e_r.jpg)## 2.2 Next Sentence Prediction（NSP）
+![多种策略的实验结果](https://pic3.zhimg.com/v2-c8167e6b04726abe4421667abd027c3e_r.jpg)
+
+## 2.2 Next Sentence Prediction（NSP）
 
 一些如问答、自然语言推断等任务需要理解两个句子之间的关系，而MLM任务倾向于抽取**token层次**的表征，因此不能直接获取**句子层次**的表征。为了使模型能够有能力理解句子间的关系，BERT使用了NSP任务来预训练，简单来说就是预测两个句子是否连在一起。具体的做法是：对于每一个训练样例，我们在语料库中挑选出句子A和句子B来组成，50%的时候句子B就是句子A的下一句 *（标注为IsNext）* ，剩下50%的时候句子B是语料库中的随机句子 *（标注为NotNext）* 。接下来把训练样例输入到BERT模型中，用[CLS]对应的C信息去进行二分类的预测。
 
