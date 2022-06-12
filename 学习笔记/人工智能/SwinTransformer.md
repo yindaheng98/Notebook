@@ -700,4 +700,4 @@ class WindowAttention(nn.Module):
 
 ## 总结
 
-还是看看大佬总结的吧[《图解Swin Transformer》](https://zhuanlan.zhihu.com/p/367111046)
+还是看看大佬总结的吧[《图解Swin Transformer》](图解SwinTransformer.md)
