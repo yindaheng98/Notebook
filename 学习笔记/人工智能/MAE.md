@@ -26,9 +26,6 @@
 ![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
 
 ### 2.2. MAE（Masked Autoencoders）
- 
-
-![](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
 
 **论文标题：**
 
@@ -92,8 +89,6 @@ https://arxiv.org/abs/2205.13137
 由于作者在 encoder 中没有采用 mask token，因此大大缩短了预训练和微调之间的 gap，也消除了处理 mask token 所需要的时间，提高了计算效率。编码器在进行 attention 计算时，作者用了 attention mask，阻断了跨图片 token 之间的交互。在解码阶段，作者通过 attention mask 分别去除图像的 token，并进行图像重建。
 
 **3.1.2 Uniform Masking**
-
-![](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
 
 **论文标题：**
 
@@ -173,8 +168,6 @@ https://github.com/MCG-NJU/VideoMAE
 随着 Mask Modeling 在图像和文本数据上的成功，一些研究人员也开始在视频数据上进行 MAE 的自监督预训练。本文的大致策略和图片 MAE 类似，但是作者通过将 MAE 运用在视频数据上得到了几个重要的发现：1）极高的掩蔽率（即 90%-95%）仍然可以产生良好的 VideoMAE 性能。2） VideoMAE 在非常小的数据集上取得了非常好的结果，而无需使用任何额外数据。3） 在 VideoMAE 中，数据质量比数据量更重要。
 
 **方法介绍：**
-
-![](data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQImWNgYGBgAAAABQABh6FO1AAAAABJRU5ErkJggg==)
 
 在本文中，作者提出了一种新的自监督视频预训练方法——VideoMAE，其 Pipeline 如上图所示。相比于图片 MAE，视频 MAE 在时间维度上可能存在更高的冗余，由于视频的语义在时间维度上变化缓慢，相邻帧的内容通常非常相似，因此如果不采用特殊的 mask 策略，模型可能很容易从相邻帧学到重建的知识，降低了自监督训练任务的难度。
 
