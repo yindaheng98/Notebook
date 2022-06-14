@@ -23,7 +23,7 @@
 
 根据自监督训练阶段的辅助任务不同，可以大致将目前的自监督学习工作分为三类： **Data Centric, Prediction**和 **Contrastive**（如下所示）。由于本文介绍的 MAE 的辅助任务为预测 Mask 部分的图像内容，因此属于 **Prediction**这一类别。
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ.png)
 
 ### 2.2. MAE（Masked Autoencoders）
 
@@ -41,7 +41,7 @@ https://github.com/facebookresearch/mae
 
 **论文动机：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VTUtUpS7VFc2yTDxuuL9lRqFbvic5DUV82SSwAOMkFfTyiaRtOiaEHKK9Q/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VTUtUpS7VFc2yTDxuuL9lRqFbvic5DUV82SSwAOMkFfTyiaRtOiaEHKK9Q.png)
 
 随着 BERT 的出现，Mask Language Modeling（MLM）的自监督学习方法逐渐进入人们的视野，这一方法在 NLP 领域中得到了广泛的应用。受到 MLM 的启发，一些工作也尝试在图像上进行 Mask Modeling（即，mask 图片的部分区域，然后对区域的内容进行重建），并且也取得了不错的效果。但目前的方法通常都采用对称的 encoder 和 decoder 结构，在 encoder 中，mask token 也需要消耗大量的计算，因此作者提出了一个非对称 encoder-decoder 的结构——masked autoencoders（MAE）。
 
@@ -49,7 +49,7 @@ MAE 方法很简单：mask 输入图像的随机 patch，并重建缺失的像�
 
 **方法介绍：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V72zCBWlicI7dvn7Jd3frOCx5gHbXFjpH8pg42jniaAocW2FNfbyEpICg/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V72zCBWlicI7dvn7Jd3frOCx5gHbXFjpH8pg42jniaAocW2FNfbyEpICg.png)
 
 MAE 的结构如上图所示，与所有自动编码器一样，MAE 有一个编码器，将观察到的信号映射到潜在表示，还有一个解码器，从潜在表示重建原始信号。与经典的自动编码器不同，作者采用了一种非对称设计，允许编码器仅对部分观察信号（无mask token）进行操作，并采用一种轻量级解码器，从潜在表示和 mask token 重建完整信号。
 
@@ -64,7 +64,7 @@ MAE 的结构如上图所示，与所有自动编码器一样，MAE 有一个编
 
 **3.1.1 MixMIM**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VEmAjqeMZ44GktxIB9mbSUp4gibrABqeicwYw4ibnsdYjuiaA5jDS8NJFNQ/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VEmAjqeMZ44GktxIB9mbSUp4gibrABqeicwYw4ibnsdYjuiaA5jDS8NJFNQ.png)
 
 **论文标题：**
 
@@ -82,7 +82,7 @@ https://arxiv.org/abs/2205.13137
 
 **方法介绍：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V8e2aXrwKY9kUEMzI8x811h7X4KX6IM5VPgBzUzlCL4wDSGpa5m61Vw/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V8e2aXrwKY9kUEMzI8x811h7X4KX6IM5VPgBzUzlCL4wDSGpa5m61Vw.png)
 
 为了解决上面的问题，作者提出了 MixMIM，该结构吸收了 BEiT 和 MAE 的优点。如上图所示，给定训练集中的两幅随机图像，MixMIM 创建了一幅以随机混合 mask 为输入的混合图像，并训练一个层次 ViT 来重建两幅原始图像以学习视觉表示。
 
@@ -112,7 +112,7 @@ MAE 中最有影响力的设计之一是非对称编码器-解码器体系结构
 
 **方法介绍：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VO7CKLsIq3ibeenPicdwPhI2JAUl5tG6QXzqeMiau0WxwW2q1oYaVibgjEA/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VO7CKLsIq3ibeenPicdwPhI2JAUl5tG6QXzqeMiau0WxwW2q1oYaVibgjEA.png)
 
 本文的 Uniform Masking（UM）策略如上图所示，主要分为两个步骤：第一步为均匀采样（US），使用均匀约束对 25% 的可见图像 patch 进行采样，这样，每个窗口将会留下 25% 的 token。与 MAE 中采用的随机采样相比，均匀采样（US）对均匀分布在 2D 空间上的图像块进行采样，使其与具有代表性的基于金字塔的 VIT 兼容。然而，通过相邻的低级别图像统计信息为像素重建提供更简单的方式，US 潜在地降低自监督任务的挑战性。
 
@@ -120,7 +120,7 @@ MAE 中最有影响力的设计之一是非对称编码器-解码器体系结构
 
 **3.1.3 HiViT**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VMc5W5QXxM6EeRgDRn9NoPqd1iamT8zPO5UXziczcxzq9gCW8xnNJCqYA/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VMc5W5QXxM6EeRgDRn9NoPqd1iamT8zPO5UXziczcxzq9gCW8xnNJCqYA.png)
 
 **论文标题：**
 
@@ -138,7 +138,7 @@ https://arxiv.org/abs/2205.14949
 
 **方法介绍：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VugLee90micAVZ4mjdvVH4z1mv1IqxKMTYPcJAdC1IibBc0BmOS7zDeicw/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VugLee90micAVZ4mjdvVH4z1mv1IqxKMTYPcJAdC1IibBc0BmOS7zDeicw.png)
 
 作者观察到，“局部单元间操作”对识别性能的贡献不大——真正有意义的是层次设计（即多尺度特征图）。因此，为了使分层视觉 Transformer 能够适合 MAE 的训练，作者删除了“局部单元间操作”，从而形成了一个简单的分层视觉 Transformer。在层次视觉 Transformer 中，通常有四个不同分辨率的阶段，其中第三阶段的层数最多，称之为主阶段。作者移除了 Swin Transformer 的最后一个阶段，并去掉了所有局部单元间窗口注意力，只在主阶段保留 token 之间的全局注意力。
 
@@ -149,7 +149,7 @@ https://arxiv.org/abs/2205.14949
 
 **VideoMAE**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VYLMnbJyajrFXfSic1LnRWBXB8oDtT7183ZbBg5bxjxqzLRr13POP4mA/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9VYLMnbJyajrFXfSic1LnRWBXB8oDtT7183ZbBg5bxjxqzLRr13POP4mA.png)
 
 **论文标题：**
 
@@ -175,7 +175,7 @@ https://github.com/MCG-NJU/VideoMAE
 
 ### 3.3 多模态MAE
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V77NAkBkQsWozvIDMHAvWGic5poMyV9OEMYrbvdMKOKLU9WLmlicAMhAA/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V77NAkBkQsWozvIDMHAvWGic5poMyV9OEMYrbvdMKOKLU9WLmlicAMhAA.png)
 
 **论文标题：**
 
@@ -191,7 +191,7 @@ https://arxiv.org/abs/2205.14204
 
 **方法介绍：**
 
-![](https://mmbiz.qpic.cn/mmbiz_png/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V2VrXxIwt7ibtjsG4KyjoFJMj8wUaeEHef6JrIGb1qkRvbl01LrxMuwg/640?wx_fmt=png&amp;wxfrom=5&amp;wx_lazy=1&amp;wx_co=1)
+![](qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9V2VrXxIwt7ibtjsG4KyjoFJMj8wUaeEHef6JrIGb1qkRvbl01LrxMuwg.png)
 
 本文提出的 M3AE 结构如上图所示。M3AE 的第一步是将语言和图像组合为一个序列，对于文本，作者将其转换为了一系列离散 token；对于图像，作者和 ViT 一样将其转换为了一系列 patch token。然后，作者从均匀分布中采样了 s 个随机子集，并移除其他子集。
 
