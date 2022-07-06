@@ -38,7 +38,6 @@ def fig(m):
 content = re.sub(r'<figure[^>]*>(.*?)</figure>', fig, content)
 
 def ol(m):
-    print(m.group(1))
     return re.sub(r'<li[^>]*>(.*?)</li>', lambda mm:"1. %s\n" % mm.group(1), m.group(1))
 content = re.sub(r'<ol>(.*?)</ol>', ol, content)
 
