@@ -12,7 +12,7 @@ $$\langle N, A, u\rangle$$
 
 ## 最佳响应 Best Response
 
-令$a_{-i}=\rangle a_1,\dots,a_{i-1},a_{i+1},\dots,a_n$表示除Player $i$外的其他所有Player选择的Actions，并将包含Player $i$在内的所有Player选择的Actions记为$a=(a_{-i},a_i)$
+令$a_{-i}=\langle a_1,\dots,a_{i-1},a_{i+1},\dots,a_n\rangle$表示除Player $i$外的其他所有Player选择的Actions，并将包含Player $i$在内的所有Player选择的Actions记为$a=(a_{-i},a_i)$
 
 对于某已知的$a_{-i}$，其最佳响应集$BR(a_{-i})$定义为：
 
@@ -70,14 +70,34 @@ $$
 
 ![](../i/v2-c360b04f4b27f695205fa665ce3eefdd_1440w.png)
 
+必须有一个点让所有函数同时最优，条件很苛刻，基本不可能
+
 ### 定义：帕累托最优解
 
 假设两个目标函数，对于解A而言，在 变量空间 中**找不到其他的解能够强帕累托支配解A**，那么解A就是帕累托最优解（在其他任何解上都有一些目标函数值比解A差）（通常是一个范围）
 
 ![](../i/v2-c382e9c5cb731635191c8c18927f0da2_1440w.jpg)
 
+比如上图这样的帕累托最优就是一个范围$[x_1,x_2]$
+
 ### 定义：帕累托最优前沿
 
 帕累托最优解组成的集合
 
 ![](../i/v2-450e1a916081a206ab18fd2073708d3a_hd.jpg)
+
+## Mixed strategy
+
+Mixed strategy是Action的概率分布。不同于Pure strategy中的策略$a_i$定义为Player$i$从策略集$A_i$中选择的某个Action，Mixed strategy中的策略$s_i$定义为Player$i$在策略集$A_i$上的概率分布。
+
+定义$s_i$为Player$i$在策略集$A_i$上的概率分布，$s_i(a_i)$为Player$i$选择策略$a_i$的概率，令$a_{-i}=\langle a_1,\dots,a_{i-1},a_{i+1},\dots,a_n\rangle$表示除Player $i$外的其他所有Player选择的Actions，并将包含Player $i$在内的所有Player选择的Actions记为$a=(a_{-i},a_i)$。那么，Mixed strategy下的纳什均衡$s=\lang s_1,\dots,s_i,\dots,s_n\rang$定义为：
+
+$$
+\forall i\in N,\forall a_i\in A_i\quad\sum_{a}u_i(a)\prod_{j\in N}s_j(a_j)\geq \sum_{a_{-i}}u_i(a_{-i},a_i)\prod_{j\in N,j\not=i}s_j(a_j)
+$$
+
+很显然，不等式左边的$u_i(a)$表示某个Action组合$a$给Player$i$带来的效用，$\prod_{j\in N}s_j(a_j)$是$a$中的Action $a_j$在Mixed strategy策略$s_j$中的概率，所以很显然这一项是Action组合$a$在Mixed strategy策略$s_j$下发生的概率，所以整个$\sum_{a}u_i(a)\prod_{j\in N}s_j(a_j)$这一项就表示所有Player的Mixed strategy策略给Player$i$带来的效用值的数学期望。
+
+而不等式右边的的项很显然就是Player$i$确定选某个$a_i$的情况下（$s_i(a_i)=1$）的Mixed strategy策略给Player$i$带来的效用值的数学期望。
+
+所以用人话将，Mixed strategy下的纳什均衡就是：所有Player$i$确定选择任何一个策略$a_i$都不如Mixed strategy策略$s_i$能带来更大的效用期望值。
