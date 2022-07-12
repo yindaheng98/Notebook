@@ -1,9 +1,11 @@
+import os
 import re
 import brotli
 import requests
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-link = "https://zhuanlan.zhihu.com/p/359366717"
+link = "https://zhuanlan.zhihu.com/p/348498294"
 response = requests.get(link, headers={
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "accept-encoding": "gzip, deflate, br",
@@ -37,7 +39,16 @@ content = re.sub(r'<img[^>]*alt="([^"]+?)"[^>]*/>', lambda m:"$%s$" % m.group(1)
 def fig(m):
     captions = re.findall(r'<figcaption>([^<]+?)</figcaption>', m.group(1))
     caption = captions[0] if len(captions) > 0 else ''
-    c = re.sub(r'<noscript><img[^>]*data-original="([^"]+?)"[^>]*/></noscript><img[^>]*>', lambda mm:"\n![%s](%s)\n" % (caption, mm.group(1)), m.group(1))
+    url = ""
+    def get_url(mm):
+        os.makedirs("zhimg.com", exist_ok=True)
+        url = mm.group(1)
+        r = requests.get(url)
+        url = urlparse(url)
+        with open("zhimg.com" + url.path,'wb') as f:
+            f.write(r.content) #写入二进制内容
+        return "\n![%s](%s)\n" % (caption, "zhimg.com" + url.path)
+    c = re.sub(r'<noscript><img[^>]*data-original="([^"]+?)"[^>]*/></noscript><img[^>]*>', get_url, m.group(1))
     c = re.sub(r'<figcaption>([^<]+?)</figcaption>', '', c)
     return c
 content = re.sub(r'<figure[^>]*>(.*?)</figure>', fig, content)
