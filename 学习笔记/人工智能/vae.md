@@ -12,7 +12,7 @@
 
 ##  **2. Motivation** 
 
-![](https://pic4.zhimg.com/v2-012c9ea0f8b3e93079fb77cd39f7e88f_r.jpg)
+![](zhimg.com/v2-012c9ea0f8b3e93079fb77cd39f7e88f_r.jpg)
 
 在说VAE之前，自然要先说到传统的自编码器 (Autoencoder)。上图即是一个自编码的实例。自编码器类似于一个非线性的PCA，是一个利用神经网络来给复杂数据降维的模型。现在我们记$X$为整个数据集的集合，$x_i$是数据集中的一个样本。
 
@@ -48,13 +48,15 @@
 
 首先，让我们从生成模型的角度来考虑Decoder的架构。
 
-![](https://pic3.zhimg.com/v2-037e3122c8807642b3bdf12ae55bc6ca_r.jpg)
+![](zhimg.com/v2-037e3122c8807642b3bdf12ae55bc6ca_r.jpg)
 
 上图是一个Decoder架构的示意图。我们给Decoder输入一个从$\mathcal{N}(0, I)$中采样得到的$z_i，$其实是希望由$\theta$参数化的Decoder能够学会一个映射，输出$z_i$对应的$X$的分布，即$p_{\theta}(X \mid z_i)。$
 
 让我们假设，给定任意$z_i$后，$X$都服从某个各向同性的多元高斯分布，即：
 
+
 $$p_{\theta}(X \mid z_i) = \mathcal{N}(X \mid \mu_i^{\prime}(z_i; \theta), \sigma_i^{\prime2}(z_i; \theta) * I).\\ \\$$
+
 
 这样一来，我们只需要输入$z_i$给Decoder，然后让它拟合出$\mu_i^{\prime}和\sigma_i^{\prime2}，$我们就能知道$X \mid z_i $的具体分布了。
 
@@ -68,7 +70,7 @@ $$p_{\theta}(X \mid z_i) = \mathcal{N}(X \mid \mu_i^{\prime}(z_i; \theta), \sigm
 
 对于一个生成模型，我们的终极目标是什么？对，我们就是想对数据本身的分布$p(X)$进行建模。如果能成功得到一个逼近真实分布$p(X)$的$p_{\theta}(X)，$那么我们就能从中进行采样，生成一些可能的数据点。
 
-![](https://pic1.zhimg.com/v2-affdb37eb7100c5b2f2044e0764f5488_r.jpg)
+![](zhimg.com/v2-affdb37eb7100c5b2f2044e0764f5488_r.jpg)
 
 如上图，我们举个当$X$代表所有宝可梦的图片的例子。在得到$p_{\theta}(X)$后，我们就可以生成一些令$p_{\theta}(x_i)$比较大的$x_i$，这些$x_i$就很可能会是正常的宝可梦的图片。
 
@@ -76,11 +78,15 @@ $$p_{\theta}(X \mid z_i) = \mathcal{N}(X \mid \mu_i^{\prime}(z_i; \theta), \sigm
 
 有了之前的铺垫，现在我们有$p(z) = \mathcal{N}(0, I)，p_{\theta}(X \mid z) = \mathcal{N}(X \mid \mu_i^{\prime}(z; \theta), \sigma_i^{\prime2}(z; \theta) * I)。$易得，
 
+
 $$\begin{aligned} p_{\theta}(X) &= \int_z p_{\theta}(X \mid z) p(z) d z \\      &\approx \frac{1}{m} \sum_{j=1}^m p_{\theta}(X \mid z_j). \end{aligned}\\$$
+
 
 这样问题是不是就解决了呢？我们只要从$p(z) = \mathcal{N}(z \mid 0, I)$里采样许多$z_i$出来，就能算出$p_{\theta}(X)。$在之前的文章 **[机器学习理论—统计：MLE与MAP](https://zhuanlan.zhihu.com/p/345024301)** 中，我们已经介绍过了MLE。在这里，我们就可以利用MLE的思想，让数据集出现的概率最大化，也就是：
 
+
 $$\begin{aligned} \theta^* &=  \operatorname{argmin}_{\theta} - \sum_{i=1}^n \log p_{\theta}(x_i) \\          &=  \operatorname{argmin}_{\theta} - \sum_{i=1}^n \log \left( \frac{1}{m} \sum_{j=1}^m p_{\theta}(x_i \mid z_j) \right). \end{aligned}\\$$
+
 
 我们确实可以这样做，但是这样做的代价是极大的。因为往往$x_i$的维度会很大，$z_i$的维度也不会很低，并且，对于某个$x_i$而言，与之强相关的$z_i$的数量是相对有限的，但是为了找到这些有限的$z_i，$我们可能要进行大量的采样。
 
@@ -92,13 +98,15 @@ $$\begin{aligned} \theta^* &=  \operatorname{argmin}_{\theta} - \sum_{i=1}^n \lo
 
 具体来说，我们怎么在Encoder中利用后验分布呢？假设我们现在有后验分布$p_{\theta}(z \mid x_i)，$这样的话，如下图，每次前向传播的时候，我们可以先将$x_i$喂给Encoder，算出$z\mid x_i$服从的分布。之后，我们就可以直接在这个分布中采样出$z_i，$喂给Decoder，然后得到$X\mid z_i$的分布，最后基于MLE优化模型。
 
-![](https://pic3.zhimg.com/v2-3db4962354040c44c110054842f1cd2e_r.jpg)
+![](zhimg.com/v2-3db4962354040c44c110054842f1cd2e_r.jpg)
 
 在这个策略下，从$p_{\theta}(z \mid x_i)$中采样出来的$z_i$几乎都会和$x_i$相关的，对比之前，我们可能就省去了很多采样的步骤，极大的提高了效率。
 
 那现在的问题就是，我们怎么计算$p_{\theta}(z \mid x_i)$呢？我们不妨先尝试下贝叶斯公式：
 
+
 $$\begin{aligned} p_{\theta}(z \mid x_i) &= \frac{p_{\theta}(x_i \mid z) p(z)}{p_{\theta}(x_i)} \\                        &= \frac{p_{\theta}(x_i \mid z) p(z)}{\int_{\hat{z}} p_{\theta}(x_i \mid \hat{z}) p(\hat{z}) d \hat{z}}. \end{aligned}\\$$
+
 
 辛运的是，我们之前已经假设了$p_{\theta}(X \mid z)和p(z)$的分布，所以对于上式的分子，我们是可以直接算出来的。不幸的是，上式的分母又有一个积分，如果去估计这个积分的话，又会需要从$p(z)$中采样大量的$z_i。$这显然是代价极大，不太可行的。
 
@@ -110,7 +118,9 @@ $$\begin{aligned} p_{\theta}(z \mid x_i) &= \frac{p_{\theta}(x_i \mid z) p(z)}{p
 
 那不妨令近似后验分布对任意$x_i$都有
 
+
 $$q_{\phi}(z \mid x_i) = \mathcal{N}(z \mid \mu(x_i; \phi), \sigma^2(x_i; \phi) * I),\\ \\$$
+
 
 即，它也是一个各向同性的多元高斯分布。这样一来，整个VAE的架构就非常明了了。
 
@@ -118,7 +128,7 @@ $$q_{\phi}(z \mid x_i) = \mathcal{N}(z \mid \mu(x_i; \phi), \sigma^2(x_i; \phi) 
 
 下图即是VAE的架构示例。其中$x_i^{(j)}$代表第$i$个数据点的第$j$的特征。
 
-![](https://pic1.zhimg.com/v2-4c21069ffb00d1bc8b29c30410982db8_r.jpg)
+![](zhimg.com/v2-4c21069ffb00d1bc8b29c30410982db8_r.jpg)
 
 总结一下VAE的架构：
 1. 我们首先给Encoder输入一个数据点$x_i，$通过神经网络，我们得到隐变量$z$服从的近似后验分布$q_{\phi}(z \mid x_i)$的参数。我们往往认为后验分布是一个各向同性的高斯分布，因此令Encoder输出$z\mid x_i$服从的高斯分布的参数$\sigma_i^2$和$\mu_i$即可。 
@@ -145,7 +155,7 @@ $$q_{\phi}(z \mid x_i) = \mathcal{N}(z \mid \mu(x_i; \phi), \sigma^2(x_i; \phi) 
 
 利用了Reparameterization Trick后，VAE的架构变成了下图中的模样，其中$\epsilon_i$可以看作是伴随$z_i$喂给Decoder的一个特征。这样一来，这个架构的前向、反向传播就都能跑通了。
 
-![](https://pic2.zhimg.com/v2-5f84bd74113db053bba2168905fa6c01_r.jpg)
+![](zhimg.com/v2-5f84bd74113db053bba2168905fa6c01_r.jpg)
 
 ###  **3.6 Evidence Lower Bound** 
 
@@ -153,13 +163,17 @@ $$q_{\phi}(z \mid x_i) = \mathcal{N}(z \mid \mu(x_i; \phi), \sigma^2(x_i; \phi) 
 
 让我们来推一下：
 
+
 $$\begin{aligned} \log p_{\theta}(X) &=\int_{z} q_{\phi}(z \mid X) \log p_{\theta}(X) dz \quad 全概率定理\\                    &=\int_{z} q_{\phi}(z \mid X) \log \frac{p_{\theta}(X, z)}{p_{\theta}(z \mid X)} dz \quad 贝叶斯定理\\                    &=\int_{z} q_{\phi}(z \mid X) \log \left(\frac{p_{\theta}(X, z)}{q_{\phi}(z \mid X)} \cdot \frac{q_{\phi}(z \mid X)}{p_{\theta}(z \mid X)}\right) dz\\                    &=\int_{z} q_{\phi}(z \mid X) \log \frac{p_{\theta}(X, z)}{q_{\phi}(z \mid X)} dz + \int_{z} q_{\phi}(z \mid X) \log \frac{q_{\phi}(z \mid X)}{p_{\theta}(z \mid X)} dz\\                    &=\ell\left(p_{\theta}, q_{\phi}\right)+D_{K L}\left(q_{\phi}, p_{\theta}\right) \\                    & \geq \ell\left(p_{\theta}, q_{\phi}\right) \quad KL散度非负. \end{aligned}\\$$
+
 
 我们已经在之前的文章 **[机器学习理论—信息论：自信息、熵、交叉熵与KL散度 ](https://zhuanlan.zhihu.com/p/345025351)** 中的第四章证明了KL散度是恒大于等于零的，因此显然上式中$\ell\left(p_{\theta}, q_{\phi}\right)$是$\log p_{\theta}(X)$的一个下界，也因此我们称$\ell$为ELBO (Empirical Lower Bound)。
 
 我们不妨在把上式变换一下，易得：
 
+
 $$\ell\left(p_{\theta}, q_{\phi}\right) = \log p_{\theta}(X) - D_{K L}\left(q_{\phi}, p_{\theta}\right).\\ \\$$
+
 
 这个式子实在是太完美了！这个式子告诉我们，我们只需要最大化$\ell，$就能最大化$\log p_{\theta}(X)，$并且最小化$D_{K L}\left(q_{\phi}, p_{\theta}\right)。$
 
@@ -167,7 +181,9 @@ $$\ell\left(p_{\theta}, q_{\phi}\right) = \log p_{\theta}(X) - D_{K L}\left(q_{\
 
 既然我们希望最大化$\ell，$现在我们进一步对其进行展开，不难得到：
 
+
 $$\begin{aligned} \ell\left(p_{\theta}, q_{\phi}\right) &= \int_{z} q_{\phi}(z \mid X) \log \frac{p_{\theta}(X, z)}{q_{\phi}(z \mid X)} dz \\         &=\int_{z} q_{\phi}(z \mid X) \log \frac{p_{\theta}(X \mid z) p(z)}{q_{\phi}(z \mid X)} dz \quad 贝叶斯定理 \\         &=\int_{z} q_{\phi}(z \mid X) \log \frac{p(z)}{q_{\phi}(z \mid X)} dz + \int_{z} q_{\phi}(z \mid X) \log p_{\theta}(X \mid z) dz \\         &=-D_{K L}\left(q_{\phi}, p\right)+\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(X \mid z)\right]. \end{aligned}\\$$
+
 
 让我们再将上述两项分别展开。
 
@@ -175,17 +191,23 @@ $$\begin{aligned} \ell\left(p_{\theta}, q_{\phi}\right) &= \int_{z} q_{\phi}(z \
 
 更加幸运的是，我们把它们都设成了各向同性的高斯分布，所以我们可以直接从一维的情况进行推导：
 
+
 $$\begin{aligned} D_{K L}(\mathcal{N}\left(\mu, \sigma^{2}\right)\| \mathcal{N}(0,1))     &=\int_{z} \frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \left(-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}\right) \log \frac{\frac{1}{\sqrt{2 \pi \sigma^{2}}} \exp \left(-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}\right)}{\frac{1}{\sqrt{2 \pi}} \exp \left(-\frac{z^{2}}{2}\right)} d z \\ &=\int_{z}\left(\frac{-\left(z-\mu\right)^{2}}{2 \sigma^{2}}+\frac{z^{2}}{2}-\log \sigma\right) \mathcal{N}\left(\mu, \sigma^{2}\right) d z \\     &=-\int_{z} \frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}} \mathcal{N}\left(\mu, \sigma^{2}\right) d z+\int_{z} \frac{z^{2}}{2} \mathcal{N}\left(\mu, \sigma^{2}\right) d z-\int_{z} \log \sigma \mathcal{N}\left(\mu, \sigma^{2}\right)  d z \\     &=-\frac{\mathbb{E}\left[\left(z-\mu\right)^{2}\right]}{2 \sigma^{2}}+\frac{\mathbb{E}\left[z^{2}\right]}{2}-\log \sigma \\     &= \frac{1}{2}(-1 + \sigma^2 + \mu^2 - \log \sigma^2). \end{aligned}$$
+
 
 当它们都是$d$元高斯分布时，易得：
 
+
 $$D_{K L}\left(q_{\phi}(z\mid X), p(z)\right) = \sum_{j=1}^d \frac{1}{2}(-1 + {\sigma^{(j)}}^{2} + {\mu^{(j)}}^{2} - \log {\sigma^{(j)}}^{2}).\\ \\$$
+
 
 其中${a^{(j)}}^{2}$代表向量$a$的第$j$个元素的平方。
 
 至此，最后的问题就是，$\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(X \mid z)\right]$怎么求呢？这一项往往被称为Reconstruction Loss，人们通常从$q_{\phi}(z\mid X)$中采样多个$z_i$来近似求解这一项，即：
 
+
 $$\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(X \mid z)\right] \approx \frac{1}{m} \sum_{i=1}^{m} \log p_{\theta}\left(X \mid z_{i}\right), \\$$
+
 
 其中，$z_{i} \sim q_{\phi}\left(z \mid x_{i}\right)=\mathcal{N}\left(z \mid \mu\left(x_{i} ; \phi\right), \sigma^2\left(x_{i} ; \phi\right) * I\right)。$
 
@@ -193,7 +215,9 @@ $$\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(X \mid z)\right] \approx \frac{1}{m
 
 有了之前的文章 **[损失函数（二）：MSE、0-1 Loss与Logistic Loss](https://zhuanlan.zhihu.com/p/346935187)** 中的2.2节的基础后，我们知道，若假设数据为固定方差的高斯分布，MLE后得到的目标函数，等价于MSE。但我们这里还是先把它写开，设每个数据点$x_i$的维度为$K$，即$X\mid z_i$服从一个$K$维高斯分布，易得：
 
+
 $$\begin{aligned} \log p_{\theta}\left(X \mid z_{i}\right) &= \log \frac{\exp \left(-\frac{1}{2}(X-\mu^{\prime})^{\mathrm{T}} {\Sigma}^{\prime-1}({X}-{\mu^{\prime}})\right)}{\sqrt{(2 \pi)^{k}|{\Sigma^{\prime}}|}} \\     &= -\frac{1}{2}(X-\mu^{\prime})^{\mathrm{T}} {\Sigma}^{\prime-1}({X}-{\mu^{\prime}}) - \log \sqrt{(2 \pi)^{k}|\Sigma^{\prime}|} \\     &= -\frac{1}{2} \sum_{k=1}^K \frac{(X^{(k)}-\mu^{\prime(k)})^2}{\sigma^{\prime(k)}}  - \log \sqrt{(2 \pi)^{K}\prod_{k=1}^{K} \sigma^{\prime(k)}}. \end{aligned}\\$$
+
 
 这样，我们就有了最终的损失函数所需要的所有模块了。
 
@@ -201,7 +225,9 @@ $$\begin{aligned} \log p_{\theta}\left(X \mid z_{i}\right) &= \log \frac{\exp \l
 
 让我们把上一节中的推导整合起来。现在希望最小化损失函数：
 
+
 $$\begin{aligned} \mathcal{L} &= - \frac{1}{n} \sum_{i=1}^n \ell(p_{\theta}, q_{\phi}) \\             &= \frac{1}{n} \sum_{i=1}^nD_{K L}\left(q_{\phi}, p\right) - \frac{1}{n} \sum_{i=1}^n \mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(x_i \mid z)\right] \\             &= \frac{1}{n} \sum_{i=1}^nD_{K L}\left(q_{\phi}, p\right) - \frac{1}{nm} \sum_{i=1}^n \sum_{j=1}^{m} \log p_{\theta}\left(x_i \mid z_{j}\right). \end{aligned}\\$$
+
 
 上式即是通过从$q_{\phi}(z \mid x_i)$中采样$m$次$z_j，$来逼近$\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(x_i \mid z)\right]。$也许我们会好奇，之前两次我们都说积分太难求了，采样逼近代价太大了，所以不能采样逼近，为什么这里又可以采样逼近了呢？
 
@@ -209,11 +235,15 @@ $$\begin{aligned} \mathcal{L} &= - \frac{1}{n} \sum_{i=1}^n \ell(p_{\theta}, q_{
 
 事实上，从经验来看，从$q_{\phi}(z \mid x_i)$中采样$z_j$估计$\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}(x_i \mid z)\right]$是比较高效的。在实践中我们往往对一个$x_i$只采样一个$z_j$，即$m=1，$就能达到可观的效果。所以我们可以将损失改写，并继续往下展开：
 
+
 $$\begin{aligned} \mathcal{L} &= \frac{1}{n} \sum_{i=1}^nD_{K L}\left(q_{\phi}, p\right) - \frac{1}{n} \sum_{i=1}^n  \log p_{\theta}\left(x_i \mid z_{i}\right) \\             &= \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^d \frac{1}{2}(-1 + {\sigma_i^{(j)}}^{2} + {\mu_i^{(j)}}^{2} - \log {\sigma_i^{(j)}}^{2}) \\             &\quad\quad\quad - \frac{1}{n} \sum_{i=1}^n \left( -\frac{1}{2} \sum_{k=1}^K \frac{(x_i^{(k)}-\mu_i^{\prime(k)})^2}{\sigma_i^{\prime(k)}}  - \log \sqrt{(2 \pi)^{K}\prod_{k=1}^{K} \sigma_i^{\prime(k)}} \right). \end{aligned}\\$$
+
 
 值得注意的是，我们已经假设了$p_{\theta}(X \mid z_i)$对任意$z_i$均是方差固定的各向同性$K$维高斯分布，我们不妨令超参数$\sigma^{\prime}$为元素值全为$\frac{1}{2}$的$K$维向量。这样一来，损失可以改写为：
 
+
 $$\mathcal{L} = \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^d \frac{1}{2}(-1 + {\sigma_i^{(j)}}^{2} + {\mu_i^{(j)}}^{2} - \log {\sigma_i^{(j)}}^{2}) + \frac{1}{n} \sum_{i=1}^n  \|x_i - \mu_i^{\prime}\|^2. \tag{1}\\ $$
+
 
 其中，$x_i$代表第$i$个样本，是Encoder的输入。$\mu_i$和$\sigma_i^2$是Encoder的输出，代表$z \mid x_i$的分布的参数。$z_i$是从$z\mid x_i$中采样得到的一个样本，它是Decoder的输入。$\mu_i^{\prime}$是Decoder的输出，代表利用$z_i$解码后对应的数据点$\tilde{x}_i。$
 
@@ -243,18 +273,28 @@ CVAE的思路非常简单，这里我们简单介绍一下。
 
 下图是我在MNIST上跑的一组示例。
 
-![](https://pic1.zhimg.com/v2-f42e6df980f6d9c0f922209107c261dc_r.jpg)
+![](zhimg.com/v2-f42e6df980f6d9c0f922209107c261dc_r.jpg)
 
 也许我们会注意到，VAE的实现中，人们往往令Encoder输出$\log \sigma^2，$而不直接输出$\sigma。$这是因为根据定义，我们必须让模型输出$\sigma \geq 0。$出于方便，我们通过取对数后再取指数的方法，获得$\sigma。$而取平方只是为了计算损失的时候不再需要取平方。
 
 除此之外，在VAE损失函数的实现中，有一个更需要注意的地方。我们先把之前推的损失函数抄下来：
 
+
 $$\mathcal{L} = \frac{1}{n} \sum_{i=1}^n \sum_{j=1}^d \frac{1}{2}(-1 + {\sigma_i^{(j)}}^{2} + {\mu_i^{(j)}}^{2} - \log {\sigma_i^{(j)}}^{2}) + \frac{1}{n} \sum_{i=1}^n  \|x_i - \mu_i^{\prime}\|^2.\\ \\$$
-<p data-pid="ephXzhBN">可见，上式中第二部分有一个类似MSE的项$\frac{1}{n} \sum_{i=1}^n  \|x_i - \mu_i^{\prime}\|^2。$也因此，很多基于Pytorch实现VAE的Repo，直接采用<code>F.mse_loss(mu_prime, x, reduction='mean')</code>来计算这一项。这是 **错误** 的！</p><p data-pid="zMkw-M7u">设$x_i$的维度为$K，$Pytorch中的<code>F.mse_loss</code>等价于：</p>
+
+
+可见，上式中第二部分有一个类似MSE的项$\frac{1}{n} \sum_{i=1}^n  \|x_i - \mu_i^{\prime}\|^2。$也因此，很多基于Pytorch实现VAE的Repo，直接采用 `F.mse_loss(mu_prime, x, reduction='mean')` 来计算这一项。这是 **错误** 的！
+
+设$x_i$的维度为$K，$Pytorch中的 `F.mse_loss` 等价于：
+
+
 $$\frac{1}{nK} \sum_{i=1}^n  \|x_i - \mu_i^{\prime}\|^2.\\ \\$$
 
+
 如果单纯的使用MSE损失训练模型的话，常数项的改变并不会影响模型的结果。但是在VAE中，Reconstruction Loss这一项的常数项是有意义的。
-<p data-pid="AUpr6U3e">直观的来说，这一的常数项控制Reconstruction Loss和Latent Loss之间的权重。如果利用<code>F.mse_loss</code>实现的话，等价于将Reconstruction Loss的权重降的很低，Decoder将无法准确重建$x_i。$</p>
+
+直观的来说，这一的常数项控制Reconstruction Loss和Latent Loss之间的权重。如果利用 `F.mse_loss` 实现的话，等价于将Reconstruction Loss的权重降的很低，Decoder将无法准确重建$x_i。$
+
 抽象的来说，这一常数项代表Decoder拟合的分布$p_{\theta}\left(X \mid z_{i}\right)$的方差$\sigma^{\prime2}$。对于图片生成模型，$K$往往非常大，比如MNIST里$K=28 \times 28。$平白无故的多除以了个$K$等价于我们将$p_{\theta}\left(X \mid z_{i}\right)$的方差设的非常大，那它生成的图片全都是噪声也不会令人惊讶。也因此，我们往往在设置超参数$\sigma^{\prime}$的时候，必然将其设置的较小。
 
 ##  **6. Discussion** 
