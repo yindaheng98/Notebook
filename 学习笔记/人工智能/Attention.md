@@ -183,15 +183,22 @@ $$
 >
 >即将：
 >
->$$\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)s_j$$
+>$$
+\begin{aligned}
+Similarity(Query, Key)Value&=\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i\\
+&=\sum_{j=1}^{m}\mathcal{H}(H_{i-1}, s_j)s_j\\
+&=v^T\cdot tanh(W\cdot (s_j,H_{i-1})^T)
+\end{aligned}$$
 >
 >换成：
 >
->$$\sum_{i=1}^{|Source|}Similarity(Query, Key_i)Value_i=softmax(\frac{(W^Q\cdot\bm s)(W^K\cdot\bm s)^T}{\sqrt{d_k}})(W^V\cdot\bm s)$$
+>$$Similarity(Query, Key)Value=softmax(\frac{(\bm s\cdot W^Q)(\bm s\cdot W^K)^T}{\sqrt{d_k}})(\bm s\cdot W^V)$$
+>
+>其中$s\in\mathbb R^{n\times d_{model}}$、$W^Q\in\mathbb R^{d_{model}\times d_k}$、$W^K\in\mathbb R^{d_{model}\times d_k}$、$W^V\in\mathbb R^{d_{model}\times d_v}$、$n$表示输入序列长度、$d_{model}$表示输入向量的特征维度、$d_k$表示$Key_i$的特征的维度、$d_v$表示$Value_i$的特征的维度
 
 自注意力是Transformer中使用的注意力机制，随着Transformer的大火一起为人所知。本节就参考Transformer原论文[《Attention Is All You Need》](https://arxiv.org/pdf/1706.03762.pdf)介绍自注意力机制。
 
-上面介绍Attention RNN和自注意力网络最大的区别在于$K$、$Q$、$V$的计算方式。在Attention RNN中，$K$和$V$都是输入$s_i$(词向量)；$Q$是RNN的中间输出$H_{i}$，每一个$H_{i}$的计算都需要上一个$H_{i-1}$作为输入，所以Attention RNN和普通RNN一样只能顺序计算。而Self Attention的$K$、$Q$、$V$是直接由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得来的，即：
+上面介绍Attention RNN和自注意力网络最大的区别在于$K$、$Q$、$V$的计算方式。在Attention RNN中，$K$和$V$都是输入$s_i\in\mathbb R^{1\times d_{model}}$(词向量)；$Q$是RNN的中间输出$H_{i}$，每一个$H_{i}$的计算都需要上一个$H_{i-1}$作为输入，所以Attention RNN和普通RNN一样只能顺序计算。而Self Attention的$K$、$Q$、$V$是直接由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得来的，即：
 $$
 \begin{aligned}
 Q_i=s_iW^Q\\
@@ -298,3 +305,9 @@ self.position_embeddings = nn.Parameter(torch.zeros(1, num_patches + 1, config.h
 实际上就是一个矩阵。由于ViT输入是图片，所以可以固定序列长度`num_patches`，从而可以对位置编码进行训练。
 
 但如果输入图片尺寸变了，`num_patches`就会变，位置编码就需要重新训练。
+
+## 下一步
+
+* [继续学习位置编码](./位置编码.md)
+
+* [学习相对位置编码](./相对位置编码.md)
