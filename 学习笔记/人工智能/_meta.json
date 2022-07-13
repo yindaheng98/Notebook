@@ -71,6 +71,23 @@
         ],
         "cover": "/人工智能/img/RNN-rolled.png"
     },
+    "MAE.md": {
+        "title": "【纯转载】一文看尽MAE最新进展！恺明的MAE已经提出大半年，目前发展如何？",
+        "created": "2022-06-13 14:24:14",
+        "updated": "2022-06-14 02:00:13",
+        "date": "2022-06-14 02:00:13",
+        "tags": [
+            "人工智能",
+            "MAE",
+            "生成模型",
+            "半监督学习",
+            "Transformer"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ.png"
+    },
     "ResNet.md": {
         "title": "ResNet",
         "created": "2021-05-05 03:09:44",
@@ -132,6 +149,37 @@
         ],
         "cover": "/人工智能/./i/Transformer-official.png"
     },
+    "vae.md": {
+        "title": "【转载】机器学习理论—优雅的模型（一）：变分自编码器（VAE）",
+        "created": "2022-07-06 09:40:09",
+        "updated": "2022-07-12 12:29:04",
+        "date": "2022-07-12 12:29:04",
+        "tags": [
+            "人工智能",
+            "VAE",
+            "生成模型",
+            "GAN"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-012c9ea0f8b3e93079fb77cd39f7e88f_r.jpg"
+    },
+    "位置编码.md": {
+        "title": "【纯转载】Transformer 中的 positional embedding",
+        "created": "2022-07-12 12:15:47",
+        "updated": "2022-07-12 12:27:25",
+        "date": "2022-07-12 12:27:25",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "位置编码"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-60139de208db5f7b81babfa0eaae99b0_r.jpg"
+    },
     "图解SwinTransformer.md": {
         "title": "【纯转载】图解Swin Transformer",
         "created": "2022-06-12 08:02:17",
@@ -148,5 +196,46 @@
             "人工智能"
         ],
         "cover": "/人工智能/zhimg/v2-74c856e61d60781c89c3813367289462_r.jpg"
+    },
+    "扩散模型.md": {
+        "title": "扩散模型",
+        "created": "2022-07-04 22:03:23",
+        "updated": "2022-07-04 22:03:23",
+        "date": "2022-07-04 22:03:23",
+        "tags": [
+            "人工智能",
+            "生成模型",
+            "扩散模型"
+        ],
+        "categories": [
+            "人工智能"
+        ]
+    },
+    "相对位置编码.md": {
+        "title": "相对位置编码",
+        "created": "2022-07-13 03:46:50",
+        "updated": "2022-07-13 07:54:43",
+        "date": "2022-07-13 07:54:43",
+        "tags": [
+            "人工智能",
+            "位置编码"
+        ],
+        "categories": [
+            "人工智能"
+        ]
+    },
+    "重参数化.md": {
+        "title": "重参数化 Re-parameterization",
+        "created": "2022-07-05 13:00:45",
+        "updated": "2022-07-05 13:00:45",
+        "date": "2022-07-05 13:00:45",
+        "tags": [
+            "人工智能",
+            "重参数化"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/./i/Re-parameterization.png"
     }
 }
