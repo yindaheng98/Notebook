@@ -252,10 +252,12 @@ coords_h = torch.arange(self.window_size[0])
 coords_w = torch.arange(self.window_size[1])
 coords = torch.meshgrid([coords_h, coords_w]) # -&gt; 2*(wh, ww)
 """
-  (tensor([[0, 0],
-           [1, 1]]), 
-   tensor([[0, 1],
-           [0, 1]]))
+  (tensor([[0, 0, 0],
+           [1, 1, 1],
+           [2, 2, 2]]), 
+   tensor([[0, 1, 2],
+           [0, 1, 2],
+           [0, 1, 2]]))
 """
 ```
 
@@ -265,8 +267,8 @@ coords = torch.meshgrid([coords_h, coords_w]) # -&gt; 2*(wh, ww)
 coords = torch.stack(coords)  # 2, Wh, Ww
 coords_flatten = torch.flatten(coords, 1)  # 2, Wh*Ww
 """
-tensor([[0, 0, 1, 1],
-        [0, 1, 0, 1]])
+tensor([[0, 0, 1, 1, 2, 2],
+        [0, 1, 2, 0, 1, 2]])
 """
 ```
 
