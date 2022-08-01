@@ -226,3 +226,41 @@ func (r *router) AddReceiver(receiver *webrtc.RTPReceiver, track *webrtc.TrackRe
 这里面也只有一些配置操作，还不是buff真正执行写操作的最底层。所以启动写操作的最底层应该在这些配置操作里。
 
 TODO: 找到了buff的写操作函数`Buffer.Write`，但是没找到是谁调用的这个
+
+
+## Buffer.Write的调用分析
+
+在实例化sfu实例的时候，会实例化sfu.webrtc.bufferFactory，然后这里会分两条线，一条是从bufferFactory取数据，一条是往bufferFactory里写数据
+
+### 从bufferFactory取数据（从sfu.NewPublisher()开始分析）
+NewPublisher->pc.OnTrack->publisher.router.AddReceiver(webrtc.trackRemote, webrtc.receiver)->recv.addUptrack(webrtc.trackRemote, buff)->go w.writeRTP(layer)
+分析调用可知`router.receivers[trackID].buffers[layer]等于router.bufferFactory.GetBufferPair()`，而router.bufferFactory即sfu.webrtc.bufferFactory
+
+### 往bufferFactory里写数据（从PeerLocal.Answer()开始分析）
+
+1. github.com/pion/ion-sfu/pkg/sfu.(*PeerLocal).Answer at peer.go:205
+2. github.com/pion/ion-sfu/pkg/sfu.(*Publisher).Answer at publisher.go:137
+3. github.com/pion/webrtc/v3.(*PeerConnection).SetRemoteDescription at peerconnection.go:1078
+4. github.com/pion/webrtc/v3.(*PeerConnection).addRTPTransceiver at peerconnection.go:1996
+5. github.com/pion/webrtc/v3.(*PeerConnection).onNegotiationNeeded at peerconnection.go:302
+6. github.com/pion/webrtc/v3.(*operations).Enqueue at operations.go:35 -> go o.start()
+7. github.com/pion/webrtc/v3.(*operations).Enqueue at operations.go:38 -> go o.start()
+8. github.com/pion/webrtc/v3.(*operations).start at operations.go:87
+9. github.com/pion/webrtc/v3.(*PeerConnection).SetRemoteDescription.func2 at peerconnection.go:1177
+10. github.com/pion/webrtc/v3.(*PeerConnection).startTransports at peerconnection.go:2156
+11. github.com/pion/webrtc/v3.(*DTLSTransport).Start at dtlstransport.go:399
+12. github.com/pion/webrtc/v3.(*DTLSTransport).startSRTP at dtlstransport.go:218
+13. github.com/pion/srtp/v2.NewSessionSRTP at session_srtp.go:62
+14. github.com/pion/srtp/v2.(*session).start at session.go:115 -> go func() {  child.decrypt() }
+15. github.com/pion/srtp/v2.(*session).start at session.go:120 -> go func() {  child.decrypt() }
+16. github.com/pion/srtp/v2.(*SessionSRTP).decrypt at session_srtp.go:166        // 这里readStream=s.session.getOrCreateReadStream()，设置readStream.buffer=s.session.bufferFactory()
+17. github.com/pion/srtp/v2.(*ReadStreamSRTP).write at stream_srtp.go:64       // 这里就是readStream.write()，即readStream.buffer.write()
+18. github.com/pion/ion-sfu/pkg/buffer.(*Buffer).Write at buffer.go:190
+
+16步的s.session.bufferFactory是在13步NewSessionSRTP函数中初始化的：bufferFactory: config.BufferFactory，config是(*DTLSTransport).api.settingEngine.BufferFactory
+(*DTLSTransport).api即是可创建pc的api实例，api.settingEngine.BufferFactory其实是sfu.webrtc.bufferFactory
+
+
+
+
+
