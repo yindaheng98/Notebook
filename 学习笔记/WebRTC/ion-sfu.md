@@ -254,7 +254,7 @@ NewPublisher->pc.OnTrack->publisher.router.AddReceiver(webrtc.trackRemote, webrt
 13. github.com/pion/srtp/v2.NewSessionSRTP at session_srtp.go:62
 14. github.com/pion/srtp/v2.(*session).start at session.go:115 -> go func() {  child.decrypt() }
 15. github.com/pion/srtp/v2.(*session).start at session.go:120 -> go func() {  child.decrypt() }
-16. github.com/pion/srtp/v2.(*SessionSRTP).decrypt at session_srtp.go:166        // 这里readStream=s.session.getOrCreateReadStream()，设置readStream.buffer=s.session.bufferFactory()
+16. github.com/pion/srtp/v2.(*SessionSRTP).decrypt at session_srtp.go:166        // 这里先让readStream=s.session.getOrCreateReadStream()，再设置readStream.buffer=s.session.bufferFactory()
 17. github.com/pion/srtp/v2.(*ReadStreamSRTP).write at stream_srtp.go:64       // 这里就是readStream.write()，即readStream.buffer.write()
 18. github.com/pion/ion-sfu/pkg/buffer.(*Buffer).Write at buffer.go:190
 
