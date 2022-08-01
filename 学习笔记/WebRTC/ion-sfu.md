@@ -233,7 +233,8 @@ TODO: 找到了buff的写操作函数`Buffer.Write`，但是没找到是谁调�
 在实例化sfu实例的时候，会实例化sfu.webrtc.bufferFactory，然后这里会分两条线，一条是从bufferFactory取数据，一条是往bufferFactory里写数据
 
 ### 从bufferFactory取数据（从sfu.NewPublisher()开始分析）
-NewPublisher->pc.OnTrack->publisher.router.AddReceiver(webrtc.trackRemote, webrtc.receiver)->recv.addUptrack(webrtc.trackRemote, buff)->go w.writeRTP(layer)
+NewPublisher->pc.OnTrack->publisher.router.AddReceiver(webrtc.trackRemote, webrtc.receiver)->recv.addUptrack(webrtc.trackRemote, buff)->go w.writeRTP(layer)，writeRTP的时候需要从router.receivers[trackID].buffers[layer]读数据
+
 分析调用可知`router.receivers[trackID].buffers[layer]等于router.bufferFactory.GetBufferPair()`，而router.bufferFactory即sfu.webrtc.bufferFactory
 
 ### 往bufferFactory里写数据（从PeerLocal.Answer()开始分析）
@@ -257,7 +258,8 @@ NewPublisher->pc.OnTrack->publisher.router.AddReceiver(webrtc.trackRemote, webrt
 17. github.com/pion/srtp/v2.(*ReadStreamSRTP).write at stream_srtp.go:64       // 这里就是readStream.write()，即readStream.buffer.write()
 18. github.com/pion/ion-sfu/pkg/buffer.(*Buffer).Write at buffer.go:190
 
-16步的s.session.bufferFactory是在13步NewSessionSRTP函数中初始化的：bufferFactory: config.BufferFactory，config是(*DTLSTransport).api.settingEngine.BufferFactory
+16步的s.session.bufferFactory是在13步NewSessionSRTP函数中初始化的：bufferFactory: `config.BufferFactory`，而config等于(*DTLSTransport).api.settingEngine.BufferFactory
+
 (*DTLSTransport).api即是可创建pc的api实例，api.settingEngine.BufferFactory其实是sfu.webrtc.bufferFactory
 
 
