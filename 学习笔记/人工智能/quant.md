@@ -102,4 +102,20 @@ $$x_{out}=x_Q\Delta$$
 
 那很显然，非线性映射不能保证像线性映射那样能直接加减乘除，所以一般只用于特征压缩，不用于计算加速。
 
-### 指数映射
+### Logistic映射
+
+$$
+x_Q=round(\frac{log(x-min(x)+1)}{max(log(x-min(x)+1))}(N_{levels}-1))
+$$
+
+其切分密度随数值大小变化如下：
+
+![](i/log_quant.png)
+
+可以看到，其密度并非均匀，而是随数值增大而不断增大，因此适合于从0开始，概率密度不断减小的分布。比如：
+
+![](i/quant_density.png)
+
+参考论文：
+* [Z. Chen, K. Fan, S. Wang, L.-Y. Duan, W. Lin, and A. Kot, “Lossy Intermediate Deep Learning Feature Compression and Evaluation,” in Proceedings of the 27th ACM International Conference on Multimedia, New York, NY, USA, Oct. 2019, pp. 2414–2422. doi: 10.1145/3343031.3350849.](https://doi.org/10.1145/3343031.3350849)
+* [Z. Chen, L.-Y. Duan, S. Wang, W. Lin, and A. C. Kot, “Data Representation in Hybrid Coding Framework for Feature Maps Compression,” in 2020 IEEE International Conference on Image Processing (ICIP), 2020, pp. 3094–3098. doi: 10.1109/ICIP40778.2020.9190843.](https://doi.org/10.1109/ICIP40778.2020.9190843)
