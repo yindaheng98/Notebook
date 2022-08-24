@@ -36,4 +36,60 @@
 
 ## 参数量化：线性映射
 
+重要参考：[量化计算白皮书](http://arxiv.org/abs/1806.08342)
+
+将一个浮点数$x\in(x_{min},x_{max})$映射（量化）为一个整数$x_{Q}\in[0,N_{levels}-1]$。实际情况中常见int8量化，其$N_{levels}=256$。
+
+线性映射量化的参数有缩放比例$\Delta$和零点$z$两个；方法有对称和非对称两种。
+
+### 非对称量化(Uniform Affine Quantizer)
+
+非对称量化是指将浮点数缩放后加上零点$z$：
+
+$$
+\begin{aligned}
+    x_{int}&= round\big(\frac{x}{\Delta}\big)+z \\
+    x_Q&=clamp(0,N_{levels} - 1, x_{int}) 
+\end{aligned}
+$$
+
+其中：
+$$
+\begin{aligned}
+    clamp(a,b,x)&=a &x\leq a \\
+    &=x &a \leq x \leq b \\
+    &=b &x \geq b
+\end{aligned}
+$$
+
+反量化计算为：
+$$x_{float}=(x_Q  - z)\Delta$$
+
+#### 带着量化直接算卷积
+
+线性映射的好处就在这，可以直接量化值计算与浮点计算等价，而量化值计算速度快，因此可以加速神经网络模型的训练和推理。
+
+$$
+\begin{aligned}
+    y(k,l,n)&=\Delta_w \Delta_x conv(w_Q(k,l,m;n)-z_{w}, x_Q(k,l,m)-z_{x}) \\
+    y(k,l,n)&=conv(w_Q(k,l,m;n),x_Q(k,l,m))-z_w\sum_{k=0}^{K-1} \sum_{l=0}^{K-1} \sum_{m=0}^{N-1} x_Q(k,l,m) \\
+    &-z_x\sum_{k=0}^{K-1} \sum_{l=0}^{K-1} \sum_{m=0}^{N-1} w_Q(k,l,m;n) +z_x z_w
+\end{aligned}
+$$
+
+### 对称量化(Uniform Affine Quantizer)
+
+对称量化不使用零点$z$，而是直接将浮点数进行缩放，相当于非对称量化中零点$z=0$的特殊情况：
+
+$$
+\begin{aligned}
+    x_{int}&= round\big(\frac{x}{\Delta}\big) & \\
+    x_Q&=clamp(-N_{levels}/2,N_{levels}/2 - 1, x_{int})& \text{if signed}  \\
+    x_Q&=clamp(0,N_{levels} - 1, x_{int}) &\text{if un-signed} 
+\end{aligned}
+$$
+
+反量化计算就很简单：
+$$x_{out}=x_Q\Delta$$
+
 ## 特征压缩：非线性映射
