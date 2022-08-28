@@ -49,6 +49,7 @@ def fig(m):
             f.write(r.content) #写入二进制内容
         return "\n![%s](%s)\n" % (caption, "zhimg.com" + url.path)
     c = re.sub(r'<noscript><img[^>]*data-original="([^"]+?)"[^>]*/></noscript><img[^>]*>', get_url, m.group(1))
+    c = re.sub(r'<noscript><img[^>]*src="([^"]+?)"[^>]*/></noscript><img[^>]*>', get_url, m.group(1))
     c = re.sub(r'<figcaption>([^<]+?)</figcaption>', '', c)
     return c
 content = re.sub(r'<figure[^>]*>(.*?)</figure>', fig, content)
