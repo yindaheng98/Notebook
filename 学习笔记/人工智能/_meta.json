@@ -14,8 +14,8 @@
     "Attention.md": {
         "title": "机器学习中的Attention机制",
         "created": "2021-03-24 08:14:29",
-        "updated": "2022-06-08 14:47:09",
-        "date": "2022-06-08 14:47:09",
+        "updated": "2022-07-13 08:02:37",
+        "date": "2022-07-13 08:02:37",
         "tags": [
             "人工智能",
             "LSTM",
@@ -88,6 +88,35 @@
         ],
         "cover": "/人工智能/qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ.png"
     },
+    "quant-for-begin.md": {
+        "title": "【纯转载】神经网络量化入门--量化感知训练",
+        "created": "2022-08-28 08:24:55",
+        "updated": "2022-08-28 08:24:55",
+        "date": "2022-08-28 08:24:55",
+        "tags": [
+            "人工智能",
+            "量化",
+            "量化感知训练"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-d3ad7130bfa530d5f7bafa57e0446266_b.jpg"
+    },
+    "quant.md": {
+        "title": "一些常见的模型量化方法",
+        "created": "2022-08-24 08:55:37",
+        "updated": "2022-08-28 08:26:01",
+        "date": "2022-08-28 08:26:01",
+        "tags": [
+            "人工智能",
+            "量化"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/i/log_quant.png"
+    },
     "ResNet.md": {
         "title": "ResNet",
         "created": "2021-05-05 03:09:44",
@@ -101,6 +130,21 @@
             "人工智能"
         ],
         "cover": "/人工智能/i/Res.jpg"
+    },
+    "STE.md": {
+        "title": "【纯转载】量化训练之补偿STE：DSQ和QuantNoise",
+        "created": "2022-08-28 09:04:54",
+        "updated": "2022-08-28 09:04:54",
+        "date": "2022-08-28 09:04:54",
+        "tags": [
+            "人工智能",
+            "量化",
+            "量化感知训练"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-9e990fc8e271cf11576c2de5d416df8d_b.jpg"
     },
     "SwinTransformer.md": {
         "title": "Swin Transformer解析",
@@ -183,8 +227,8 @@
     "图解SwinTransformer.md": {
         "title": "【纯转载】图解Swin Transformer",
         "created": "2022-06-12 08:02:17",
-        "updated": "2022-06-12 12:22:21",
-        "date": "2022-06-12 12:22:21",
+        "updated": "2022-07-16 11:50:59",
+        "date": "2022-07-16 11:50:59",
         "tags": [
             "人工智能",
             "Transformer",
@@ -214,8 +258,8 @@
     "相对位置编码.md": {
         "title": "相对位置编码",
         "created": "2022-07-13 03:46:50",
-        "updated": "2022-07-13 07:54:43",
-        "date": "2022-07-13 07:54:43",
+        "updated": "2022-07-26 09:43:11",
+        "date": "2022-07-26 09:43:11",
         "tags": [
             "人工智能",
             "位置编码"
