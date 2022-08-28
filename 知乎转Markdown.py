@@ -5,7 +5,7 @@ import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-link = "https://zhuanlan.zhihu.com/p/348498294"
+link = "https://zhuanlan.zhihu.com/p/412957105"
 response = requests.get(link, headers={
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "accept-encoding": "gzip, deflate, br",
@@ -35,6 +35,8 @@ content = re.sub(r'<a[^>]*href="([^">]+?)"[^>]*>(.*?)</a>', lambda m:"[%s](%s)" 
 content = re.sub(r'<source[^>]*/>', "", content)
 content = re.sub(r'<picture><img[^>]*alt="([^"]+?)"[^>]*/></picture>', lambda m:"\n$$%s$$\n" % m.group(1), content)
 content = re.sub(r'<img[^>]*alt="([^"]+?)"[^>]*/>', lambda m:"$%s$" % m.group(1), content)
+content = re.sub(r'<p[^>]*><span[^>]*class="ztext-math"[^>]*data-tex="([^"]+?)"[^>]*>(.*?)</span></p>', lambda m:"$$%s$$" % m.group(1), content)
+content = re.sub(r'<span[^>]*class="ztext-math"[^>]*data-tex="([^"]+?)"[^>]*>(.*?)</span>', lambda m:"$%s$" % m.group(1), content)
 
 def fig(m):
     captions = re.findall(r'<figcaption>([^<]+?)</figcaption>', m.group(1))
