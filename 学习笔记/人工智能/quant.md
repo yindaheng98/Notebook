@@ -121,3 +121,20 @@ $$
 参考论文：
 * [Z. Chen, K. Fan, S. Wang, L.-Y. Duan, W. Lin, and A. Kot, “Lossy Intermediate Deep Learning Feature Compression and Evaluation,” in Proceedings of the 27th ACM International Conference on Multimedia, New York, NY, USA, Oct. 2019, pp. 2414–2422. doi: 10.1145/3343031.3350849.](https://doi.org/10.1145/3343031.3350849)
 * [Z. Chen, L.-Y. Duan, S. Wang, W. Lin, and A. C. Kot, “Data Representation in Hybrid Coding Framework for Feature Maps Compression,” in 2020 IEEE International Conference on Image Processing (ICIP), 2020, pp. 3094–3098. doi: 10.1109/ICIP40778.2020.9190843.](https://doi.org/10.1109/ICIP40778.2020.9190843)
+
+### K-means矢量量化
+
+现实中的很多数据都是由矢量组成的，比如图片中的像素就是三维矢量。
+K-means矢量量化的原理就是用K-means将矢量数据聚为指定数量的类，然后每一个类用一个量化值代替即可。
+
+比如我想将一个由32位浮点型的三维矢量$(r,g,b)$组成的图片$I:I_{k}=(r_k,g_k,b_k)$量化为32位整型数值$q\in[0,2^{32}-1]$组成的图片，那么K-means矢量量化可以表示为：
+1. $q=K_{means}(r,g,b)\in[0,2^{32}-1]$：用K-means算法将图片中的所有像素$(r,g,b)$聚为$2^{32}$个类别，每个类别对应一个32位整型数值$q$
+2. $(r_q,g_q,b_q)=C(q)$：记下每个类别的聚类中心
+
+于是需要保存数据就是一张记录了每个聚类中心的位置及其对应的整形数值的查找表$(r_q,g_q,b_q)=C(q)$
+
+整个图片的量化过程$Q(\cdot)$就是用聚类中心对应的整形数值代替32位浮点型的三维矢量：
+$$I^{q}=Q(I): I^{q}_k=K_{means}(r_k,g_k,b_k)$$
+
+而反量化过程就是根据整形数值查找对应的聚类中心：
+$$I^d=D(I^{q}): I^d_k=C(I^{q}_k)$$
