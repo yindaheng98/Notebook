@@ -393,3 +393,5 @@ static const uint8_t *decode_tiles(VP9Decoder *pbi, const uint8_t *data,
 最后是读完终止数据后结束。
 
 总结一下，多线程解码底层每个线程都是在调用`tile_worker_hook`，而从这个函数看，更底层的除了函数应该就是`process_partition`和`decode_partition`，`tile_worker_hook`应该也是调用的`process_partition`和`decode_partition`。
+
+接下来继续看`decode_partition`：[《libvpx中的`decode_partition`》](./libvpx-decode-partition.md)。
