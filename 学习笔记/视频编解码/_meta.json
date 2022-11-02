@@ -1,4 +1,18 @@
 {
+    "codec.md": {
+        "title": "【纯转载】视频压缩的原理-发展-应用，手把手教你学习codec",
+        "created": "2022-11-02 06:32:07",
+        "updated": "2022-11-02 06:32:07",
+        "date": "2022-11-02 06:32:07",
+        "tags": [
+            "视频编解码",
+            "概念"
+        ],
+        "categories": [
+            "视频编解码"
+        ],
+        "cover": "/视频编解码/zhimg.com/v2-8ea6f953e394cdc005fb05859f214512_r.jpg"
+    },
     "libvpx-decode-partition.md": {
         "title": "libvpx中的`decode_partition`",
         "created": "2022-10-21 07:00:42",
