@@ -103,6 +103,20 @@
         ],
         "cover": "/人工智能/zhimg.com/v2-d3ad7130bfa530d5f7bafa57e0446266_b.jpg"
     },
+    "quant-survey.md": {
+        "title": "【纯转载】模型量化进展长文综述（三）-映射",
+        "created": "2022-12-08 14:46:46",
+        "updated": "2022-12-08 14:46:46",
+        "date": "2022-12-08 14:46:46",
+        "tags": [
+            "人工智能",
+            "量化"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-71d107fd21ece078cbef3c3a3efcf0e8_r.jpg"
+    },
     "quant.md": {
         "title": "一些常见的模型量化方法",
         "created": "2022-08-24 08:55:37",
