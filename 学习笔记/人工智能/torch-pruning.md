@@ -102,7 +102,7 @@ assert model.fc1.out_features==253 and model.customized_layer.in_dim==253 and mo
 
 从`DG = tp.DependencyGraph()`开始的调用从上往下看，可以看见`DG.register_customized_layer`、`DG.build_dependency`、`pruning_group = DG.get_pruning_group`和`pruning_group.exec()`。
 
-## `DG.register_customized_layer`
+### `DG.register_customized_layer`
 
 `DG.register_customized_layer`用于注册“裁剪方式”。“裁剪方式”与Pytorch中的层一一对应
 
@@ -132,7 +132,7 @@ _dummy_pruners = {
 }
 ```
 
-## `DG.build_dependency`
+### `DG.build_dependency`
 
 `DG.build_dependency`用于解析模型中层之间的调用关系，即解析`torch.nn.Module.forward`中的内容。
 
@@ -253,7 +253,7 @@ class BasePruningFunc(ABC):
 所以**每一层的`node.dependencies`中实际上包含的都是：“trigger=上一层的输出被裁剪, handler=裁剪当前层的输入”或者“trigger=下一层的输入被裁剪, handler=裁剪当前层的输出”**。
 看到这就清晰多了，这框架主打的自动解析依赖关系完成裁剪的功能归根结底就是以这种方式组织的。
 
-## `pruning_group = DG.get_pruning_group`
+### `pruning_group = DG.get_pruning_group`
 
 在`DG.build_dependency`之后，模型中每个Module之间的调用关系就清楚了，于是输入任意一个要裁的“节点”（输出矩阵中的某个channel，也对应卷积层中的一个卷积核）都能知道该节点在模型中的前后依赖关系（例如该节点被裁剪导致输出少了一个channel，以之作为输入的所有层也需要相应的进行修改）。
 
@@ -266,6 +266,6 @@ class BasePruningFunc(ABC):
 其输出的修改方案类名为`tp.DependencyGroup`，其是由`tp.Dependency`组成的数组。
 `DG.get_pruning_group`的本质就是从`module`对应的`node.dependencies`（`DG.build_dependency`中构建的依赖关系）中找出`trigger=pruning_fn`的那些`tp.Dependency`组成`tp.DependencyGroup`。
 
-## `pruning_group.exec()`
+### `pruning_group.exec()`
 
 最后就是执行这个修改`DG.get_pruning_group`输出的修改方案，很好理解，就是按照`tp.DependencyGroup`里的`tp.Dependency`一个个执行它们的`handler`就行了。
