@@ -273,3 +273,70 @@ In addition, buying things on the web is a good way to save money. Without renti
 * 因果论证：为什么，怎么样，结果怎样
 * 对比论证：把思路反着写
 * 举例论证：把思路用具体的例子来写
+
+### 老师的例句
+
+第一个好处：
+The first benefit of online shopping is **that** consumers can buy whatever they want conveniently. **After** the goods are *ordered* on the web, they will be *delivered* to the house at a *designated* time, **saving** consumers a great deal of time and energy. This mode can better *meet the demands* for people in modern society, **who** have *desire* for *good quality* life but may be *occupied* by *heavy workload* and *household chores*.
+
+第二个好处：
+In addition, buying things on the web *enables* buyers to compare the price of the goods and *find bargains*, **without** going from one store to another, **as** they used to do previously. Consumers become better *informed* and can *make the best choice*. For example, a mother can select the diaper for her new-born child at the lowest price **by** reviewing the list of all brands on the computer.
+
+好处写两段坏处写一段，弊端也是两个：
+However, online shopping may *expose* consumers to risks. Consumers are likely to buy *fake* goods **and** their personal information may be *disclosed* on the *virtual space*. Another problem is *irrational consumption*. Shopping can be do neat any time of the day or night, **with** various kinds of goods from all over the world *available* on the web. Consumers may *get addicted to* online shopping and *end up* in buying more things than they really need.
+
+### 版本二：坏处写两段
+
+第一个坏处（扩写上述坏处段）
+However, online shopping may *expose* consumers to risks. Consumers are likely to buy *fake* goods as people cannot see the real goods and supervision is not in place.
+举个例子
+Some ladies may buy poor-quality cosmetics on the internet
+继续延长
+that are detrimental to their skin
+或者简单点
+which leads to skin problems.
+扩展最后一句
+Consumers' personal information may also be disclosed on the *virtual space*.
+扩展
+As a result, they may be harassed in their daily lives and receive many junk emails or phone calls.
+
+
+### 总结：主体段的写作
+
+1. 确定分论点的个数，每个分论点的篇幅可长可短，是否扩展取决于实际情况
+2. 每个分论点有明确的中心意思，可以写出中心句
+3. 扩展方法: 因果论证(为什么，怎么样，结果怎样)举例论证、对比论证
+
+## 结尾怎么写
+
+版本一（易）：结尾也先写个套句，和开头的套句一样
+
+In conclusion, online shopping has many benefits, although there are some problems that need to be tackled.
+
+结尾段的写法:
+* 一句话或者两句话都可以
+* 直接说好处多或者坏处多
+* 有好有坏也是一种个人观点
+* 可以委婉地表达好处《这个现象会继续下去，很多人会做这个事情)
+* 可以委婉地表达坏处《有很多问题需要克服)
+
+版本二（难）：这个现象会继续下去，有很多问题需要克服
+
+To sum up, online shopping is expected to grow raplidly and continuously, as it *represents* the selling-buying trend in the future. Although there are some weaknesses, they can be *addressed* with some measures *adopted*.
+
+### 结尾段万能写法《强调坏处更多)
+
+* To sum up, although many people embrace online shopping, I am very concerned about the problems of this mode.
+* In conclusion, although this phenomenon has some benefits. I am concerned it has detrimental effects in the long term.
+* can .....in somekases(带来一点好处).However, this.....trend should not be encouraged, considering the problems it causes to individuals and society.
+* Based on the points outlined above, I think this trend has more drawbacks than benefits.
+
+## 作业题
+
+In some countries, the criminal trials are shown on TV and the general public can watch them. Do the advantages outweigh the disadvantages?
+
+![](./IELTS/homework.png)
+
+In some countries, more and more adults choose to continue living with their parents after they graduate and find jobs. Do the advantages of this trend outweigh its disadvantages?
+
+![](./IELTS/homework1.png)
