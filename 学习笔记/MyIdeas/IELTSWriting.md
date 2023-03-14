@@ -166,3 +166,110 @@
 概括好处太费时间，容易写不完
 
 考虑时间成本强烈建议用套句
+
+## 怎么过渡
+
+**不建议用长句，就用简单句**，容易给考官感觉凡是水话套话就写得好，和文章有关的都写得不好，被扣分，所以还是朴素一点好
+
+### 开头之后怎么过渡到主体段
+
+* 难的：写个过渡句
+  * The reasons for this trend may involve the recognition that .I(剑5-2)
+  * The obvious argument in its favor is that ... ( 9-1)不写过渡句(剑10-3)
+* 容易的：不写过渡句
+  * The first benefit is ......
+  * To begin with, ......
+  * First of all, ......
+  * It is widely agreed ......
+  * There is no doubt that ......
+  * There is no denying that ......
+
+不要写太难，写点朴素的，不然太高大上和后面不协调
+
+### 从好处段到弊端段的过渡
+
+* There are, however, some disadvantages. (剑9-1)
+* However, there are certainly dangers in taking time off at that important age. (剑 5-2)
+* Although ...... has quite a number of advantages, there exist some problems.
+* Despite all these benefits, people should not ignore the fact that ...... also causes many problems.
+* However, ...... has its drawbacks when it brings us all these benefits.
+
+### 从主体段过渡到结尾段
+
+* Overall
+* In conclusion
+* To sum up
+* My view is that
+* Based on the points outlined above, I believe that ......
+* From what has been discussed above, we can come to the conclusion that
+
+## 中间段怎么扩展
+
+继续题1: People these days can buy various goods on the internet Do you think the benefits of online shopping outweigh its drawbacks? 2017-11-11
+
+### 因果论证：为什么，怎么样，结果怎样
+
+* 好处一：方便，省时间
+  * 哪个做中心？方便做中心句
+  * 为什么方便：做头脑风暴的时候想到的一些官点合并同类项
+    * 网上下单，place orders，click on the button
+    * 送货上门，door-to-door delivery，delivery to the house
+    * 足不出户，leave the home，stay at home
+
+第一句：
+**The first benefit is that consumers can buy various goods conveniently without leaving their homes, saving them a great deal of time.**
+
+不要把脑子当百度翻译，用介词，不定式，分词把句子延长
+
+第二句可以解释节约时间的原因
+
+第二句版本一：
+**After the goods are ordered on the web, they will be delivered to the house.**
+再延长
+at a certain time
+as required by the buyer
+
+第二句版本二：
+**They can enjoy door-to-door delivery service by clicking on the button and placing the order on the web.**
+
+第二句容易的版本：
+**They can enjoy door-to-door delivery service and then the goods will be sent to their houses.**
+
+第三句可以解释节约时间的结果：满足现在人的需求，做自己喜欢做的事情
+
+**This mode can meet the demands for people in the modern society**
+延长
+because people are always too busy with their work.
+
+### 对比论证：把话反着说
+
+讲别人不好
+
+By contrast, before the advent (arrival, appearance) of online shops, people have to walk to the store and market and carry the goods back to home in person.
+
+### 继续
+
+* 第二个好处：省钱，买到便宜货
+  * 网店没有房租
+  * 价格便宜
+  * 货比三家
+
+第三句版本一
+In addition, buying things on the web enables people to compare the price of all goods and choose the relatively cheaper ones.
+
+没思路了？来**举例**，把商品和人物具体化，不要举自己
+
+第三句版本一继续
+For example, a young man can buy a new mobile phone at a low price after he reviews the list of all brands and makes the comparison carefully.
+
+把句子里面的各种东西具体化然后把前面的话再说一遍
+
+第三句版本二
+In addition, buying things on the web is a good way to save money. Without renting for the stores, sellers can provide the goods for consumers at lower prices.
+
+## 总结
+
+主体段三大方法
+* 因果论证：为什么，怎么样，结果怎样
+* 对比论证：把思路反着写
+* 举例论证：把思路用具体的例子来写
