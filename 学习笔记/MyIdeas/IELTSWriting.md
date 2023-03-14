@@ -1,4 +1,4 @@
-# 徐卫雅思写作笔记
+# 徐卫雅思写作笔记 第一课
 
 决定分数的因素：能力7、预测2、运气1
 
@@ -54,14 +54,18 @@
 4. 写文章
 5. 写完检查一下，修改明显的错误
 
-## 题1: People these days can buy various goods on the internet Do you think the benefits of online shopping outweigh its drawbacks? 2017-11-11
+## 开头怎么写
+
+题1: People these days can buy various goods on the internet Do you think the benefits of online shopping outweigh its drawbacks? 2017-11-11
+
+**开头写两句话，一句写背景一句写观点**
 
 ### 头脑风暴想观点
 
 * 好处：不用出门，节约时间，方便买到其他地方的产品，选择多，便宜，省钱，货比三家
 * 弊端：假货，实物不得没法试穿，过度消费，剁手，冲动购物
 
-### 写开头，背景+观点
+### 开头第一句，背景
 
 换词，切换主语，句子扩展和延长
 
@@ -101,3 +105,64 @@
 不同题目不同写法好写，随便选一个合适的
 
 #### 从句，并列，介词短语，动词不定式
+
+#### 练习
+
+题2： In some countries, more and more adults choose to continue living with their parents after they graduate and find jobs. Do you think the benefits outweigh its drawbacks(2015-4-30)
+
+* 头脑风暴想观点
+  * 好处:减少生活压力，省钱，省房租，年轻人可支配收入增加;照顾父母，联系紧密
+  * 弊端:依赖，不独立，没有隐私，代沟，生活习惯不同，矛盾
+* 写开头，背景+观点
+  * 换主语
+    * It is common for young people in many countries to live with their parents after they leave school and find jobs.
+  * 原因
+    * To 为了减轻生活压力，reduce pressure：
+    * Due to 房价太高： Due to the high price of housing, many young people choose to live with their parents, even after they have found jobs.
+  * 对比
+    * Traditionally, young people would leave their home after graduating from school, but now many of them choose to live with their parents.
+
+换句式可以避免换词的尴尬，比如 parents 换 father and mother 就尬的很
+
+考官着急下班，只要讲的东西合情合理就可以了，没人会和你抬杠的，不会抠逻辑漏洞
+
+### 开头第二句，观点
+
+#### 套句（易）
+
+观点都是套句，背下来上考场直接抄
+
+* I think the benefits of this trend outweigh its drawbacks.
+* I think this trend has both positive and negative outcomes.
+* This phenomenon has some benefits, but its drawbacks should not be ignored.
+* Although this phenomenon has some benefits, I am also concerned about its drawbacks.
+* This trend has some benefits, though there are some problems that should not be ignored.
+* This pattern has some benefits, although it may lead to some problems.
+
+**写背景是原创，写观点是套句**
+
+分数和开头没太大关系，主要决定于正文
+
+#### 概括好处（难）
+
+* This makes the process of shopping more convenient and enjoyable, although it may lead to some problems.
+* This can make the process of shopping more convenient, but it causes a series of problems that should not be ignored.
+
+## 总结
+
+* 开头段的写作(背景+个人观点)
+  * 背景句的写作技巧
+    1. 针对题目的关键词引出话题
+    2. 运用词汇替换和语法技巧(切换主语)
+    3. 增补一些句子成分
+       * 原因、结果、目的、对比、举例
+       * 从句、并列、介词短语、动词不定式
+* 观点句的写作技巧:
+  1. 可以使用套
+  2. 也可以把好处或者弊端具体化
+
+开头审题5分钟，第7分钟就要写完
+
+概括好处太费时间，容易写不完
+
+考虑时间成本强烈建议用套句
