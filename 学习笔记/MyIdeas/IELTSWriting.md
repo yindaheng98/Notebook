@@ -333,10 +333,16 @@ To sum up, online shopping is expected to grow raplidly and continuously, as it 
 
 ## 作业题
 
+### 题目一
+
 In some countries, the criminal trials are shown on TV and the general public can watch them. Do the advantages outweigh the disadvantages?
 
 ![](./IELTS/homework.png)
 
+### 题目二
+
 In some countries, more and more adults choose to continue living with their parents after they graduate and find jobs. Do the advantages of this trend outweigh its disadvantages?
 
 ![](./IELTS/homework1.png)
+
+把范文里的表达转化成自己的东西
