@@ -122,3 +122,22 @@ However, there are certainly dangers in taking time off at that important age. �
 培养的语感之后脑子里有关键词就能写文
 
 However, using nuclear power has potential risks. Accidents may happen as a result of technical failure, wrong operation or natural disasters.
+
+扩展
+However, using nuclear power has potential risks. This kind of energy is hard to control and accidents may happen as a result of *technical failure*, *wrong operation* or *natural disasters*. *Leakage* of nuclear waste and *radiation* would *cause catastrophic consequences* to the environment and *pose a threat to* people's and animals' health and safety.
+
+还想写？举例，把上面写过的再来一次
+There were many accidents that occurred in human history and as a result, the local ecological environment was completely destroyed and not restored yet. Numerous people suffered from cancer or other fatal diseases.
+
+再扩展
+There were many accidents that occurred in human history and as a result, the local ecological environment was completely destroyed and not restored yet. Numerous people exposed to radioactivity later suffered from cancer or other fatal diseases.
+
+## 总结
+
+第二次课总结:
+1. 驳论结构 (把刚刚写过的理由进行否定)
+2. 观点类题目的结构 (确定总论点) (审题，找同意和不同意的理由，某些题目类似于利弊分析)
+3. 开头段的写作技巧 (背景、题目观点、我的观点)
+4. 中间段的思路方法 (为什么、怎么样、结果怎样+**连词成句**有词就能造句)
+5. 结尾段的写法 (总结性+建设性)
+6. 范文中的红色标记词汇、造句技巧课程录屏复盘，仔细体会“审题”、“论点”和“思路课后作业可以用来练笔
