@@ -24,6 +24,20 @@
             "论文笔记"
         ]
     },
+    "2022顶会笔记.md": {
+        "title": "(Infocom2022) CASVA: Configuration-Adaptive Streaming for Live Video Analytics",
+        "created": "2022-12-09 20:35:40",
+        "updated": "2022-12-09 20:35:40",
+        "date": "2022-12-09 20:35:40",
+        "tags": [
+            "论文笔记",
+            "Infocom2022"
+        ],
+        "categories": [
+            "论文笔记"
+        ],
+        "cover": "/论文笔记/./i/CASVA.png"
+    },
     "AdderNet.md": {
         "title": "来自华为的AdderNet及其在超分辨率领域的应用",
         "created": "2021-05-05 13:06:30",
