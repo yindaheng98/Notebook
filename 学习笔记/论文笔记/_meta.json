@@ -26,9 +26,9 @@
     },
     "2022顶会笔记.md": {
         "title": "(Infocom2022) CASVA: Configuration-Adaptive Streaming for Live Video Analytics",
-        "created": "2022-12-09 20:35:40",
-        "updated": "2022-12-09 20:35:40",
-        "date": "2022-12-09 20:35:40",
+        "created": "2023-03-23 03:06:39",
+        "updated": "2023-03-23 03:06:39",
+        "date": "2023-03-23 03:06:39",
         "tags": [
             "论文笔记",
             "Infocom2022"
@@ -152,6 +152,18 @@
             "论文笔记"
         ],
         "cover": "/论文笔记/./i/ELF-LSTM.png"
+    },
+    "KeyDesignChoice.md": {
+        "title": "Key Design Choice",
+        "created": "2021-12-10 22:18:55",
+        "updated": "2021-12-10 22:18:55",
+        "date": "2021-12-10 22:18:55",
+        "tags": [
+            "论文笔记"
+        ],
+        "categories": [
+            "论文笔记"
+        ]
     },
     "LapSRN.md": {
         "title": "LapSRN",
