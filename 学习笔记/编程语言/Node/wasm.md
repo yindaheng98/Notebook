@@ -2,10 +2,12 @@
 
 [原文在此](https://blog.csdn.net/m0_61544080/article/details/121621524)
 
-<img src="https://img-blog.csdnimg.cn/img_convert/22b7e25948d3e023af5ffb805d0d429c.png" alt="">
+
+![](wasm/22b7e25948d3e023af5ffb805d0d429c.png)
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/483ab9391d2dcdf16fd9b06490f29e41.png" alt="">
+![](wasm/483ab9391d2dcdf16fd9b06490f29e41.png)
+
 
 # 这篇文章打算讲什么？
 
@@ -33,9 +35,11 @@
 首先先来看一下 JS 代码的执行过程：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/4fac0b340a3031ba690169b052b00968.png" alt="">
 
->上述是 Microsoft Edge 之前的 ChakraCore 引擎结构，目前 Microsoft Edge 的 JS 引擎已经切换为 V8。
+![](wasm/4fac0b340a3031ba690169b052b00968.png)
+
+
+&gt;上述是 Microsoft Edge 之前的 ChakraCore 引擎结构，目前 Microsoft Edge 的 JS 引擎已经切换为 V8。
 
 整体的流程就是：
 
@@ -67,7 +71,7 @@ asm.js 只提供两种数据类型：
 
 其他类似如字符串、布尔值或对象都是以数值的形式保存在内存中，通过 TypedArray 调用。整数和浮点数表示如下：
 
->`ArrayBuffer`对象、`TypedArray`视图和`DataView` 视图是 JavaScript 操作二进制数据的一个接口，以数组的语法处理二进制数据，统称为二进制数组。参考 [ArrayBuffer](https://es6.ruanyifeng.com/#docs/arraybuffer) 。
+&gt;`ArrayBuffer`对象、`TypedArray`视图和`DataView` 视图是 JavaScript 操作二进制数据的一个接口，以数组的语法处理二进制数据，统称为二进制数组。参考 [ArrayBuffer](https://es6.ruanyifeng.com/#docs/arraybuffer) 。
 
 
 ```js
@@ -118,7 +122,9 @@ function compiledCode(ptr) {
 相当于下面的过程：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/209f98969c623d68d9d675b828826761.png" alt="">
+
+![](wasm/209f98969c623d68d9d675b828826761.png)
+
 
 
 无需 Parser-Compiler，直接就可以执行，同时干掉了垃圾回收机制，而且 WASM 的静态强类型语言的特性可以进行最大程度的 JIT 优化。
@@ -129,7 +135,9 @@ function compiledCode(ptr) {
 我们可以通过一张图来直观了解 WebAssembly 在 Web 中的位置：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/b31d54a14547ae3c176f2c37fc78ecec.png" alt="">
+
+![](wasm/b31d54a14547ae3c176f2c37fc78ecec.png)
+
 
 
 WebAssembly（也称为 WASM），是一种可在 Web 中运行的全新语言格式，同时兼具体积小、性能高、可移植性强等特点，在底层上类似 Web 中的 JavaScript，同时也是 W3C 承认的 Web 中的第 4 门语言。
@@ -191,7 +199,9 @@ wat2wasm simple.wat -v
 输出结果如下：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/6d58d9b9f112adb8c672891c3987735c.png" alt="">
+
+![](wasm/6d58d9b9f112adb8c672891c3987735c.png)
+
 
 
 可以看到，WebAssembly 其实是二进制格式的代码，即使其提供了稍为易读的文本格式，也很难真正用于实际的编码，更别提开发效率了。
@@ -206,7 +216,7 @@ wat2wasm simple.wat -v
 JavaScript 添加了 **[WebAssembly 类型](https://www.assemblyscript.org/types.html#type-rules)**， 可以使用 [Binaryen](https://github.com/WebAssembly/binaryen) 将其编译成 WebAssembly。
 
 
->WebAssembly 类型大致如下：
+&gt;WebAssembly 类型大致如下：
 
 
 * i32、u32、i64、v128 等
@@ -216,20 +226,20 @@ JavaScript 添加了 **[WebAssembly 类型](https://www.assemblyscript.org/types
 Binaryen 会前置将 AssemblyScript 静态编译成强类型的 WebAssembly 二进制，然后才会交给 JS 引擎去执行，所以说虽然 AssemblyScript 带来了一层抽象，但是实际用于生产的代码依然是
 WebAssembly，保有 WebAssembly 的性能优势。AssemblyScript 被设计的和 TypeScript 非常相似，提供了一组内建的函数可以直接操作 WebAssembly 以及编译器的特性.
 
->内建函数：
+&gt;内建函数：
 
 
 * 静态类型检查：
-  - `function isInteger<T>(value?: T): ``bool` 等
+  - `function isInteger<t>(value?: T): ``bool` 等
 * 实用函数：
-  - `function sizeof<T>(): usize` 等
+  - `function sizeof<t>(): usize` 等
 * 操作 WebAssembly：
   - 数学操作
-    - `function clz<T>(value: T): T` 等
+    - `function clz<t>(value: T): T` 等
   - 内存操作
-    - `function load<T>(ptr: usize, immOffset?: usize): T` 等
+    - `function load<t>(ptr: usize, immOffset?: usize): T` 等
   - 控制流
-    - `function select<T>(ifTrue: T, ifFalse: T, condition: ``bool``): T` 等
+    - `function select<t>(ifTrue: T, ifFalse: T, condition: ``bool``): T` 等
   - SIMD
   - Atomics
   - Inline instructions
@@ -237,7 +247,7 @@ WebAssembly，保有 WebAssembly 的性能优势。AssemblyScript 被设计的�
 
 然后基于这套内建的函数向上构建一套标准库。
 
->标准库：
+&gt;标准库：
 * Globals
 * Array
 * ArrayBuffer
@@ -260,7 +270,7 @@ var arr = new Array<string>(10)
 // arr[0]; // 会出错 😢
 
 // 进行初始化
-for (let i = 0; i < arr.length; ++i) {
+for (let i = 0; i &lt; arr.length; ++i) {
   arr[i] = ""
 }
 arr[0]; // 可以正确工作 😊
@@ -295,11 +305,11 @@ import { doSomething } from "./env";
 一个大段代码、使用类的例子：
 
 ```ts
-class Animal<T> {
+class Animal<t> {
   static ONE: i32 = 1;
   static add(a: i32, b: i32): i32 { return a + b + Animal.ONE; }
 
-  two: i16 = 2; // 6   instanceSub<T>(a: T, b: T): T { return a - b + <T>Animal.ONE; } // tsc does not allow this }
+  two: i16 = 2; // 6   instanceSub<t>(a: T, b: T): T { return a - b + <t>Animal.ONE; } // tsc does not allow this }
 
 export function staticOne(): i32 {
   return Animal.ONE;
@@ -329,7 +339,7 @@ AssemblyScript 为我们打开了一扇新的大门，可以以 TS 形式的语�
 AssemblyScript 构建的产物：[https://www.assemblyscript.org/built-with-assemblyscript.html#games](https://www.assemblyscript.org/built-with-assemblyscript.html#games)
 
 
->上面是使用 AssemblyScript 构建的一个五子棋游戏。
+&gt;上面是使用 AssemblyScript 构建的一个五子棋游戏。
 
 
 ## 一种鬼才哲学：将 C/C++ 代码跑在浏览器
@@ -346,19 +356,23 @@ WebAssembly 生态，将它们运行在 Web、Node.js 中。
 幸运的是，针对 C/C++ 已经有 [Emscripten](https://github.com/emscripten-core/emscripten) 这样优秀的编译器存在了。
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/f7d05625019a486047d30d471815935f.png" alt="">
+
+![](wasm/f7d05625019a486047d30d471815935f.png)
+
 
 
 可以通过下面这张图直观的阐述 Emscripten 在开发链路中的地位：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/bcc371762bdab5d31e56e344494b0d6b.png" alt="">
+
+![](wasm/bcc371762bdab5d31e56e344494b0d6b.png)
+
 
 
 即将 C/C++ 的代码（或者 Rust/Go 等）编译成 WASM，然后通过 JS 胶水代码将 WASM 跑在浏览器中（或 Node.js）的 runtime，如 ffmpeg 这个使用 C 编写音视频转码工具，通过
 Emscripten 编译器编译到 Web 中使用，可直接在浏览器前端转码音视频。
 
->上述的 JS “Gule” 代码是必须的，因为如果需要将 C/C++ 编译到 WASM，还能在浏览器中执行，就得实现映射到 C/C++ 相关操作的 Web API，这样才能保证执行有效，这些胶水代码目前包含一些比较流行的 C/C++ 库，如 [SDL](https://en.wikipedia.org/wiki/Simple_DirectMedia_Layer)、[OpenGL](https://en.wikipedia.org/wiki/OpenGL)、[OpenAL](https://en.wikipedia.org/wiki/OpenAL)、以及 [POSIX](https://en.wikipedia.org/wiki/POSIX) 的一部分 API。
+&gt;上述的 JS “Gule” 代码是必须的，因为如果需要将 C/C++ 编译到 WASM，还能在浏览器中执行，就得实现映射到 C/C++ 相关操作的 Web API，这样才能保证执行有效，这些胶水代码目前包含一些比较流行的 C/C++ 库，如 [SDL](https://en.wikipedia.org/wiki/Simple_DirectMedia_Layer)、[OpenGL](https://en.wikipedia.org/wiki/OpenGL)、[OpenAL](https://en.wikipedia.org/wiki/OpenAL)、以及 [POSIX](https://en.wikipedia.org/wiki/POSIX) 的一部分 API。
 
 
 
@@ -380,24 +394,28 @@ Emscripten 编译器编译到 Web 中使用，可直接在浏览器前端转码�
 所以从初衷出发，WebAssembly 的作用更适合下面这张图：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/8db810a71c6bcb688816f7b2953bfaa2.png" alt="">
+
+![](wasm/8db810a71c6bcb688816f7b2953bfaa2.png)
+
 
 
 WASM 桥接各种系统编程语言的生态，近一步补齐了 Web 开发生态之外，还为 JS 提供性能的补充，正是 Web 发展至今所缺失的重要的一块版图。
 
->Rust Web Framework：[https://github.com/yewstack/yew](https://github.com/yewstack/yew)
+&gt;Rust Web Framework：[https://github.com/yewstack/yew](https://github.com/yewstack/yew)
 
 
 # 深入探索 Emscripten
 
->地址：[https://github.com/emscripten-core/emscripten](https://github.com/emscripten-core/emscripten)
->下面所有的 demo 都可以在仓库：[https://code.byted.org/huangwei.fps/webassembly-demos/tree/master](https://code.byted.org/huangwei.fps/webassembly-demos/tree/master)找到
->Star：21.4K
->维护：活跃
+&gt;地址：[https://github.com/emscripten-core/emscripten](https://github.com/emscripten-core/emscripten)
+&gt;下面所有的 demo 都可以在仓库：[https://code.byted.org/huangwei.fps/webassembly-demos/tree/master](https://code.byted.org/huangwei.fps/webassembly-demos/tree/master)找到
+&gt;Star：21.4K
+&gt;维护：活跃
 
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/fdab0ea6d987131c3a89653759d46b92.png" alt="">
+
+![](wasm/fdab0ea6d987131c3a89653759d46b92.png)
+
 
 
 Emscripten 是一个开源的，跨平台的，用于将 C/C++ 编译为 WebAssembly 的编译器工具链，由 LLVM、Binaryen、Closure Compiler 和其他工具等组成。
@@ -413,7 +431,9 @@ Web/Node.js API 的映射，这份映射存在于编译之后的 JS 胶水代码
 再看下面这张图，红色部分为 Emscripten 编译后的产物，绿色部分为 Emscripten 为保证 C/C++ 代码能够运行的一些 runtime 支持：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/d13e2d64d38e8535a57142749e8b96fc.png" alt="">
+
+![](wasm/d13e2d64d38e8535a57142749e8b96fc.png)
+
 
 ## 简单体验一下 “Hello World”
 
@@ -496,7 +516,9 @@ node a.out.js
 会输出 `"hello, world!"` ，我们成功将 C/C++ 代码运行在了 Node.js 环境。
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/8e4a718982a500bb73d2788a594c6a41.png" alt="">
+
+![](wasm/8e4a718982a500bb73d2788a594c6a41.png)
+
 
 
 接下来我们尝试一下将代码运行在 Web 环境，修改编译代码如下：
@@ -512,7 +534,7 @@ emcc main.c -o main.html
 * `main.wasm` WASM 代码
 * `main.html` 加载胶水代码，执行 WASM 的一些逻辑
 
->Emscripten 生成代码有一定的规则，具体可以参考：[https://emscripten.org/docs/compiling/Building-Projects.html#emscripten-linker-output-files](https://emscripten.org/docs/compiling/Building-Projects.html#emscripten-linker-output-files)
+&gt;Emscripten 生成代码有一定的规则，具体可以参考：[https://emscripten.org/docs/compiling/Building-Projects.html#emscripten-linker-output-files](https://emscripten.org/docs/compiling/Building-Projects.html#emscripten-linker-output-files)
 
 
 
@@ -528,13 +550,17 @@ npx serve .
 打开网页，访问 [localhost:3000/main.html](http://localhost:3000/main.html)，可以看到如下结果：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/61834ddc3a88834e2c06634dac7973e8.png" alt="">
+
+![](wasm/61834ddc3a88834e2c06634dac7973e8.png)
+
 
 
 同时开发者工具里面也会有相应的打印输出：
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/fee633db283ec5cef5b44d3dd96f5d7f.png" alt="">
+
+![](wasm/fee633db283ec5cef5b44d3dd96f5d7f.png)
+
 
 
 我们成功的将 C 代码跑在了 Node.js 和浏览器！
@@ -548,7 +574,7 @@ npx serve .
 但是这篇文章没有涉及到的内容有 [WASI](https://github.com/WebAssembly/WASI)，一种将 WebAssembly 跑在任何系统上的标准化系统接口，当 WebAssembly
 的性能逐渐增强时，WASI 可以提供一种恰是可行的方式，可以在任意平台上运行任意的代码，就像 Docker 所做的一样，但是不需要受限于操作系统。正如 Docker 的创始人所说：
 
->“ 如果 WASM+WASI 在 2008 年就出现的话，那么就不需要创造 Docker 了，服务器上的 WASM 是计算的未来，是我们期待已久的标准化的系统接口。
+&gt;“ 如果 WASM+WASI 在 2008 年就出现的话，那么就不需要创造 Docker 了，服务器上的 WASM 是计算的未来，是我们期待已久的标准化的系统接口。
 
 
 
@@ -561,7 +587,9 @@ npx serve .
 同时 WebAssembly 也是由 W3C 主要负责开发，各大厂商，包括 Microsoft、Google、Mozilla 等赞助和共同维护的一个项目，相信 WebAssembly 会有一个非常值得期待的未来。
 
 
-<img src="https://img-blog.csdnimg.cn/img_convert/ea0f2aa54e85216e5ad7e4b342ad09c0.png" alt="">
+
+![](wasm/ea0f2aa54e85216e5ad7e4b342ad09c0.png)
+
 
 # 参考链接
 
@@ -579,3 +607,4 @@ npx serve .
 * [https://qdmana.com/2021/04/20210401214625324n.html](https://qdmana.com/2021/04/20210401214625324n.html)
 * [https://github.com/leandromoreira/ffmpeg-libav-tutorial](https://github.com/leandromoreira/ffmpeg-libav-tutorial)
 * [http://ffmpeg.org/doxygen/4.1/examples.html](http://ffmpeg.org/doxygen/4.1/examples.html)
+</stdio.h></f32></f32></i32></t></t></t></string></t></t></t></t></t>
