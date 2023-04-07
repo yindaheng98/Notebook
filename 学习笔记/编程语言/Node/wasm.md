@@ -1,3 +1,7 @@
+# 【转载】为什么说 WASM 是 Web 的未来？
+
+[原文在此](https://blog.csdn.net/m0_61544080/article/details/121621524)
+
 <img src="https://img-blog.csdnimg.cn/img_convert/22b7e25948d3e023af5ffb805d0d429c.png" alt="">
 
 
