@@ -49,3 +49,34 @@ section4填空题到底在考什么词？90%是名词! 10%是形容词!
 除了名词之外很多东西都是废话
 
 **审题：空格前后的名词就是定位词，听到定位词就往前后找几个词找到答案，要填的词不会和定位词离很远**
+
+## 2023年5月 高频填空词 活跃词库
+
+短期冲刺备考主要听写难词
+
+英|中|注意
+-|-|-
+bonus|奖金|
+parade|游行|
+castle|城堡|
+evaporation|水蒸气|
+balloon|气球|
+equipment| |不可数
+feedback| |不可数
+cookery|烹饪课
+accurate| |否定前缀 inaccurate
+satellite|
+profile|
+buffet|自助餐
+feather|羽毛
+ink|
+string|
+lead|铅
+nursery|婴儿房
+caravan|房车
+erosion|水土流失
+genetic| |容易加al
+origin|
+manual|手动的
+helmet|头盔
+protein|蛋白质
