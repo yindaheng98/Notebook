@@ -68,7 +68,9 @@ Coal produced (generated, contributed) 50% of electricity.
 
 Turkish people spent the highest percentage on food, drinks and tobaccp (almost one third), closely followed by Irish people (nearly 30%). The figure in Sweden, Italy and Spain were much smaller and they were all less than 20%.
 
-The expenditure on leisure and education in Turkey was 4.35%, which was nearly twice as much as the percentage in Ireland (2.21%). By contrast, Spanish people spent the lowest proportion on this item (1.98%). Swedish and Italian people spent almost the same percentage.
+The expenditure on leisure and education in Turkey was 4.35%, which was nearly twice as much as the percentage in Ireland (2.21%). **By contrast**, Spanish people spent the lowest proportion on this item (1.98%). Swedish and Italian people spent almost the same percentage.
+
+饼图直接说百分比好了
 
 43%的人因为家人朋友留在英国
 
