@@ -346,3 +346,15 @@ In some countries, more and more adults choose to continue living with their par
 ![](./IELTS/homework1.png)
 
 把范文里的表达转化成自己的东西
+
+## 新课（待整理）
+
+Set rules for children
+
+Parents needs to set some rules for children, which is beneficial to children's growth.
+
+Parents needs to set some rules for them as children cannot distinguish right from wrong.
+
+Parents needs to set some rules for children as children do not know what behavior is premitted and what is not.
+
+Setting rules for children is a common method adopted by parents
