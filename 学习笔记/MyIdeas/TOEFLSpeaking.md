@@ -19,8 +19,24 @@
 * 答：I think speakers with controversial opinions should not be prevented from speaking at university. Universities are **places for open debate**. Students should receive opinions from different directions, which can help them develop **critical thinking** skills in the debates. Also, universities have a responsibility to **promote free speech** and **academic freedom**. If not, they risk **becoming echo chambers**, and only certain opinions are allowed to be expressed. So universities should not limit the speakers to expressing their opinions.
 
 * 问：Some professors allow students who have not done well on graded assignments during a course to do additional assignments in order to improve their overall course grade. Do you think this is a good idea?
-* 答：I think this is a good idea. The aim of assignments should not be to **screen the students** but to **stimulate their understanding of the knowledge**. Students who receive low grades may not fully **comprehend the course content**. Therefore, providing additional assignments can be a way to **encourage them to gain a better understanding** of the material. Besides, a **low grade doesn't necessarily imply that the student lacks comprehension** of the course material. They may only not feel well during the exam or have other issues. Additional assignments can **demonstrate their understanding** of the course material.
+* 答：I think this is a good idea. The aim of assignments should not be to **filter the students** but to **stimulate their understanding of the knowledge**. Students who receive low grades may not fully **comprehend the course content**. Therefore, providing additional assignments can be a way to **encourage them to gain a better understanding** of the material. Besides, a **low grade doesn't necessarily imply that the student lacks comprehension** of the course material. They may only not feel well during the exam or have other issues. Additional assignments can **demonstrate their understanding** of the course material.
 
+* 问：Some people think that schools should assign projects and other work for students to complete over vacation before the beginning of the school year. Others think that schoolwork should only be assigned during the actual academic year. Which opinion do you agree with?
+* 纲：
+  * 总：表明观点
+  * 分：提前熟悉内容
+    * comprehend the course content
+    * learn more effectively
+  * 分：保持学习状态
+    * stay engaged with academic work
+    * keep minds active
+  * 总：可以使学生准备好新学期
+    * well-prepared for the incoming term
+* 答：
+  * 总：I think assigning projects for students to complete over vacation is a good idea. 
+  * 分：First, assigned projects during the vacation would encourage students to **comprehend the course content** before the new term begins, which would help them **learn more effectively** in the incoming term. 
+  * 分：Second, when students are given tasks to complete during their vacation time, they are more likely to stay engaged with their academic work and keep their minds active. 
+  * 总：Therefore, assigning projects on vacation would make students **well-prepared for the incoming term**, so it is a good idea.
 
 #### 人际
 #### 工作
