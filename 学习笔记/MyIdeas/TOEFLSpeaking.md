@@ -69,6 +69,20 @@
   * 分：Second, when students are given tasks to complete during their vacation time, they are more likely to stay engaged with their academic work and keep their minds active. 
   * 总：Therefore, assigning projects on vacation would make students **well-prepared for the incoming term**, so it is a good idea.
 
+* 问：When you have problems with schoolwork, would you ask for help or favor from your friends who have the relevant information/knowledge or professional tutors?
+* 纲：
+  * 总：表明观点
+  * 分：教授不容易见到
+    * make an appointment
+    * meet at his or her office time
+  * 分：自己解决问题才叫学习，大部分问题都能解决
+    * way to comprehend the course content
+    * discussion promoted my understanding of the knowledge
+* 答：
+  * 总：I will first discuss this with my friends.
+  * 分：Most importantly, it is much easier to meet my friends than meet our professor. I can meet my friends every day, but for the professor, I should make an appointment and can only meet at his or her office time. You know, professors are busy and difficult to meet.
+  * 分：Another reason is that I believe solving the problem by ourselves in schoolwork is the way to comprehend the course content. Our professor should know that and take time to design the schoolwork. In my case, most of the problems can be solved by discussing with classmates, and this discussion promoted my understanding of the knowledge.
+
 #### 人际
 #### 工作
 #### 娱乐
