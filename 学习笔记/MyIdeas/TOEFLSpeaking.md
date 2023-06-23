@@ -13,6 +13,8 @@
 
 ### 话题分类准备
 
+**1找词2拼句**
+
 #### 教育
 
 * 问：Your university is organizing a series of guest lectures. Some people think that speakers with controversial opinions should not be invited to speak at the university. Others believe that the university should feature a variety of speakers, regardless of their opinions. Which point of view do you agree with? Explain why, using details and examples in your response.
@@ -85,7 +87,7 @@
 
 * 问：It is necessary to have a good teacher for students to learn new knowledge and skills.
 * 纲：
-  * 总：表明观点
+  * 总：表明观点——好老师
   * 分：好老师对知识的理解更加深入，从而帮助学生学得更快
     * deeper insight into the knowledge
     * help students learn more effectively
@@ -96,6 +98,17 @@
 #### 工作
 
 * 问：Do you prefer to accept a job that pays well or a job that offers higher personal satisfaction but doesn't pay well?
+* 找词：
+  * 总：表明观点——要钱
+  * 分：找工作不能只考虑自己的兴趣，更重要的是给家人更好的生活
+    * interest should not be the only factor
+    * earn money
+    * provide a better life for my family
+  * 分：兴趣会变化，有钱可以支持其他兴趣
+    * job that offers higher personal satisfaction cannot always offers personal satisfaction
+    * interest may change
+    * earn more money can support other interest
+* 拼句：
 
 #### 娱乐
 #### 生活
