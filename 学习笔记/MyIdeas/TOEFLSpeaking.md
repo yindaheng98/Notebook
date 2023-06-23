@@ -94,16 +94,19 @@
 
 #### 人际
 #### 工作
+
+* 问：Do you prefer to accept a job that pays well or a job that offers higher personal satisfaction but doesn't pay well?
+
 #### 娱乐
 #### 生活
 
 ## Part 3
 
-一篇阅读
-
-听力里两个例子
+一篇阅读+听力里两个例子
 
 初学起步120词，最多不能超过150词
+
+![](./TOEFL/SpeakingP3.png)
 
 ### 记笔记
 
@@ -114,6 +117,26 @@
 避免3秒以上停顿
 
 ### 模板
+
+### 逐字稿联系记录
+
+#### Official 43 Speaking 4
+
+##### 初版
+
+The lecture is about the factors that affect the population of species. The professor gave two examples to indicate how biotic and abiotic factors affect the population.
+
+The first is about mase and awes. Mase is eaten by the awes, so when the population of awes increases, the population of Mase will drop.
+
+The second is about the rabbit and winter. Since rabbits will reproduce in the spring, if the winter is short, rabbits will begin reproduction earlier, so the population will increase.
+
+##### 改进
+
+The lecture is about the factors that affect the population of species. The professor gave two examples to indicate how biotic and abiotic factors affect the population.
+
+The first is about mise and owls. Mise is eaten by the owls, so the number of mice depends upon the number of owls. When the population of owls increases, the population of mise will drop.
+
+The second is about the rabbit and winter. Rabbits have their young at the end of the winter and keep reproducing until the next winter. So if there is a year that winter is short, the rabbits will start reproducing earlier and reproduce more rabbits.
 
 #### Task2 
 
