@@ -94,6 +94,19 @@
   * 分：好老师有更好的经验，有书本上学不到的知识，用工科举例，用反面填充细节
     * learning by themselves in practice
 
+* 问：You need to take a history class as part of your graduation requirements, and you have two choices that fit into your schedule. In both classes, only the professor gives a grade to the research papers. However, in one of the classes, the students also read and provide feedback for other students’ papers. Which class would you prefer to take?
+* 纲：
+  * 总：表明观点——from other students’ papers
+  * 分：获取更加丰富的知识
+    * filter the students
+    * stimulate their understanding of the knowledge
+    * learn from other students paper
+    * enhance the comprehension of course content
+  * 分：增加交流
+    * interaction among students
+    * students may find interesting papers and discuss with other students
+    * lead to meaningful class discussions
+
 #### 人际
 #### 工作
 
@@ -113,6 +126,16 @@
 #### 娱乐
 #### 生活
 
+## Part 2 
+
+According to the announcement / proposal / letter ...
+
+The student (does not) think this is a great idea for two reasons.
+
+First, he/she mentions that ... Because ... Therefore, ...
+
+Besides, he/she also mentions that ... Because ... As a result, ...
+
 ## Part 3
 
 一篇阅读+听力里两个例子
@@ -120,6 +143,12 @@
 初学起步120词，最多不能超过150词
 
 ![](./TOEFL/SpeakingP3.png)
+
+The reading talks about the term of ..., which refers to ...
+
+First, he/she mentions that ... For example
+
+Second, he/she also mentions that
 
 ### 记笔记
 
@@ -151,25 +180,21 @@ The first is about mise and owls. Mise is eaten by the owls, so the number of mi
 
 The second is about the rabbit and winter. Rabbits have their young at the end of the winter and keep reproducing until the next winter. So if there is a year that winter is short, the rabbits will start reproducing earlier and reproduce more rabbits.
 
-#### Task2 
+##### 纲
 
-According to the announcement / proposal / letter ...
+* 总
+  * 影响物种数量的两个因素
+  * professor给了biotic和abiotic两个例子
+* 分
+  * mise and owls
+  * 被吃，所以种群数量依赖
+  * 🦅多吃得多mise少
+* 分
+  * rabbit and winter
+  * rabbit在winter末期生育
+  * winter短rabbit生的多
 
-The student (does not) think this is a great idea for two reasons.
-
-First, he/she mentions that ... Because ... Therefore, ...
-
-Besides, he/she also mentions that ... Because ... As a result, ...
-
-#### Task3
-
-The reading talks about the term of ..., which refers to ...
-
-First, he/she mentions that ... For example
-
-Second, he/she also mentions that
-
-#### Task4
+## Part 4
 
 In the lecture, the professor talks about xxx, which is ...
 
