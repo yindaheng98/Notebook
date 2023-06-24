@@ -136,6 +136,16 @@ First, he/she mentions that ... Because ... Therefore, ...
 
 Besides, he/she also mentions that ... Because ... As a result, ...
 
+### 逐字稿联系记录
+
+#### Official 50 Speaking 3
+
+The men agree with the opinion since
+
+At first, he thinks this is a waste of money. He thinks the money should be used for more valuable projects. He mentioned a library project that stuck for a long time, which disappointed him and his friends.
+
+Second, he thinks this is not good for the sky environment. It will bother the telescope that sees the star in the sky. This is related to an astronomy project, without this they can only see the stars in the textbook.
+
 ## Part 3
 
 一篇阅读+听力里两个例子
@@ -201,6 +211,8 @@ In the lecture, the professor talks about xxx, which is ...
 First, the professor discusses...
 
 Second, he/she further discusses ...
+
+### 逐字稿联系记录
 
 #### Official 53 Speaking 6
 
