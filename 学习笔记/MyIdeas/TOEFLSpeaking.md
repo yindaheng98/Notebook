@@ -201,3 +201,13 @@ In the lecture, the professor talks about xxx, which is ...
 First, the professor discusses...
 
 Second, he/she further discusses ...
+
+#### Official 53 Speaking 6
+
+##### 初版
+
+The professor introduced two ways to prevent food from spoil. 
+
+The first is about temperature. Foods get spoiled mainly because of bacteria. When the temperature is low, bacteria will grow slower. The professor takes fish as the example. When fish is frozen, it will last long, because bacteria grow slowly in low temperature. 
+
+The second is about moisture. Moisture is important to the growth of bacteria, bacteria cannot grow without it. The professor takes milk as example. Power milk last longer than liquid milk. Since the moisture is removed, bacteria cannot grow.
