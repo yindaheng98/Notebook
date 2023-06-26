@@ -107,6 +107,18 @@
     * students may find interesting papers and discuss with other students
     * lead to meaningful class discussions
 
+* 问：Some high schools require students to pass a physical fitness exam, in which they are tested on their ability to perform certain physical activities, such as running and swimming, in order to graduate. Do you think this is a good idea?
+* 纲：
+  * 总：is a good idea
+    * 分：保持身体健康，预防疾病
+      * add physical fitness exam can stimulate their exercise
+      * exercise become their habit
+      * prevent them from common diseases, especially obesity
+    * 分：运动让人心情舒畅，更有利于学习，养成习惯更有利于日后工作
+      * research shows exercise can help students learn more efficiently
+      * add physical fitness exam will help them with their study works
+
+
 #### 人际
 #### 工作
 
@@ -121,7 +133,33 @@
     * job that offers higher personal satisfaction cannot always offers personal satisfaction
     * interest may change
     * earn more money can support other interest
-* 拼句：
+
+* 问：Do you think employees should finish multiple tasks simultaneously or concentrate on one task and complete it as perfectly as possible?
+* 找词：
+  * 总：表明观点——专注
+  * 分：人的精力是有限的，同时做多个事效率低下，容易累
+    * human attention is limited
+    * working on multiple tasks simultaneously will decrease efficiency
+    * easily become tired
+  * 分：把事情做好更有利于公司发展，服务质量对公司更重要
+    * In the contract
+    * concentrate on one task let people do better
+    * it is good for the company
+    * give better services to the customers, therefore customers are more likely to choose at next time
+  * 总：Therefore, concentrate on one task is not only beneficial for ourselves, but also beneficial for our company
+
+* 问：Some people prefer to finish a task as quickly as possible while others like to take their time to do the task. Which do you prefer?
+* 纲：
+  * 总：prefer finish a task as quickly as possible
+  * 分：做更重要的事，陪伴家人
+    * task is not all of our life
+    * cannot help us 
+  * 分：增加工作效率
+    * we are thinking about how to improve working efficiency
+    * we will propose some methods to improve working efficiency
+    * help other people improve
+    * help our company
+总：Therefore, finishing a task as quickly as possible is not only beneficial for ourselves, but also beneficial for our company
 
 #### 娱乐
 #### 生活
@@ -136,7 +174,9 @@ First, he/she mentions that ... Because ... Therefore, ...
 
 Besides, he/she also mentions that ... Because ... As a result, ...
 
-### 逐字稿联系记录
+![](./TOEFL/SpeakingT2.png)
+
+### 逐字稿练习记录
 
 #### Official 50 Speaking 3
 
@@ -160,6 +200,8 @@ First, he/she mentions that ... For example
 
 Second, he/she also mentions that
 
+![](./TOEFL/SpeakingT3.png)
+
 ### 记笔记
 
 记逻辑，逻辑只有两种重要：对比/因果
@@ -168,9 +210,7 @@ Second, he/she also mentions that
 
 避免3秒以上停顿
 
-### 模板
-
-### 逐字稿联系记录
+### 逐字稿练习记录
 
 #### Official 43 Speaking 4
 
@@ -212,7 +252,9 @@ First, the professor discusses...
 
 Second, he/she further discusses ...
 
-### 逐字稿联系记录
+![](./TOEFL/SpeakingT3.png)
+
+### 逐字稿练习记录
 
 #### Official 53 Speaking 6
 
@@ -223,3 +265,9 @@ The professor introduced two ways to prevent food from spoil.
 The first is about temperature. Foods get spoiled mainly because of bacteria. When the temperature is low, bacteria will grow slower. The professor takes fish as the example. When fish is frozen, it will last long, because bacteria grow slowly in low temperature. 
 
 The second is about moisture. Moisture is important to the growth of bacteria, bacteria cannot grow without it. The professor takes milk as example. Power milk last longer than liquid milk. Since the moisture is removed, bacteria cannot grow.
+
+#### Official 44 Speaking 6
+
+The professor introduced two ways that animals can benefit from forest fires.
+
+First is that forest fires help predators to find food
