@@ -1,5 +1,13 @@
 # 托福口语
 
+## 考试感觉记录
+
+考试次数|分数|考试感觉
+-|-|-
+1|18|首考
+2|22|初步练习，流畅了一些，但结尾剩余时间较多，靠后的采分点说的少
+3|??|进一步练习，更加流畅，细节更多，但靠后的采分点说的少，有个答案甚至被截断
+
 ## Part 1
 
 ![](./TOEFL/Speaking.png)
@@ -243,6 +251,12 @@ The second is about the rabbit and winter. Rabbits have their young at the end o
   * rabbit and winter
   * rabbit在winter末期生育
   * winter短rabbit生的多
+
+#### Official 44 Speaking 4
+
+The agonistic behavior is that when animals have conflict on food, they will participate in a competition and show their strength, without harming each other.
+
+The professor takes rattlesnakes as example. When two rattlesnakes found the same hole, and both of them want to own it, they will make their body seen as tall as possible and push each other, but they will not bite each other. When one pushes the other rattlesnake to the ground, it will just release the other.
 
 ## Part 4
 
