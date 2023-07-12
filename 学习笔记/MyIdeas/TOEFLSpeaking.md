@@ -194,6 +194,27 @@ At first, he thinks this is a waste of money. He thinks the money should be used
 
 Second, he thinks this is not good for the sky environment. It will bother the telescope that sees the star in the sky. This is related to an astronomy project, without this they can only see the stars in the textbook.
 
+#### Official 66 Speaking 2
+
+##### 范例
+
+In the reading, the student proposes that the university should prohibit students from playing sports on the dining hall lawn because this will make the grass look nicer and instead, students can use the field next to the gym as a substitute. In the listening, the woman totally disagrees with this proposal because she thinks that the students who play sports aren’t the ones who are responsible. In fact, everybody crosses the lawn every day since it is centrally located. And they don't even bother walking on the sidewalks because usually people are in a hurry to get to class. On top of that, the substitute is not very good since in order to use that, students need to walk for a long distance. But actually, sometimes they just want to have a little fun in between classes. So they will not bother going that far.
+
+##### 踩分点
+
+* Reading
+  * the university should ban sports on the grass in front of the hall
+    * make the grass look nicer
+  * use the field next to the gym for sport
+* Listening
+  * ban sports does not make sense
+    * import way in university
+    * lots of people go through there every day
+    * ban sports cannot make things better
+  * gym is inconvient
+    * far away
+    * people just want little fun between class
+
 ## Part 3
 
 一篇阅读+听力里两个例子
