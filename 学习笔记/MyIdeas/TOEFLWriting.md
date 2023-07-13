@@ -6,7 +6,7 @@
 -|-|-|-
 1|22|首考没啥感觉|People in the past are more friendly than people today.
 2|18|没怎么练习，不知为何成绩会降低，可能是听力听的不够懂|通过哪种方式is better to provide children with exciting new experiences that stimulate their minds
-3|??|尽量听全写全了所有细节|卡点交卷，没时间检查；逻辑有点绕，论据对论点支持不太好，最后忘记点题
+3|24|尽量听全写全了所有细节|卡点交卷，没时间检查；逻辑有点绕，论据对论点支持不太好，最后忘记点题
 
 ![](./TOEFL/Writing1.png)
 
