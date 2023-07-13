@@ -6,7 +6,7 @@
 -|-|-
 1|18|首考
 2|22|初步练习，流畅了一些，但结尾剩余时间较多，靠后的采分点说的少
-3|??|进一步练习，更加流畅，细节更多，但靠后的采分点说的少，有个答案甚至被截断
+3|19|进一步练习，更加流畅，细节更多，但靠后的采分点说的少，有个答案甚至被截断
 
 ## Part 1
 
@@ -214,6 +214,31 @@ In the reading, the student proposes that the university should prohibit student
   * gym is inconvient
     * far away
     * people just want little fun between class
+
+#### Official 63 Speaking 2
+
+##### 范例
+
+In the reading, the University announces that students who are going to graduate will be able to use a new degree Navigator website to keep track of their requirements because this will make it easier for them to check the progress online and at the same time reduce the workload for academic advisers. In the listening, the man totally agrees with the announcement, because he says that students need to deal with a lot of classes for degree programs and it's easy for them to make a mess. Sometimes they even miss particular courses just like his friend whose graduation was delayed just because he didn't realize that he hadn't finished his history degree. Also, he thinks that the advisers who are mostly professors are really busy working, so this website will free them from redundant tasks and have more time to focus on serious things, like switching a major or doing internships.
+
+##### 踩分点
+
+* Reading
+  * new website
+    * keep track of their course
+  * easier for them to check the progress
+  * reduce the workload for academic advisers
+* Listening
+  * miss course
+    * lots of courses
+    * difficult to organize
+    * example: friend miss a course and graduation was delayed
+  * advisers who are mostly professors
+    * busy working
+    * free them from redundant tasks
+    * more time to focus on serious things
+      * switching a major
+      * doing internships
 
 ## Part 3
 
