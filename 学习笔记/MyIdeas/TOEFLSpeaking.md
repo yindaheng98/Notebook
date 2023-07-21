@@ -32,14 +32,16 @@
 
 ### Part 2
 
-阅读：
+阅读要记：
 * 什么发生了变化
-* 原因1核心
-* 原因2核心
+* 细节or原因1**核心词**
+* 细节or原因2**核心词**
+
+**不需要单独细讲阅读文本中的细节和理由！**只要讲干了什么就可以了！
 
 #### 答题模板
 
-According to the announcement / proposal / letter ...
+According to the announcement / proposal / letter, 什么发生了变化, (可选)<一句话简述细节or原因1+2>
 
 The student (does not) think this is a great idea for two reasons.
 
@@ -51,15 +53,15 @@ Besides, he/she also mentions that ... Because ... As a result, ...
 
 ### Part 3
 
+一篇阅读+听力里两个例子
+
+初学起步120词，最多不能超过150词
+
 **开头概述文章内容只讲核心！别讲细节！浪费时间**
 
 **主要讲听力内容！**
 
-文本内容只记下概念定义用于讲解，其他的都只用来辅助理解
-
-一篇阅读+听力里两个例子
-
-初学起步120词，最多不能超过150词
+**文本内容只记下概念定义用于讲解，其他的包括背景和细节都只用来辅助理解**
 
 ![](./TOEFL/SpeakingP3.png)
 
