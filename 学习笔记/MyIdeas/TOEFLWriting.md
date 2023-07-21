@@ -7,6 +7,7 @@
 1|22|首考没啥感觉|People in the past are more friendly than people today.
 2|18|没怎么练习，不知为何成绩会降低，可能是听力听的不够懂|通过哪种方式is better to provide children with exciting new experiences that stimulate their minds
 3|24|尽量听全写全了所有细节，每段最后都有总结句|卡点交卷，没时间检查；逻辑有点绕，论据对论点支持不太好，但每段最后都有总结句，最后忘记点题
+4|21|尽量听全写全了所有细节，但仍有要点遗漏，仅部分段最后都有总结句|卡点交卷，没时间检查；逻辑有点绕，论点不太好，仅部分段最后都有总结句，最后点题比较好
 
 **每段最后都加个总结句！**
 
