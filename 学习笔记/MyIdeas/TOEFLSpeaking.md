@@ -83,6 +83,14 @@ Second, he/she also mentions that
 
 ## Part 4
 
+要记：
+* 核心概念
+* 案例逻辑
+
+**记对比+因果！对比+因果！对比+因果！**对比因果是踩分点！
+
+**核心概念降语速！**
+
 In the lecture, the professor talks about xxx, which is ...
 
 First, the professor discusses...
