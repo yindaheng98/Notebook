@@ -153,18 +153,6 @@
         ],
         "cover": "/论文笔记/./i/ELF-LSTM.png"
     },
-    "KeyDesignChoice.md": {
-        "title": "Key Design Choice",
-        "created": "2021-12-10 06:18:55",
-        "updated": "2021-12-10 06:18:55",
-        "date": "2021-12-10 06:18:55",
-        "tags": [
-            "论文笔记"
-        ],
-        "categories": [
-            "论文笔记"
-        ]
-    },
     "LapSRN.md": {
         "title": "LapSRN",
         "created": "2021-05-14 07:50:03",
