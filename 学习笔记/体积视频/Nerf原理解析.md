@@ -326,3 +326,4 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
 ```
 
 计算每条光线的深度`depth_map`和视差`disp_map`，还把`weights`求了个和作为`acc_map`。
+在最后的输出中，这里几个东西都没用上，训练过程只用了颜色`rgb`与Groung-truth求差。
