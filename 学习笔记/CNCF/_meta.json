@@ -82,52 +82,6 @@
         ],
         "cover": "/CNCF/i/供应层.png"
     },
-    "可观察性与分析.md": {
-        "title": "CNCF Landscape（五）可观察性与分析（Observability &Analysis）",
-        "created": "2021-01-03 22:59:23",
-        "updated": "2021-01-03 22:59:23",
-        "date": "2021-01-03 22:59:23",
-        "tags": [
-            "CNCF",
-            "云原生",
-            "架构",
-            "概念"
-        ],
-        "categories": [
-            "CNCF"
-        ]
-    },
-    "平台类.md": {
-        "title": "CNCF Landscape（六）平台类（Platforms）",
-        "created": "2021-01-03 22:59:29",
-        "updated": "2021-01-03 22:59:29",
-        "date": "2021-01-03 22:59:29",
-        "tags": [
-            "CNCF",
-            "云原生",
-            "架构",
-            "概念"
-        ],
-        "categories": [
-            "CNCF"
-        ]
-    },
-    "应用程序定义和开发层.md": {
-        "title": "CNCF Landscape（四）应用程序定义和开发层（Application Definition & Development）",
-        "created": "2021-01-03 21:56:04",
-        "updated": "2021-01-03 21:56:04",
-        "date": "2021-01-03 21:56:04",
-        "tags": [
-            "CNCF",
-            "云原生",
-            "架构",
-            "概念"
-        ],
-        "categories": [
-            "CNCF"
-        ],
-        "cover": "/CNCF/i/应用程序定义和开发层.png"
-    },
     "横向比较.md": {
         "title": "从IT运维到大数据分析到应用开发——Docker Swarm, DCOS, Kubernetes演进过程",
         "created": "2021-01-06 15:18:12",
@@ -144,20 +98,6 @@
             "CNCF"
         ],
         "cover": "/CNCF/i/企业上云三大架构.png"
-    },
-    "横向比较2.md": {
-        "title": "Docker Swarm, Kubernetes, DCOS架构横向比较",
-        "created": "2021-01-07 16:33:59",
-        "updated": "2021-01-07 16:33:59",
-        "date": "2021-01-07 16:33:59",
-        "tags": [
-            "Kubernetes",
-            "CNCF"
-        ],
-        "categories": [
-            "CNCF"
-        ],
-        "cover": "/CNCF/i/Swarm.webp"
     },
     "编排和管理层.md": {
         "title": "CNCF Landscape（三）编排和管理层（Orchestration & Management）",

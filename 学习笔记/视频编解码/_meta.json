@@ -30,8 +30,8 @@
     "libvpx-decode-tile.md": {
         "title": "libvpx中的`decode_tiles`",
         "created": "2021-11-27 10:03:06",
-        "updated": "2022-11-08 07:14:01",
-        "date": "2022-11-08 07:14:01",
+        "updated": "2022-10-21 07:00:42",
+        "date": "2022-10-21 07:00:42",
         "tags": [
             "视频编解码",
             "源码解读",
@@ -101,20 +101,6 @@
             "视频编解码"
         ],
         "cover": "/视频编解码/./i/get_vpx_encoder_by_name.png"
-    },
-    "NEMO修改全记录.md": {
-        "title": "NEMO对VP9的修改",
-        "created": "2021-11-25 20:50:11",
-        "updated": "2021-11-25 20:50:11",
-        "date": "2021-11-25 20:50:11",
-        "tags": [
-            "视频编解码",
-            "源码解读",
-            "libvpx"
-        ],
-        "categories": [
-            "视频编解码"
-        ]
     },
     "SVC.md": {
         "title": "【纯转载】SVC和视频通信",
