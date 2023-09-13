@@ -184,3 +184,26 @@ git filter-branch --treefilter 'rm -f password.txt' HEAD
 ```sh
 git filter-branch --subdirectory-filter trunk HEAD
 ```
+
+## 注意事项
+
+一个Commit被修改了，其后的所有Commit都需要修改（内容发生变化），而rebase操作在修改Commit时会在CommitDate里面记录下其修改时间，就像下面这样。
+输入`git log --format=fuller`看时间：
+
+![](i/CommitDate.png)
+
+这里的`AuthorDate`就是Commit创建的时间`CommitDate`在这个Commit被修改时就会更新。
+
+`git log`里看到的是`AuthorDate`，GitHub上的History里看到的是`CommitDate`，使用时需要注意。
+
+如果不想时间被修改，可以在rebase时带个参数：
+
+```sh
+git rebase --committer-date-is-author-date
+```
+
+或者也可以在rebase后把时间改回去：
+
+```sh
+git rebase --committer-date-is-author-date
+```
