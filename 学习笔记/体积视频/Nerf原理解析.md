@@ -10,7 +10,7 @@
 
 于是，渲染过程如下：
 1. 指定相机的外参（位置、方向等）和内参（焦距、视野、分辨率等）根据外参内参计算出需要采样的各光路的$(x,y,z,\theta,\phi)$
-2. 将每个光路的$(x,y,z,\theta,\phi)$输入DNN，计算得到光路上每个采样点的各离散采样区间$\delta_n$内的颜色$c_n$和粒子密度$\sigma_n$
+2. 将每个光路的$(x,y,z,\theta,\phi)$输入DNN，计算得到光路上各离散采样区间$\delta_n$内的颜色$c_n$和粒子密度$\sigma_n$
 3. 按照离散化体渲染公式进行积分操作，即得到每条采样光路的颜色
 4. 根据这些采样光路的颜色和相机内参，计算出相机拍到的图像
 5. 上面这个离散化体渲染公式很显然是可微的，所以将计算得到的图像和Ground truth作差进行反向传播训练。
@@ -202,7 +202,7 @@ def render_rays(ray_batch,
     raw = network_query_fn(pts, viewdirs, network_fn)
     rgb_map, disp_map, acc_map, weights, depth_map = raw2outputs(raw, z_vals, rays_d, raw_noise_std, white_bkgd, pytest=pytest)
 ```
-这是调用DNN推断输出计算结果。`network_query_fn`是外面输入的模型推断函数，输入是每条光线上的每个采样点位置，输出是每条光线的每个采样点的各离散采样区间$\delta_n$内的颜色$c_n$和粒子密度$\sigma_n$；`raw2outputs`是将模型输出进行积分得到每条光线的颜色并计算其[视差](./视差.md)。
+这是调用DNN推断输出计算结果。`network_query_fn`是外面输入的模型推断函数，输入是每条光线上的每个采样点位置，输出是每条光线的各离散采样区间$\delta_n$内的颜色$c_n$和粒子密度$\sigma_n$；`raw2outputs`是将模型输出进行积分得到每条光线的颜色。
 
 ```python
     if N_importance > 0:
@@ -257,14 +257,35 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
         weights: [num_rays, num_samples]. Weights assigned to each sampled color.
         depth_map: [num_rays]. Estimated distance to object.
     """
-    raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+```
 
+输入的`raw`是每条光线上各离散采样区间内颜色和概率密度，即DNN的输出、`z_vals`是每条光线上每个采样区间的长度、`rays_d`是每条光线的方向。
+
+主要输出`rgb_map`是每条光线的颜色、`disp_map`是每条光线的[视差](./视差.md)、`depth_map`是每条光线的[深度](./视差.md)。
+
+```python
+    raw2alpha = lambda raw, dists, act_fn=F.relu: 1.-torch.exp(-act_fn(raw)*dists)
+```
+
+`raw2alpha`对应[体渲染公式](./体渲染.md)中的$1-e^{-\sigma_n\delta_n}$。
+
+```python
     dists = z_vals[...,1:] - z_vals[...,:-1]
     dists = torch.cat([dists, torch.Tensor([1e10]).expand(dists[...,:1].shape)], -1)  # [N_rays, N_samples]
+```
+每条光线的离散采样区间从0开始计算距离。
 
+```python
     dists = dists * torch.norm(rays_d[...,None,:], dim=-1)
+```
+这个应该是归一化之类的操作。
 
+```python
     rgb = torch.sigmoid(raw[...,:3])  # [N_rays, N_samples, 3]
+```
+看来`raw[...,:3]`里面就是每个采样点的颜色数据。
+
+```python
     noise = 0.
     if raw_noise_std > 0.:
         noise = torch.randn(raw[...,3].shape) * raw_noise_std
@@ -274,12 +295,26 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
             np.random.seed(0)
             noise = np.random.rand(*list(raw[...,3].shape)) * raw_noise_std
             noise = torch.Tensor(noise)
+```
+测试时可以加噪声。
 
+```python
     alpha = raw2alpha(raw[...,3] + noise, dists)  # [N_rays, N_samples]
+```
+算$1-e^{-\sigma_n\delta_n}$。
+
+```python
     # weights = alpha * tf.math.cumprod(1.-alpha + 1e-10, -1, exclusive=True)
     weights = alpha * torch.cumprod(torch.cat([torch.ones((alpha.shape[0], 1)), 1.-alpha + 1e-10], -1), -1)[:, :-1]
-    rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+```
+这里`torch.cumprod`是在算$T_n=e^{-\sum_{k=1}^{n-1}\sigma_k \delta_k}$，`weights`对应的是$T_n \left(1-e^{-\sigma_n\delta_n}\right)$。
 
+```python
+    rgb_map = torch.sum(weights[...,None] * rgb, -2)  # [N_rays, 3]
+```
+积分求颜色，一看就懂。
+
+```python
     depth_map = torch.sum(weights * z_vals, -1)
     disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map), depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
@@ -290,6 +325,4 @@ def raw2outputs(raw, z_vals, rays_d, raw_noise_std=0, white_bkgd=False, pytest=F
     return rgb_map, disp_map, acc_map, weights, depth_map
 ```
 
-输入的`raw`是每条光线上每个采样点的颜色和概率密度，即DNN的输出、`z_vals`是每条光线的积分步长、`rays_d`是每条光线的方向。
-
-输出`rgb_map`是每条光线的颜色、`disp_map`是每条光线的[视差](./视差.md)、`depth_map`是每条光线的[深度](./视差.md)。
+计算每条光线的深度`depth_map`和视差`disp_map`，还把`weights`求了个和作为`acc_map`。
