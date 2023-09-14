@@ -5,7 +5,7 @@ import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-link = "https://zhuanlan.zhihu.com/p/559429803"
+link = "https://zhuanlan.zhihu.com/p/632637886"
 response = requests.get(link, headers={
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,image/svg+xml,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "accept-encoding": "gzip, deflate, br",
@@ -85,11 +85,11 @@ for p in soup('p'):
 for tex in soup('span'):
     if 'class' not in tex.attrs or "ztext-math" not in tex.attrs['class']:
         continue
-    tex.replace_with(f"${tex.text}$")
+    tex.replace_with(f" ${tex.text}$ ")
 for blockquote in soup('blockquote'):
     for br in soup('br'):
         br.replace_with('\n>')
-    blockquote.replace_with(f"\n>{blockquote.text}")
+    blockquote.replace_with(f"\n>{blockquote.text}\n")
 
 
 def ul(el, prefix=""):
@@ -99,9 +99,18 @@ def ul(el, prefix=""):
         li.replace_with(f"{prefix}* {li.text}\n")
     el.replace_with(f"\n{el.text}\n")
 
+def ol(el, prefix=""):
+    for li in el('li'):
+        for u in li('ol'):
+            ol(u, prefix+'\t')
+        li.replace_with(f"{prefix}1. {li.text}\n")
+    el.replace_with(f"\n{el.text}\n")
+
 
 for u in soup('ul'):
     ul(u)
+for o in soup('ol'):
+    ol(o)
 
 for p in soup('p'):
     p.replace_with(f"\n{p.text}\n")
