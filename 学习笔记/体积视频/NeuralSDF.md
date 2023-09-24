@@ -109,6 +109,75 @@ $$\hat{\bm z}=\mathop{argmin}\limits_{\bm z}\sum_{(\bm x_j,\bm s_j)\in X}\mathca
 >
 >那么也就是说**在面对新数据时，AutoDecoder无法直接得到Latent Vector只能用上面那种类似训练的方法得到，所以对新数据需要耗费更长的时间找到Latent Vector** 
 
-## (CVPR 2021)Neural Geometric Level of Detail: Real-Time Rendering With Implicit 3D Shapes
+## (CVPR 2021) Neural Geometric Level of Detail: Real-Time Rendering With Implicit 3D Shapes
 
 英伟达首次实现实时Neural SDF渲染，没有颜色只有形状；里面的DNN的输入是位置，输出是SDF中的距离。
+
+### 模型结构：Sparse Voxel Octree (SVO)
+
+![](i/v2-15e028d67a648e16c5ec1857a2aebc07_r.jpg)
+
+假设要表示的形体V可以置于一个充分大的被包含在内的正方体中，通过对正方体不断细分可以精确形体。对于每一次划分，一个parent voxel可以分成八个大小相同的child voxel。对于每个child voxel而言，有三种状态：
+* Empty voxel：不包含任何形体
+* Full voxel：完全被形体包含
+* Gray voxel：部分包含形体
+
+由于SDF只关注表面信息，所以每一层只有Gray voxel需要被进一步细分，直到达到最大树深。在这一过程中，不需要存储empyty voxel和full voxel的信息，这一稀疏结构节省了空间开销。对于SVO中的每个体素$V$，它的八个顶点$j\in[1,8]$上都存储了一个经过MLP学习到的特征向量$\bm z_V^{(j)}\in\mathcal Z$，并与存在的同一层级邻居voxel共享顶点信息。
+树的深度决定了模型的精度，树的不同层对应了LoD的不同需求。
+
+### 推断过程
+
+![](i/SVO.png)
+
+SDF模型记为$f_{\theta_{1:L_{max}}},\theta_{1:L_{max}}=\{\theta_{1},\dots,\theta_{L_{max}}\}$，即对于不同的层级，$f_{\theta}$结构固定，每个层级$L\in[1,L_{max}]$有各自的模型参数$\theta_L$。
+
+对于给定的LoD层级$L\in\mathbb N$上的坐标$\bm x\in\mathbb R^3$：
+1. 取包含该坐标的所有低LoD层级的体素$V_{1:L_{max}}=\{V_1,\dots,V_L\}$
+2. 对于每个层级$l\in[1,L]$，将体素$V_l$的8个角上的特征$\bm z_{V_l}^{(j)},j\in[1,8]$插值到$\bm x$处，作为该层级的特征值$\psi(\bm x;l,\mathcal Z)$
+3. 对各层级的特征值求和后输入到对应层级的SDF中求SDF值$\hat d_L$：
+
+$$
+\begin{aligned}
+    \hat d_L&=f_{\theta_L}([\bm x,\bm z(\bm x;L,\mathcal{Z})])\\
+    \bm z(\bm x;L,\mathcal{Z})&=\sum_{l=1}^L\psi(\bm x;l,\mathcal Z)
+\end{aligned}
+$$
+
+可以看到，最终的$\hat d_L=f_{\theta_L}([\bm x,\bm z(\bm x;L,\mathcal{Z})])$和DeepSDF是一个道理，都是用一个大模型根据Latent Vector输入的不同模拟不同的$\bm x\rightarrow d_L$映射，只不过本文的Latent Vector获取的方式略有不同。DeepSDF输入的Latent Vector直接就是模型形状的Code，这里的$\bm z(\bm x;L,\mathcal{Z})$可以看成是不同层级的形状Code的综合信息。
+
+#### 优势
+
+DeepSDF的Latent Vector直接描述了模型的形状，为了从一个短Code里面生成复杂的模型，MLP就需要比较复杂。
+而本文的Code在体素的每个顶点上都有一个，相当于模型的每个小区域都有自己的Code，这样每个模型的Code就变多了，模型就可以简单一点。此外，最终输入到模型里的Code是$\psi(\bm x;l,\mathcal Z)$在每个层级的Code的综合，其中既包含模型整体的形状信息（大体素的Code）又包含模型局部的形状信息（小体素的Code），大体素的里的形状可能很复杂，但是小体素里的形状肯定简单，所以用小MLP就能很好地拟合。
+
+>Since our shape vectors $\bm z_V^{(j)}$ now only represent small surface segments instead of entire shapes, we can move the computational complexity out of the neural network $f_{\theta}$ and into the feature vector query $\psi:\mathbb R^3\rightarrow\mathbb R^m$, which amounts to a SVO traversal and a trilinear interpolation of the voxel features. This key design decision allows us to use very small MLPs, enabling significant speed-ups without sacrificing reconstruction quality.
+
+从文章开头的图也可以看出来，同样的模型，在拟合大体素（低LoD层级）的时候出来的形状很糊，但是在拟合小体素（高LoD层级）的时候就越来越清晰了。这就是因为小体素里的形状简单，同样规模的模型更容易拟合小体素里的简单形状。
+
+![](i/LoD.png)
+
+并且这样的操作还给了模型如同分层编码般的的灵活性：只要把高LoD层级的数据删了然后不要高LoD的模型参数就能得到一个质量差点但是数据量更小的模型。
+
+### 连续LoD
+
+论文中特别强调了可以实现连续LoD，但是这个连续LoD是算相邻的两个整数LoD的加权平均来的：
+
+![](i/CLoD.png)
+
+文中说这个连续为了方便用户自己选的：
+
+![](i/CLoDapp.png)
+
+有意义吗😂？选在两个整数LoD之间计算量比其中那个大的LoD还多个加权平均的步骤，都没达到LoD减少计算量的效果
+
+### 渲染过程：Adaptive Ray Steps
+
+![](i/SVO1.png)
+
+在生成的一系列光线$i\in\mathcal{R}$上，会经过同一位置不同LoD层级$l$的多个体素，这些体素中只有一部分体素存在内容，空体素在渲染时需要跳过。本文采用的方法是将SDF里找表面的Sphere Tracing方法和判定体素相交的ray-AABB intersection方法结合起来。
+
+具体来说，上面的算法就是遍历每个LoD层级$l$，在$Decide(\mathcal{R},\bm N^{(l)},l)$中用Sphere Tracing确定是否当前层级某个体素相交，在$Subdivide(\bm N^{(l)}, \bm D, \bm S)$中用ray-AABB intersection确定可能与下一层级哪些体素相交，最后用$Compactify(\bm N^{(l)}, \bm D, \bm S)$去掉那些始终没找到相交体素的光线。
+
+![](i/ARS.png)
+
+于是这样，光线在经过已知为空的体素时可以通过ray-AABB intersection直接跳过，只有在非空体素内行进是才需要DNN推断得到SDF数据进行Sphere Tracing。
