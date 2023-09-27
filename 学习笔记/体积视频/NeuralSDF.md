@@ -181,3 +181,57 @@ DeepSDF的Latent Vector直接描述了模型的形状，为了从一个短Code�
 ![](i/ARS.png)
 
 于是这样，光线在经过已知为空的体素时可以通过ray-AABB intersection直接跳过，只有在非空体素内行进是才需要DNN推断得到SDF数据进行Sphere Tracing。
+
+##  (CVPR 2020) Implicit Functions in Feature Space for 3D Shape Reconstruction and Completion
+
+**本文主要针对点云数据补全，有点偏门**，但用的方法很相关。
+
+而且虽然说的是点云但是放的图片全都没颜色，最后的公式也是在预测点在模型内还是模型外，所以给放进Neural SDF里来了。
+这里面说的点云应该是没颜色值只用于表示表面的那种点云。
+
+做的三个实验很有代表性：
+
+* 点云补全
+* 体素超分辨率
+* 单视图人体重建（给出一个视角下的点云数据）
+
+提出了Implicit Feature Networks，其实就是：
+
+* 提取深度特征的多尺度三维张量代替单个向量来编码三维形状，这个特征对齐了嵌入在形状中的原始的欧拉空间；
+* 对连续查询点提取的深度特征分类，代替直接对xyz点坐标分类。
+
+就是一种更直接的把坐标转换成向量的方法，因为输入不再是坐标而是含义不那么直观的特征向量，所以叫做Implicit Feature Networks。
+
+具体一点，本文方法主要分两方面：形状编码（shape encoding）、形状解码（shape decoding）
+
+### 形状编码：连续多尺度的体素
+
+虽然都是多尺度体素思想，但是和上面的那种直接训练特征向量的方法不一样，本文的输入是点云，目标是要用模型拟合点云
+
+输入的离散体素网格的坐标集合记为$\mathcal X=\mathbb R^{N\times N\times N}$，其中$N\in\mathbb N$表示输入的分辨率。
+
+对于输入的点云：
+
+1. 先把点云离散化：点云每个点放进体素网格$\mathcal X$里，让网格的每个点都有个颜色数据
+   * 这里$\mathcal X$的网格密度最好大于点云的密度，或者点云本身就是按照网格存的可以直接对齐到网格$\mathcal X$里更好）
+2. 三维卷积：在网格$\mathcal X$上做三维卷积，用网格的每个点上的三维颜色算出高维向量数据，这样网格的每个点就都有个$F_1$维特征向量了
+3. 三维池化：在网格$\mathcal X$上做三维池化，这样输出的特征网格长宽高就是原来的一半，将此特征网格（Feature Grid）记为$\bm F_1$
+4. 三维卷积：在网格$\bm F_1$上做三维卷积，特征通道数变$F_2$维
+5. 三维池化：在网格$\bm F_1$上做三维池化，同步骤3，输出特征网格记为$\bm F_2$
+6. 重复上述步骤直到输出$\bm F_n$，输出特征矩阵通道数变$F_n$维
+
+最终聚合得到的所有特征网格得到多尺度深度特征网格（Multi-Scale Deep Feature Grid）$\bm F_1,\dots,\bm F_n$，其中$F_k\in\mathcal F_k^{K\times K\times K}$、$K=\frac{N}{2^k-1}$表示经过$k$轮上述操作后的特征网格分辨率。
+
+作者这样做有他的道理：
+* 大尺度特征$\bm F_k$保存了模型的整体信息
+* 小尺度特征$\bm F_1$保存了模型的高频信号
+
+以$\bm X$表示点云数据，将上述形状编码过程记为：
+
+$$g(\bm X)=\bm F_1,\dots,\bm F_n$$
+
+### 形状解码：依然是取坐标点所在体素顶点处的特征进行插值
+
+对于位置$\bm p\in\mathbb R^3$，用插值计算其多尺度深度特征$\bm F_1(\bm p),\dots,\bm F_n(\bm p)$，其中特征$\bm F_k(\bm p)\in\mathcal F_k$，送入MLP$f(\cdot)$中预测点$\bm p$在形状的内部还是外部：
+
+$$f(\bm F_1(\bm p),\dots,\bm F_n(\bm p)):\mathcal F_1\times\dots\mathcal F_n\rightarrow[0,1]$$
