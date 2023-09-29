@@ -149,7 +149,13 @@ $$V_i \text{ is pruned if } \mathop{min}\limits_{j=1\dots G}e^{-\sigma(\tilde{g_
 
 ## 针对上述劣势进一步优化: (ACM TC 2022) Instant neural graphics primitives with a multiresolution hash encoding
 
-**一种通用的模型输入编码数据结构**，实验展示了其可用于图像生成模型、SDF模型、NRC光场模型、Nerf模型的快速训练
+**一种通用的模型输入编码数据结构**，实验展示了其可用于图像生成模型、SDF模型、NRC光场模型、Nerf模型的快速训练。
+
+注：NRC是Neural Radiance Caching，一种针对[路径追踪](全局光照.md)中的加速方法，来自Real-time neural radiance caching for path tracing
+
+>Real-time neural radiance caching for path tracing
+>
+>我们知道Path tracing慢的一个原因，就是要递归求解传输方程。那么很自然有一个思路就是把场景的Radiance全cache起来，然后在合适的时机终止路径，直接用cache的结果。这不是什么新想法了。但是这篇文章干了啥呢，一个radiance场可以看成一个5d的映射对不对(3维位置+2维方向)，是映射就能学对不对。好的咱们拿网络去拟合一个radiance cache出来。好处是什么，随着学习的进行，cache自然的能够被实时更新，而且因为学习过程，网络的权重能够自适应的去稀疏编码场景的特征达到压缩数据的目的，且与空间占用与场景规模无关，甚至还能瞎猜猜已知参数空间之外的场景状况，所谓泛化嘛。妙~啊！
 
 ![](i/InstantNGP.png)
 
@@ -177,11 +183,53 @@ $$V_i \text{ is pruned if } \mathop{min}\limits_{j=1\dots G}e^{-\sigma(\tilde{g_
 
 空间哈希函数原本就是为了在检测碰撞检测领域中的Octree和AABB树等的替代方法。具体见[空间哈希函数](空间哈希.md)
 
-### 方法
+### 方法：多尺度哈希编码（Multiresolution Hash Encoding）
 
 其实从上面的介绍基本已经能知道本文主要是做什么了，就是把体素数据从Octree里放进Hash表里。下面这个图里是Hash表的超参数，有分层数量、每层Hash表大小、特征维度、最粗和最细粒度的分辨率：
 
 ![](i/InstantNGP-hp.png)
+
+本文的抽象Level很高，直接把指定输出数据训练输入数据的过程统一视为一种抽象过程，DNN**输入Encoding**，**输出可以是点云数据、SDF数据、NRC数据甚至直接是像素颜色**，**对于模型形状或图像的描述以Encoding矩阵的形式存储**，DNN输入的Encoding则是根据输入坐标在此二维或三维Encoding矩阵上采样混合得到。具体如下：
+
+将上述抽象DNN记为$m(\bm y,\Phi)$，其中$\Phi$为模型参数、输入为Encoding矩阵$\theta$在坐标$\bm x$处Encoding的采样结果$\bm y=enc(\bm x,\theta)$。这里模型参数$\Phi$和Encoding矩阵$\theta$均是可学习的变量。
+
+Encoding矩阵$\theta$分为$L$层，各层的分辨率设为$N_{min}$到$N_{max}$之间的等比数列，即第$l\in[1,L]$层的的分辨率计为：
+
+$$
+\begin{aligned}
+N_l&=\lfloor N_{min}b^l\rfloor\\
+b&=e^{\frac{\ln{N_{max}}-\ln{N_{min}}}{L-1}}
+\end{aligned}
+$$
+
+文中将$b$叫做“growth factor”，并提到本文设置的$b\in[1.26,2]$。
+
+这样，可以直接计算输入坐标$\bm x\in\mathbb R^d$（生成2D图像$d=2$；3D模型$d=3$）在第$l$层被哪个体素包围：
+
+$$
+\begin{aligned}
+\lfloor\bm x_l\rfloor&=\lfloor\bm xN_l\rfloor\\
+\lceil\bm x_l\rceil&=\lceil\bm xN_l\rceil
+\end{aligned}
+$$
+
+$\lfloor\bm x_l\rfloor$和$\lceil\bm x_l\rceil$就是第$l$层一个包围$\bm x$的体素的两个顶点坐标，对其坐标值排列组合就能得到该体素全部的$2^d$个坐标值（可以看出，这里的体素顶点坐标都是连续整数编号的，一个整数就跨一个体素，例如在三维空间情况下，$l$层体素的最大坐标值为$N_l$，共$N_l^3$个体素，而输入的$\bm x_l$显然就是个01之间的浮点数）。
+
+对于$L$中的某一层，Hash函数就是一个从体素集合$\mathbb Z^d$到散列表键空间$\mathbb Z_T$的映射$h:\mathbb Z^d\rightarrow\mathbb Z_T$，散列表的值为对应体素上的Encoding值。本文使用[空间哈希函数](空间哈希.md)进行映射，其表达式为：
+
+$$h(\bm x)=\left(\bigoplus_{i=1}^dx_i\pi_i\right)\text{mod }T$$
+
+即将各维度坐标$x_i$与一个大质数$\pi_i$异或后模散列表大小$T$（与[空间哈希函数](空间哈希.md)里讲的直接把坐标拼成字符串然后Hash的方法没有本质区别，这里的大质数异或模散列表大小是Hash算法的一种，不是空间哈希函数独有）。
+
+按照Table 1，所有层都有一样的散列表大小$T$，但不同的$l$层体素顶点数量$(N_l+1)^d$各不相同，于是就会出现这样一种情况：对于大尺度的体素（$l$小），会有$(N_l+1)^d\leq T$，即该尺度下所有体素里的模型数据都被存下来，而尺度在此之下（$l$大）必须抛弃部分体素数据。想想还是挺合理的，大尺度体素存的低频信号是模型的大致外观轮廓，必须完整保留，而小尺度体素存的是高频信号，少一点也没关系，与图像压缩算法有异曲同工之妙。
+
+>It may appear counter-intuitive that this encoding is able to reconstruct scenes faithfully in the presence of hash collisions. Key to its success is that the different resolution levels have different strengths that complement each other. The coarser levels, and thus the encoding as a whole, are injective—that is, they suffer from no collisions at all. However, they can only represent a low-resolution version of the scene, since they offer features which are linearly interpolated from a widely spaced grid of points. Conversely, fine levels can capture small features due to their fine grid resolution, but suffer from many collisions—that is, disparate points which hash to the same table entry.
+
+### 渲染过程
+
+大致的渲染过程和[SVO](NeuralSDF.md)差不多，只不过把基于Octree查多级体素数据改成了直接基于$\lfloor\bm x_l\rfloor$和$\lceil\bm x_l\rceil$的Hash查多级体素数据，查出来体素数据之后也还是插值到坐标位置之后把多级数据拼在一起。
+
+![](i/InstantNGP-x.png)
 
 ## (SIGGRAPH '22) Variable Bitrate Neural Fields
 
