@@ -5,12 +5,12 @@
         "updated": "2023-09-23 21:42:46",
         "date": "2023-09-23 21:42:46",
         "tags": [
-            "体积视频"
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/ada19404-83ad-11ea-8557-827bb56bd060.gif"
+        "cover": "/图形学/i/ada19404-83ad-11ea-8557-827bb56bd060.gif"
     },
     "Nerf原理解析.md": {
         "title": "Nerf运行流程解析",
@@ -18,13 +18,13 @@
         "updated": "2023-09-13 18:37:42",
         "date": "2023-09-13 18:37:42",
         "tags": [
-            "体积视频",
-            "Nerf"
+            "Nerf",
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/./i/2f54150145095c59f605941a1170f071.gif"
+        "cover": "/图形学/./i/2f54150145095c59f605941a1170f071.gif"
     },
     "NeuralSDF.md": {
         "title": "Neural SDF 学习",
@@ -32,13 +32,14 @@
         "updated": "2023-09-27 04:42:15",
         "date": "2023-09-27 04:42:15",
         "tags": [
-            "体积视频",
-            "SDF"
+            "Nerf",
+            "SDF",
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/zhimg.com/v2-a2d023b9c02479743b0b532cff2cca6c_b.jpg"
+        "cover": "/图形学/zhimg.com/v2-a2d023b9c02479743b0b532cff2cca6c_b.jpg"
     },
     "SDF.md": {
         "title": "【摘录】SDF(Signed Distance Field)简介",
@@ -46,13 +47,13 @@
         "updated": "2023-09-23 00:24:01",
         "date": "2023-09-23 00:24:01",
         "tags": [
-            "体积视频",
-            "SDF"
+            "SDF",
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/NvidiaSDF.png"
+        "cover": "/图形学/i/NvidiaSDF.png"
     },
     "体渲染.md": {
         "title": "【摘抄】Nerf基础知识：体渲染",
@@ -60,28 +61,28 @@
         "updated": "2023-09-17 05:19:48",
         "date": "2023-09-17 05:19:48",
         "tags": [
-            "体积视频",
+            "Nerf",
             "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/NerfFlow.png"
+        "cover": "/图形学/i/NerfFlow.png"
     },
     "体积视频学习.md": {
         "title": "体渲染、体素、位置编码——主流Nerf质量优化和计算加速方法学习",
         "created": "2023-09-09 04:41:27",
-        "updated": "2023-09-27 04:48:59",
-        "date": "2023-09-27 04:48:59",
+        "updated": "2023-09-29 17:49:50",
+        "date": "2023-09-29 17:49:50",
         "tags": [
-            "体积视频",
             "SDF",
-            "Nerf"
+            "Nerf",
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/NSVFTransparent.png"
+        "cover": "/图形学/i/NSVFTransparent.png"
     },
     "光线行进算法.md": {
         "title": "【转载】体积云渲染实战：ray marching，体积云与体积云光照",
@@ -89,13 +90,12 @@
         "updated": "2023-09-13 23:55:02",
         "date": "2023-09-13 23:55:02",
         "tags": [
-            "体积视频",
             "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/20210125020053678.png"
+        "cover": "/图形学/i/20210125020053678.png"
     },
     "可微渲染.md": {
         "title": "【转载】一文快速了解可微渲染与神经渲染",
@@ -103,14 +103,13 @@
         "updated": "2023-09-14 20:31:14",
         "date": "2023-09-14 20:31:14",
         "tags": [
-            "体积视频",
             "图形学",
             "Nerf"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/zhimg.com/v2-5c8f4949f9bc3adc83670ee7c8bb59e9_r.jpg"
+        "cover": "/图形学/zhimg.com/v2-5c8f4949f9bc3adc83670ee7c8bb59e9_r.jpg"
     },
     "相机参数.md": {
         "title": "【摘抄】相机的内外参数",
@@ -118,27 +117,25 @@
         "updated": "2023-09-11 00:03:51",
         "date": "2023-09-11 00:03:51",
         "tags": [
-            "体积视频",
             "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/./i/v2-4098b7c3901df021a3b5a7f9ba214919_720w.png"
+        "cover": "/图形学/./i/v2-4098b7c3901df021a3b5a7f9ba214919_720w.png"
     },
     "空间哈希.md": {
         "title": "【转载】Spatial Hash Function 空间哈希函数",
-        "created": "2023-09-29 10:43:05",
-        "updated": "2023-09-29 10:43:05",
-        "date": "2023-09-29 10:43:05",
+        "created": "2023-09-29 17:49:50",
+        "updated": "2023-09-29 17:49:50",
+        "date": "2023-09-29 17:49:50",
         "tags": [
-            "体积视频",
             "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/zhimg.com/v2-daae30915fd682d7f9d739d8455ff816_r.jpg"
+        "cover": "/图形学/zhimg.com/v2-daae30915fd682d7f9d739d8455ff816_r.jpg"
     },
     "视差.md": {
         "title": "【摘抄】视差图、深度图、点云",
@@ -146,11 +143,11 @@
         "updated": "2023-09-13 23:55:02",
         "date": "2023-09-13 23:55:02",
         "tags": [
-            "体积视频"
+            "图形学"
         ],
         "categories": [
-            "体积视频"
+            "图形学"
         ],
-        "cover": "/体积视频/i/v2-6d56f0513c46f1574f9aa0dd70369bb6_720w.webp"
+        "cover": "/图形学/i/v2-6d56f0513c46f1574f9aa0dd70369bb6_720w.webp"
     }
 }
