@@ -12,6 +12,21 @@
         ],
         "cover": "/图形学/i/ada19404-83ad-11ea-8557-827bb56bd060.gif"
     },
+    "Nerf加速.md": {
+        "title": "体渲染、体素、位置编码——主流Nerf质量优化和计算加速方法学习",
+        "created": "2023-09-09 04:41:27",
+        "updated": "2023-09-29 17:49:50",
+        "date": "2023-09-29 17:49:50",
+        "tags": [
+            "SDF",
+            "Nerf",
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/NSVFTransparent.png"
+    },
     "Nerf原理解析.md": {
         "title": "Nerf运行流程解析",
         "created": "2023-09-11 00:15:20",
@@ -68,21 +83,6 @@
             "图形学"
         ],
         "cover": "/图形学/i/NerfFlow.png"
-    },
-    "体积视频学习.md": {
-        "title": "体渲染、体素、位置编码——主流Nerf质量优化和计算加速方法学习",
-        "created": "2023-09-09 04:41:27",
-        "updated": "2023-09-29 17:49:50",
-        "date": "2023-09-29 17:49:50",
-        "tags": [
-            "SDF",
-            "Nerf",
-            "图形学"
-        ],
-        "categories": [
-            "图形学"
-        ],
-        "cover": "/图形学/i/NSVFTransparent.png"
     },
     "光线行进算法.md": {
         "title": "【转载】体积云渲染实战：ray marching，体积云与体积云光照",
