@@ -246,13 +246,6 @@ $$h(\bm x)=\left(\bigoplus_{i=1}^dx_i\pi_i\right)\text{mod }T$$
 本文似乎也没有讲体素裁剪，估计体素裁剪也被DNN自适应了，Hash表里的空体素可能会与其他体素发生Hash冲突，这样空体素就直接被替代了。这样在训练时就不用去管体素是不是空，直接训练就行了。
 但是这样就没法实现跳过体素节约计算量的机制了，渲染速度应该会减慢？
 
-#### 隐藏的坑：训练渲染真的高效吗？
-
-实验对速度的对比并非是在同样的框架下进行，NSVF等传统方法的时间是直接从其他论文里搬来的。
-因此，本文极快的训练速度可能并非完全得益于Hash表，而很可能更多来自代码层面的优化。
-
-![](i/InstantNGP-expk.png)
-
 ### 实验和各种加速Tricks
 
 * Hash表值（encoding）为fp16存储，从而充分利用GPU，训练时配合全精度参数进行混合精度训练
@@ -266,6 +259,19 @@ $$h(\bm x)=\left(\bigoplus_{i=1}^dx_i\pi_i\right)\text{mod }T$$
   * 显然大的$F$能存更多的数据从而有利于提升输出效果，但$L$到16的时候$F=2$可存的数据量已经很大了，继续增大$F$不能显著提高输出效果，反而会因为数据量过大增加内存调入调出的时间
 
 ![](i/InstantNGP-exp1.png)
+
+* 速度巨快
+
+![](i/InstantNGP-expk.png)
+
+* 输出质量和传统方法比质量各有优劣，本文方法更擅长乐高这种几何细节多的场景，NSVF和mip-NeRF更适合有复杂材质和反射的场景
+
+>On one hand, our method performs best on scenes with high geometric detail, such as Ficus, Drums, Ship and Lego, achieving the best PSNR of all methods. On the other hand, mip-NeRF and NSVF outperform our method on scenes with complex, view-dependent reflections, such as Materials; we attribute this to the much smaller MLP that we necessarily employ to obtain our speedup of several orders of magnitude over these competing implementations.
+
+#### 隐藏的坑：训练渲染真的高效吗？
+
+实验对速度的对比并非是在同样的框架下进行，NSVF等传统方法的时间是直接从其他论文里搬来的。
+因此，本文极快的训练速度可能并非完全得益于Hash表，而很可能更多来自代码层面的优化。
 
 ## (SIGGRAPH '22) Variable Bitrate Neural Fields
 
