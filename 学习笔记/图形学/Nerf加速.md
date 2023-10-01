@@ -55,11 +55,11 @@ Lombardi S, Simon T, Saragih J, et al. Neural volumes: Learning dynamic renderab
 
 本文定义的透明度为：
 
-![](i/NSVFTransparent.png)
+$$A(\bm p_0,\bm v)=\prod_{i=1}^N\alpha(z_i,\Delta_i)$$
 
 其中$(\bm p_0, \bm v)$是在用起点和方向表示一条光线，$A(\bm p_0, \bm v)$是这条光线上所有的采样点$\bm p$积累的透明度。结合上文写的体渲染公式：
 
-![](i/NSVFnerf.png)
+$$\bm C(\bm p_0,\bm v)\approx\sum_{i=1}^N\left(\prod_{j=1}^{i-1}\alpha(z_i,\Delta_i)\right)\cdot(1-\alpha(z_i,\Delta_i))\cdot\bm c(\bm p(z_i),\bm v)$$
 
 可以看出这个透明度实际上就是：
 
