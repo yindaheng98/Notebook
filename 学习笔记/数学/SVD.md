@@ -160,7 +160,7 @@ $$
 
 ## 深入：SVD怎么解最优化问题
 
-可用SVD解的方程最直观的表示为“求使$\bm A\bm x$最小的单位向量$\bm x$”：
+可用SVD解的方程最直观的表示为“求使$\bm A\bm x$最大（或同理可求最小）的单位向量$\bm x$”：
 
 $$
 \begin{aligned}
@@ -191,7 +191,7 @@ $$
 所以$\bm x^T\bm A^T\bm A\bm x$的值必然是$\bm A^T\bm A$的特征值中的一个。
 于是，$\bm x^T\bm A^T\bm A\bm x$的最大值取$\bm A^T\bm A$的特征值中的最大值即可，最大特征值对应的特征向量就是$\bm x$的最优解。
 
-而SVD中的$\bm V$是$\bm A^T\bm A$的特征矩阵、$\bm\Sigma^2$是$\bm A^T\bm A$的特征值组成的对角矩阵，所以直接去$\bm\Sigma^2$中找到最大值即最优值$\lambda$，其在$\bm V$中对应的列就是最优解$\bm x$。
+而SVD中的$\bm V$是$\bm A^T\bm A$的特征矩阵、$\bm\Sigma^2$是$\bm A^T\bm A$的特征值组成的对角矩阵，所以直接去$\bm\Sigma^2$中找到最大值（或最小值）即最优值$\lambda$，其在$\bm V$中对应的列就是最优解$\bm x$。
 
 ## 深入：SVD存在性证明
 
