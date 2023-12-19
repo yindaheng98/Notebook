@@ -5,7 +5,7 @@ import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-link = "https://zhuanlan.zhihu.com/p/632637886"
+link = "https://zhuanlan.zhihu.com/p/58987388"
 response = requests.get(link, headers={
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,image/svg+xml,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
     "accept-encoding": "gzip, deflate, br",
@@ -76,7 +76,7 @@ for figure in soup('figure'):
             image = img.attrs['data-actualsrc']
     figure.replace_with(f"\n![{caption}]({get_url(image)})\n")
 for p in soup('p'):
-    if len(p.contents) != 1:
+    if len([c for c in p.contents if c.strip is None or len(c.strip())>0]) != 1:
         continue
     for tex in p('span'):
         if 'class' not in tex.attrs or "ztext-math" not in tex.attrs['class']:
