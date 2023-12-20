@@ -1,18 +1,31 @@
 {
     "3DGaussianSplatting.md": {
         "title": "3D Gaussian Splatting",
-        "created": "2023-12-18 21:32:14",
-        "updated": "2023-12-18 21:32:14",
-        "date": "2023-12-18 21:32:14",
+        "created": "2023-12-19 05:38:10",
+        "updated": "2023-12-19 23:39:24",
+        "date": "2023-12-19 23:39:24",
         "tags": [
             "图形学",
-            "Nerf",
             "3D Gaussian Splatting"
         ],
         "categories": [
             "图形学"
         ],
-        "cover": "/图形学/i/20231218204732.png"
+        "cover": "/图形学/i/v2-7cbe3b0c3b67ce80593fad0d73a814b5_r.png"
+    },
+    "3D高斯数学推导.md": {
+        "title": "【转载】3D Gaussian Splatting中的数学推导",
+        "created": "2023-12-19 17:04:44",
+        "updated": "2023-12-19 17:04:44",
+        "date": "2023-12-19 17:04:44",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/zhimg.com/v2-7cbe3b0c3b67ce80593fad0d73a814b5_r.jpg"
     },
     "LOD.md": {
         "title": "【摘录】LoD(Level Of Details)",
@@ -155,8 +168,8 @@
     "双目相机.md": {
         "title": "双目视觉模型和三角定位",
         "created": "2023-11-14 23:54:51",
-        "updated": "2023-11-29 04:21:15",
-        "date": "2023-11-29 04:21:15",
+        "updated": "2023-12-19 19:50:07",
+        "date": "2023-12-19 19:50:07",
         "tags": [
             "图形学"
         ],
