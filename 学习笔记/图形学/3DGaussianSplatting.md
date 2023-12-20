@@ -57,23 +57,34 @@ $$\Sigma=
 
 $$G_s\left(\bm x \right) = \frac{1}{\sqrt{2\pi}^3\det(\Sigma)} \cdot e^{-\frac{1}{2}(\bm x - \bm\mu)^T \Sigma^{-1}(\bm x - \bm\mu)}$$
 
-其中$\bm\mu$是椭球中心（控制世界空间位置平移），协方差矩阵$\Sigma$控制椭球在3轴向的伸缩和旋转（模型空间），协方差矩阵的特征向量就是椭球对称轴。
+其中$\bm\mu$是椭球中心（控制世界空间位置平移），协方差矩阵$\Sigma$控制椭球在3轴向的伸缩和旋转（模型坐标系），协方差矩阵的特征向量就是椭球对称轴。
 
 论文中则是这样定义：
 
 $$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\bm x \right)}$$
 
-和标准形式对比可以看到去掉了指数部分前面的尺度系数（不影响椭球几何）；默认模型坐标中心在原点，方便旋转放缩，放入世界空间时再加上平移。
+和标准形式对比可以看到去掉了指数部分前面的尺度系数（不影响椭球几何）；默认模型坐标中心在坐标系原点，方便旋转放缩，放入世界坐标系时再加上平移。
+
+### 如何表示Gaussian点的颜色
+
+用[球谐函数](./球谐函数.md)来表示每个高斯的颜色 ，以正确捕捉场景的视角相关外观。
 
 ## 如何训练Gaussian点云
 
 ### 如何训练Gaussian点参数
 
-[3D Gaussian Splatting中的数学推导](./3D高斯数学推导.md)
+按照论文中的定义，Gaussian点的参数只有$\Sigma$，其决定了椭球的形状和对称轴方向，不决定椭球的位置。
+椭球的位置有另外的训练方法。
 
+训练过程就是用渲染图和原图比较计算视野中高斯点的矩阵$\Sigma$的梯度，然后梯度下降调$\Sigma$。
+
+其梯度计算原理比较复杂，需学习
+[3D Gaussian Splatting中的数学推导](./3D高斯数学推导.md)
+，
+相关方法主要来自于论文
 Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. **EWA volume splatting**. *In Proceedings Visualization*, 2001. VIS’01. IEEE, 29–538.
 
-### 如何移动Gaussian点
+### 如何训练Gaussian点位置
 
 位置梯度
 
