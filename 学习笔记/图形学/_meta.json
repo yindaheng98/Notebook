@@ -2,8 +2,8 @@
     "3DGaussianSplatting.md": {
         "title": "3D Gaussian Splatting",
         "created": "2023-12-19 05:38:10",
-        "updated": "2023-12-20 04:51:58",
-        "date": "2023-12-20 04:51:58",
+        "updated": "2023-12-20 06:40:41",
+        "date": "2023-12-20 06:40:41",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -207,9 +207,9 @@
     },
     "球谐系数.md": {
         "title": "球谐系数与球面高斯",
-        "created": "2023-12-19 22:38:09",
-        "updated": "2023-12-19 22:38:09",
-        "date": "2023-12-19 22:38:09",
+        "created": "2023-12-20 06:40:41",
+        "updated": "2023-12-20 06:40:41",
+        "date": "2023-12-20 06:40:41",
         "tags": [
             "图形学",
             "3D Gaussian Splatting",
