@@ -11,7 +11,7 @@
         "categories": [
             "图形学"
         ],
-        "cover": "/图形学/i/v2-7cbe3b0c3b67ce80593fad0d73a814b5_r.png"
+        "cover": "/图形学/i/20231218204732.png"
     },
     "3D高斯数学推导.md": {
         "title": "【转载】3D Gaussian Splatting中的数学推导",
@@ -208,8 +208,8 @@
     "球谐系数.md": {
         "title": "球谐系数与球面高斯",
         "created": "2023-12-20 06:40:41",
-        "updated": "2023-12-20 06:50:31",
-        "date": "2023-12-20 06:50:31",
+        "updated": "2023-12-20 18:38:08",
+        "date": "2023-12-20 18:38:08",
         "tags": [
             "图形学",
             "3D Gaussian Splatting",
