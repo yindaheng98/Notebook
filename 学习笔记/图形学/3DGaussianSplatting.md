@@ -6,6 +6,8 @@
 
 抛雪球算法的英文名称为Splatting方法，也称为足迹法（Footprint），它与光线投射法不同，是反复对体素的投影叠加效果进行运算。它用一个称为足迹的函数计算每一体素投影的影响范围，用高斯函数定义点或者小区域像素的强度分布，从而计算出其对图像的总体贡献，并加以合成，形成最后的图像。由于这个方法模仿了雪球被抛到墙壁上所留下的一个扩散状痕迹的现象，因而取名为“抛雪球法”。
 
+![](i/v2-7cbe3b0c3b67ce80593fad0d73a814b5_r.png)
+
 ## 光栅化 Rasterization
 
 ## $\alpha$-Blending
@@ -63,11 +65,13 @@ $$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\
 
 和标准形式对比可以看到去掉了指数部分前面的尺度系数（不影响椭球几何）；默认模型坐标中心在原点，方便旋转放缩，放入世界空间时再加上平移。
 
-### 3D Gaussian点的快速渲染：《EWA volume splatting》
+## 如何训练Gaussian点云
+
+### 如何训练Gaussian点参数
+
+[3D Gaussian Splatting中的数学推导](./3D高斯数学推导.md)
 
 Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. **EWA volume splatting**. *In Proceedings Visualization*, 2001. VIS’01. IEEE, 29–538.
-
-## 如何训练Gaussian点云
 
 ### 如何移动Gaussian点
 
