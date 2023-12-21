@@ -275,6 +275,71 @@ $$h(\bm x)=\left(\bigoplus_{i=1}^dx_i\pi_i\right)\text{mod }T$$
 实验对速度的对比并非是在同样的框架下进行，NSVF等传统方法的时间是直接从其他论文里搬来的。
 因此，本文极快的训练速度可能并非完全得益于Hash表，而很可能更多来自代码层面的优化。
 
+>有一说一，Hash Encoding 固然是非常有价值的，但 Instant-NGP 最重要的是它的工程价值。虽然 Hash Encoding 确实能极大地加快 NeRF 的训练效率，但是他 project 中展示的几秒的优化速率是基于他高效的 CUDA 配套代码实现的（几秒也只是出能粗看的状态，5秒钟的宣传更多是个噱头，实际优化到论文中的指标还是需要几分钟的时间）。而北大的唐老哥重实现的 torch-ngp 也说明了在 PyTorch 的配套代码下，就算有 Hash Encoding，NeRF 的训练过程也要几分钟的时间（这是 PyTorch 的问题）。 
+
+## Plenoxel
+
+Plenoxel 和 Instant-NGP 思想非常相似，只是工程方面不如Instant-NGP所以速度没有Instant-NGP快，被盖过了风头（Nvidia你犯规555），只能说时运不济。
+
+> Figure: Overview of our sparse Plenoxel model. Given a set of images of an object or scene, we reconstruct a (a) sparse voxel (“Plenoxel”) grid with density and spherical harmonic coefficients at each voxel. To render a ray, we (b) compute the color and opacity of each sample point via trilinear interpolation of the neighboring voxel coefficients. We integrate the color and opacity of these samples using (c) differentiable volume rendering, following the recent success of NeRF [26]. The voxel coefficients can then be (d) optimized using the standard MSE reconstruction loss relative to the training images, along with a total variation regularizer.
+
+看 Plenoxel 之前要知道它的前置工作是 PlenOctree，也是 Alex Yu 的工作，在看 Plenoxel 之前最好还是要理解 PlenOctree。
+
+### Grid Representation
+
+![](zhimg.com/v2-77151cc820d36534f2adbf9153c12e0b_r.jpg)
+
+和Instant-NGP一样，Plenoxel也是用一系列网格表示整个场景，也是通过插值来对顶点内部进行采样。
+
+不同的是，Instant-NGP是用MLP输入顶点处存储的值和光线方向从而做到各项异性的，而Plenoxel是用[球谐函数](./球谐系数.md)记录顶点的各向异性颜色的，所以不涉及任何MLP，训练是直接对density和球谐系数(spherical harmonic coefficients)进行调节。
+
+网上还有一些代码层面的解析，看样子Plenoxel的代码里还有一些SDF的思想在里面：
+>Plenoxel 有个非常妙的方式实现了高效跳点，它仿照了八叉树的建立过程，利用迭代预计算的方式获得了每个 empty grid 能够前进的最大安全距离。具体的实现代码是  `misc_kernel.cu`  的  `accel_dist_prop`  函数，注意其中输入的  `grid`  为  `-1`  表示为 empty grid。而后在 ray marching 过程中则会在  `compute_skip_dist`  函数（定义在  `render_util.cuh`  中）计算最大安全跳点距离。有空的同学可以去看一下这部分的源码，个人觉得非常巧妙，非常简单的实现了 multi-level occupancy grid。
+
+### Coarse to Fine
+
+由粗到细训练网格顶点参数，步骤：
+1. 初始化一个粗粒度网格
+2. 训练
+3. 删除无用区域
+4. 插值生成细粒度顶点（所有网格一分八）
+5. 回到步骤2
+
+坑点：三线性插值依赖样本点附近八个网格的参数，如果仅按顶点的density进行删除会容易删除物体表面附近的顶点，导致插值出现误差。
+
+解决：只有当前顶点和所有相邻顶点density都小于阈值时才删除
+
+### Optimization
+
+Plenoxel的loss函数包含一个重建误差项$\mathcal L_{recon}$和一个正则化项$\mathcal L_{TV}$：
+
+$$
+\begin{aligned}
+\mathcal L&=\mathcal L_{recon}+\lambda_{TV}\mathcal L_{TV}\\
+\mathcal L_{recon}&=\frac{1}{|\mathcal{R}|}\|C(\bm r)-\hat C(\bm r)\|_2^2\\
+\mathcal{L}_{TV}&=\frac{1}{|\mathcal{V}|} \sum_{\mathbf{v}\in\mathcal{V}\ d\in [D]} \sqrt{\Delta^2_x(\mathbf{v}, d) + \Delta^2_y(\mathbf{v}, d) + \Delta^2_z(\mathbf{v}, d)}
+\end{aligned}
+$$
+
+重建误差$\mathcal L_{recon}$好理解，就是输出图像和ground truth的差。
+
+正则化项$\mathcal L_{TV}$的$\Delta^2_x(\mathbf{v}, d)$、$\Delta^2_y(\mathbf{v}, d)$、$\Delta^2_z(\mathbf{v}, d)$分别是顶点$\mathbf{v}$和上下前后左右的相邻顶点之间的差，每种参数$d$都按照这样算正则化项，最后求和。看样子是为了保证网格参数尽可能平滑，但是为什么要这样？
+按照论文中的引用看，$\mathcal L_{TV}$来自一篇1994年古文《Total variation based image restoration with free local constraints》，网上的解析：
+
+>由于 Plenoxel 是完全的 explicit 方法，没有用到任何 MLP，这意外着网格点存放的参数的优化是完全独立的。而这很可能会导致训练过程中因为视角分布导致失真问题。想象一下，我某部分网格存了较大（这里的较大不是单纯数值上的大，理解一下）的参数就能够很好的应付训练视角的渲染，而另一部分网格由于前面的这些网格承担了大部分的渲染任务，使得它只存了较少的参数。让我进行新视角合成的时候，这两部分网格参数的割裂感就会以失真的形式展示出来。
+>
+>对于上述问题，Plenoxel 提出了相应的 smooth prior 来处理，通过计算 TV loss 来使相邻网格的值变得平滑。
+>
+>Plenoxel 对于  $\sigma$  和球谐函数的系数分别采用了不同权重的 TV loss 进行约束。
+
+### Unbounded Scenes
+
+TBD
+
+### Others
+
+>在实际的使用中，Plenoxel 可能并不是很好用。一方面，explicit 设计实现不了一种全局的优化，很容易陷入到局部最优解（网格顶点间的特征是孤立的），产生撕裂效果的失真。与之相比，大家还是更倾向于 Hybrid 方案，用离散的特征存储结合小型 MLP 的方式，实现存储和速度还有效果的权衡。
+
 ## (SIGGRAPH '22) Variable Bitrate Neural Fields
 
 可变码率Nerf
