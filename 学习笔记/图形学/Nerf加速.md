@@ -340,6 +340,10 @@ TBD
 
 >在实际的使用中，Plenoxel 可能并不是很好用。一方面，explicit 设计实现不了一种全局的优化，很容易陷入到局部最优解（网格顶点间的特征是孤立的），产生撕裂效果的失真。与之相比，大家还是更倾向于 Hybrid 方案，用离散的特征存储结合小型 MLP 的方式，实现存储和速度还有效果的权衡。
 
+## (SIGGRAPH '23 Best Paper) 3D Gaussian Splatting for Real-Time Radiance Field Rendering
+
+很有价值，值得单列一篇：[3D Gaussian Splatting](./3DGaussianSplatting.md)
+
 ## (SIGGRAPH '22) Variable Bitrate Neural Fields
 
 可变码率Nerf
