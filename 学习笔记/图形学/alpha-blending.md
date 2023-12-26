@@ -23,4 +23,7 @@
 
 但是，介绍[画家算法](./投影和光栅化.md)时就提到了物体相互交叠时无法判断哪个物体远或是近，所以才会用z-buffering解决了绘制不透明物体的部分。
 但是此处半透明物体非得用画家算法，怎么解决透明物体相互交叠的情况？
-而且，排序时间复杂度太高，有没有办法优化？当然有很多trick，比如在[3D Gaussian Splatting](./3DGaussianSplatting.md)中就有针对Gaussian点云的画家算法。
+而且，排序时间复杂度太高，有没有办法优化？
+
+最直观的方法就是把替换buffer中的颜色和深度的操作换成在buffer里记录下每个像素的所有相关颜色和深度，最后再逐像素排个序，于是就能获取到每个像素的颜色顺序[[Kopanas et al. 2022]](https://dl.acm.org/doi/10.1145/3550454.3555497)。
+当然还有很多trick，比如在[3D Gaussian Splatting](./3DGaussianSplatting.md)中就有针对Gaussian点云的画家算法。
