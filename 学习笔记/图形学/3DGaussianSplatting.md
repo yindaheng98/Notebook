@@ -62,9 +62,9 @@ $$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\
 
 ### 如何表示Gaussian点的颜色
 
-用[球谐系数](./球谐系数.md)来表示每个高斯的颜色 ，以正确捕捉场景的视角相关外观。
+用[球谐系数](./球谐系数.md)来表示每个高斯的颜色 ，不同视角颜色不同。
 
-## 如何训练Gaussian点云
+## 如何训练Gaussian点
 
 ### 如何训练Gaussian点参数
 
@@ -81,7 +81,7 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 
 ### 如何训练Gaussian点位置
 
-位置梯度
+位置梯度？TBD
 
 ### 如何增加Gaussian点
 
@@ -124,7 +124,9 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 这也是NeRF的一种过拟合，正因为如此，NeRF在训练过程中会有概率在输入视角附近训练出一些错误点。
 尤其是在相机参数的有误差的时候，输入图像上的某些点时无解的，这是如果用DNN较大的NeRF进行过度的训练，NeRF不管怎么样都没法在场景中找到某些点的最优解，就会将点放在相机面前。
 
-## forward pass: Gaussian点云快速光栅化方法
+## Gaussian点 → Gaussian点云
+
+### forward pass: Gaussian点云快速光栅化方法
 
 本质上是一个基于画家算法的$\alpha$-Blending
 
@@ -148,7 +150,7 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 
 ![](i/20231225163903.png)
 
-## backward pass: Gaussian点云光栅化过程如何求微分
+### backward pass: Gaussian点云光栅化过程如何求微分
 
 * 问题描述：已知某个像素与ground-truth之间的loss，如何求相关Gaussian点的微分？
 * 解决思路：根据上述光栅化方法可知，像素的值是多个高斯点的值的加权平均，所以求相关Gaussian点的微分就是把loss值按照加权平均时的权值分配给这些Gaussian点。
