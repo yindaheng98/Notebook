@@ -1,18 +1,15 @@
 # 3D Gaussian Splatting
 
-前置知识：[多元正态分布](../数学/多元高斯分布.md)
-
 ## Splatting
 
 抛雪球算法的英文名称为Splatting方法，也称为足迹法（Footprint），它与光线投射法不同，是反复对体素的投影叠加效果进行运算。它用一个称为足迹的函数计算每一体素投影的影响范围，用高斯函数定义点或者小区域像素的强度分布，从而计算出其对图像的总体贡献，并加以合成，形成最后的图像。由于这个方法模仿了雪球被抛到墙壁上所留下的一个扩散状痕迹的现象，因而取名为“抛雪球法”。
 
-## 光栅化 Rasterization
-
-## $\alpha$-Blending
-
 ## 如何表示Gaussian点
 
 ### 1D → 3D？
+
+前置知识：
+* [多元正态分布](../数学/多元高斯分布.md)
 
 论文原文对3D高斯（3D Gaussians）的定义不太直观，笔者计划从高（中）数（学）角度开始梳理。1D高斯即正态分布：
 
@@ -127,4 +124,42 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 这也是NeRF的一种过拟合，正因为如此，NeRF在训练过程中会有概率在输入视角附近训练出一些错误点。
 尤其是在相机参数的有误差的时候，输入图像上的某些点时无解的，这是如果用DNN较大的NeRF进行过度的训练，NeRF不管怎么样都没法在场景中找到某些点的最优解，就会将点放在相机面前。
 
-## 可微的Gaussian点云快速光栅化方法
+## forward pass: Gaussian点云快速光栅化方法
+
+本质上是一个基于画家算法的$\alpha$-Blending
+
+前置知识：
+* [光栅化 Rasterization](./投影和光栅化.md)
+* [$\alpha$-Blending](./alpha-blending.md)
+
+具体过程：
+
+1. 将屏幕划分为16x16的tiles（对于Gaussian点来说就是bins）
+2. 计算每个Gaussian点所处的tiles和相对视平面的深度
+3. 根据Gaussian点相交的tiles和深度对所有Gaussian点进行排序
+   * 排序方法：GPU Radix sort，每个bins里按Gaussian点深度进行排序
+   * 排序完成后，每个tile都有一个list(bins of Gaussian点)，和这个tile相交的所有Gaussian点在这个list里面从近到远依次存放
+4. 给每个tile在GPU里开一个thread block，将tile对应的list加载进block的shared memory里
+5. thread block中的每个thread对应tile中的一个像素，执行$\alpha$-Blending
+   1. 计算list里下一个高斯点在当前像素投影出的颜色和$\alpha$值（很显然这样无法处理两个高斯点相交的情况，所以作者强调了这个$\alpha$-Blending是approximate的）
+   2. 将颜色与[frame buffer](./投影和光栅化.md)中的颜色混合
+   3. 将$\alpha$与透明度buffer中的透明度值相加
+   4. 如果透明度值大于阈值则退出计算，否则回到步骤1
+
+![](i/20231225163903.png)
+
+## backward pass: Gaussian点云光栅化过程如何求微分
+
+* 问题描述：已知某个像素与ground-truth之间的loss，如何求相关Gaussian点的微分？
+* 解决思路：根据上述光栅化方法可知，像素的值是多个高斯点的值的加权平均，所以求相关Gaussian点的微分就是把loss值按照加权平均时的权值分配给这些Gaussian点。
+
+所以，只要知道像素的loss和在forward pass时各Gaussian点的权值就能计算出各高斯点的微分了。
+
+具体过程：
+
+1. 在光栅化Gaussian点时，每个像素计算完成后都记录下最终的$\alpha$值和最后一个有用的Gaussian点在list中的位置
+2. 对每个像素，从其对应的list的最后一个Gaussian点开始遍历，对之前记录的最终的$\alpha$值进行分解，从而得到当前像素的loss该给每个Gaussian点分配多少
+
+TBD: 为什么要从最后一个Gaussian点开始遍历？按理说最后一个Gaussian点的光线穿过前面的Gaussian点会有衰减，衰减多少应该是由前面的Gaussian点的$\alpha$决定的啊？
+
+为什么要记录最终的$\alpha$值？因为不是每个像素都会在$\alpha\rightarrow 1$时停下，有些方向可能Gaussian点少或者透明的点太多，所有Gaussian点算完了都没法$\alpha=1$。
