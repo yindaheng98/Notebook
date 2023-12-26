@@ -2,8 +2,8 @@
     "3DGaussianSplatting.md": {
         "title": "3D Gaussian Splatting",
         "created": "2023-12-19 05:38:10",
-        "updated": "2023-12-20 19:01:05",
-        "date": "2023-12-20 19:01:05",
+        "updated": "2023-12-26 01:13:42",
+        "date": "2023-12-26 01:13:42",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -30,8 +30,8 @@
     "alpha-blending.md": {
         "title": "光栅化中的半透明物体：α-blending 透明度混合",
         "created": "2023-12-25 00:31:56",
-        "updated": "2023-12-25 00:31:56",
-        "date": "2023-12-25 00:31:56",
+        "updated": "2023-12-26 01:03:36",
+        "date": "2023-12-26 01:03:36",
         "tags": [
             "图形学"
         ],
