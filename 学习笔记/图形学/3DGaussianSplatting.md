@@ -58,11 +58,21 @@ $$G_s\left(\bm x \right) = \frac{1}{\sqrt{2\pi}^3\det(\Sigma)} \cdot e^{-\frac{1
 
 $$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\bm x \right)}$$
 
-和标准形式对比可以看到去掉了指数部分前面的尺度系数（不影响椭球几何）；默认模型坐标中心在坐标系原点，方便旋转放缩，放入世界坐标系时再加上平移。
+和标准形式对比可以看到：
+* 默认模型坐标中心在坐标系原点，方便旋转放缩，放入世界坐标系时再加上平移
+* 去掉了指数部分前面的尺度系数，所以在空间上的积分不为1，而是在$\bm x=[0,0,0]^T$处值等于1，所以是一个中间不透明（$G\left(\bm x \right)$值为1），越往四周越透明的椭球。
+  * 论文中用一个不透明度值$\alpha$控制Gaussian点整体的透明度，可以让Gaussian点中间也透明
 
 ### 如何表示Gaussian点的颜色
 
 用[球谐系数](./球谐系数.md)来表示每个高斯的颜色 ，不同视角颜色不同。
+
+## 如何渲染Gaussian点
+
+渲染Gaussian点就是按照相机位置将3D Gaussian点变换到成像平面上。
+
+比较复杂，需学习[《3D Gaussian Splatting中的数学推导》](./3D高斯数学推导.md)和论文
+Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. **EWA volume splatting**. *In Proceedings Visualization*, 2001. VIS’01. IEEE, 29–538.
 
 ## 如何训练Gaussian点
 
@@ -73,10 +83,7 @@ $$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\
 
 训练过程就是用渲染图和原图比较计算视野中高斯点的矩阵$\Sigma$的梯度，然后梯度下降调$\Sigma$。
 
-其梯度计算原理比较复杂，需学习
-[3D Gaussian Splatting中的数学推导](./3D高斯数学推导.md)
-，
-相关方法主要来自于论文
+其梯度计算原理比较复杂，需学习[《3D Gaussian Splatting中的数学推导》](./3D高斯数学推导.md)，相关方法主要来自于论文
 Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. **EWA volume splatting**. *In Proceedings Visualization*, 2001. VIS’01. IEEE, 29–538.
 
 ### 如何训练Gaussian点位置
@@ -128,7 +135,9 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 
 ### forward pass: Gaussian点云快速光栅化方法
 
-本质上是一个基于画家算法的$\alpha$-Blending
+本质上是一个基于画家算法的$\alpha$-Blending。本文所用的$\alpha$-Blending公式是：
+
+![](i/20231225172335.png)
 
 前置知识：
 * [光栅化 Rasterization](./投影和光栅化.md)
