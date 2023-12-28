@@ -47,3 +47,8 @@ $$
 * multi-head Gaussian deformation decoder 根据特征输出形变 $\Delta\mathcal G=\mathcal D(f)$
 
 ![](i/20231227164218.png)
+
+模型训练：$\mathcal L=\hat I-I+\mathcal L_{tv}$
+* L1 color loss $\hat I-I$
+* grid-based total-variational loss $\mathcal L_{tv}$ 动态NeRF常见loss函数
+* 实验中的训练时间20min~1h
