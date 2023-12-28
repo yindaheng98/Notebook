@@ -27,6 +27,20 @@
         ],
         "cover": "/图形学/zhimg.com/v2-7cbe3b0c3b67ce80593fad0d73a814b5_r.jpg"
     },
+    "3D高斯泼溅文件压缩.md": {
+        "title": "【翻译转载】Making Gaussian Splats smaller - 3D Gaussian Splatting 文件压缩",
+        "created": "2023-12-27 17:28:07",
+        "updated": "2023-12-27 17:28:07",
+        "date": "2023-12-27 17:28:07",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/image-311.png"
+    },
     "alpha-blending.md": {
         "title": "光栅化中的半透明物体：α-blending 透明度混合",
         "created": "2023-12-25 00:31:56",
@@ -180,9 +194,9 @@
     },
     "动态NeRF.md": {
         "title": "让NeRF动起来",
-        "created": "2023-12-27 16:37:28",
-        "updated": "2023-12-27 16:37:28",
-        "date": "2023-12-27 16:37:28",
+        "created": "2023-12-28 00:38:58",
+        "updated": "2023-12-28 01:08:19",
+        "date": "2023-12-28 01:08:19",
         "tags": [
             "图形学"
         ],
