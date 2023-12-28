@@ -38,3 +38,12 @@ $$
 \Delta\mathcal G&=\mathcal F(\mathcal G, t)
 \end{aligned}
 $$
+
+模型设计：
+* spatial-temporal structure encoder 特征提取 $f=\mathcal H(\mathcal G,t)$
+  * $\mathcal G$被表示为6个K-Planes
+  * 模型本体是一个MLP和6个multi-resolution K-Planes modules
+  * K-Planes: Explicit Radiance Fields in Space, Time, and Appearance
+* multi-head Gaussian deformation decoder 根据特征输出形变 $\Delta\mathcal G=\mathcal D(f)$
+
+![](i/20231227164218.png)
