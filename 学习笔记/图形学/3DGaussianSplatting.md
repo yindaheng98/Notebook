@@ -48,11 +48,13 @@ $$\Sigma=
 
 ### “3D Gaussians” 3D Gaussian点
 
-就像给3个顶点能表达任意一个3D三角形，研究者自然希望构筑的基础元素能覆盖足够多样的几何，而多元正态分布能涵盖空间中任意形状任意位姿（包括平移旋转）的椭球：
+就像给3个顶点能表达任意一个3D三角形，研究者自然希望构筑的基础元素能覆盖足够多样的几何，而多元正态分布能涵盖空间中任意形状（椭球的三个轴长）任意位姿（包括平移旋转）的椭球：
 
 $$G_s\left(\bm x \right) = \frac{1}{\sqrt{2\pi}^3\det(\Sigma)} \cdot e^{-\frac{1}{2}(\bm x - \bm\mu)^T \Sigma^{-1}(\bm x - \bm\mu)}$$
 
 其中$\bm\mu$是椭球中心（控制世界空间位置平移），协方差矩阵$\Sigma$控制椭球在3轴向的伸缩和旋转（模型坐标系），协方差矩阵的特征向量就是椭球对称轴。
+
+注：在数学上每个高斯分布都覆盖整个空间，当它是椭球是因为它的等高线是椭球。计算的时候显然不能每个像素点上对每个高斯点都采个样，所以实际使用中会把距离中心较远的地方截掉（本文是在概率积分$99\%$的等高线截），截了就看着是一个中心透明度高周围透明度低的椭球。
 
 论文中则是这样定义：
 
@@ -88,7 +90,8 @@ Matthias Zwicker, Hanspeter Pfister, Jeroen Van Baar, and Markus Gross. 2001a. *
 
 ### 如何训练Gaussian点位置
 
-位置梯度？TBD
+文中只提了一嘴“位置梯度”但是没有细讲，不知道具体什么实现。
+但是可以参考另一篇基于EWA Splatting的文章《Differentiable surface splatting for point-based geometry processing》。具体见后文对这篇文章的解读。
 
 ### 如何增加Gaussian点
 
@@ -175,258 +178,93 @@ TBD: 为什么要从最后一个Gaussian点开始遍历？按理说最后一个G
 
 为什么要记录最终的$\alpha$值？因为不是每个像素都会在$\alpha\rightarrow 1$时停下，有些方向可能Gaussian点少或者透明的点太多，所有Gaussian点算完了都没法$\alpha=1$。
 
-## 核心代码
+## 类似工作：(2019 ACM Trans. Graph.) Differentiable surface splatting for point-based geometry processing
 
-GaussianSplatting的核心实际上就是“Differential Gaussian Rasterization”，总结下来其实就两个操作：“点云→图片”(Rasterization)和“loss→梯度”(Differential)。
-核心代码都是C++，用Pybind11封装，代码位于`submodules/diff-gaussian-rasterization`。
+3D Gaussian Splatting文中只提了一嘴“位置梯度”但是没有细讲，不知道具体什么实现。
+但是可以参考另一篇基于EWA Splatting的文章《Differentiable surface splatting for point-based geometry processing》，这篇文章和3D Gaussian Splatting非常相似，几乎就是缺了各向异性和$\alpha$的3D Gaussian Splatting。
 
-下面这个外层封装代码`submodules/diff-gaussian-rasterization/diff_gaussian_rasterization/__init__.py`一看就懂，作者其实就是用了Pytorch的自定义操作`torch.autograd.Function`，Rasterization和Differential分别是`forward`和`backward`过程：
+### 如何定义Gaussian点
 
-```python
-#
-# Copyright (C) 2023, Inria
-# GRAPHDECO research group, https://team.inria.fr/graphdeco
-# All rights reserved.
-#
-# This software is free for non-commercial, research and evaluation use 
-# under the terms of the LICENSE.md file.
-#
-# For inquiries contact  george.drettakis@inria.fr
-#
+和3D Gaussian Splatting一样都是三维正态分布：
 
-from typing import NamedTuple
-import torch.nn as nn
-import torch
-from . import _C
+$$G_s\left(\bm x \right) = \frac{1}{\sqrt{2\pi}^3\det(\Sigma)} \cdot e^{-\frac{1}{2}(\bm x - \bm\mu)^T \Sigma^{-1}(\bm x - \bm\mu)}$$
 
-def cpu_deep_copy_tuple(input_tuple):
-    copied_tensors = [item.cpu().clone() if isinstance(item, torch.Tensor) else item for item in input_tuple]
-    return tuple(copied_tensors)
+唯一的不同是本文没有把这公式改成$G\left(\bm x \right) =e^{-\frac{1}{2}\left(\bm x \right) ^T\Sigma ^{-1}\left(\bm x \right)}$，这意味着本文中的高斯点的位置和旋转都是直接由$\Sigma$（在文中是$\bm J_k$）决定的，没有说要独立出来。但是文中也说了$\bm J_k$由高斯点位置$\bm p_k$和法向量$\bm n_k$决定，求梯度的时候也是针对$\bm p_k$和$\bm n_k$在操作。
 
-def rasterize_gaussians(
-    means3D,
-    means2D,
-    sh,
-    colors_precomp,
-    opacities,
-    scales,
-    rotations,
-    cov3Ds_precomp,
-    raster_settings,
-):
-    return _RasterizeGaussians.apply(
-        means3D,
-        means2D,
-        sh,
-        colors_precomp,
-        opacities,
-        scales,
-        rotations,
-        cov3Ds_precomp,
-        raster_settings,
-    )
+### 如何渲染Gaussian点
 
-class _RasterizeGaussians(torch.autograd.Function):
-    @staticmethod
-    def forward(
-        ctx,
-        means3D,
-        means2D,
-        sh,
-        colors_precomp,
-        opacities,
-        scales,
-        rotations,
-        cov3Ds_precomp,
-        raster_settings,
-    ):
+具体来说，这篇文章将图像上像素$\bm x$处的计算结果定义为$\mathbb I_{\bm x}$：
 
-        # Restructure arguments the way that the C++ lib expects them
-        args = (
-            raster_settings.bg, 
-            means3D,
-            colors_precomp,
-            opacities,
-            scales,
-            rotations,
-            raster_settings.scale_modifier,
-            cov3Ds_precomp,
-            raster_settings.viewmatrix,
-            raster_settings.projmatrix,
-            raster_settings.tanfovx,
-            raster_settings.tanfovy,
-            raster_settings.image_height,
-            raster_settings.image_width,
-            sh,
-            raster_settings.sh_degree,
-            raster_settings.campos,
-            raster_settings.prefiltered,
-            raster_settings.debug
-        )
+$$\mathbb I_{\bm x}=\frac{\sum_{k=0}^{N-1}\rho_k(\bm x)\bm w_k}{\sum_{k=0}^{N-1}\rho_k(\bm x)}$$
 
-        # Invoke C++/CUDA rasterizer
-        if raster_settings.debug:
-            cpu_args = cpu_deep_copy_tuple(args) # Copy them before they can be corrupted
-            try:
-                num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer = _C.rasterize_gaussians(*args)
-            except Exception as ex:
-                torch.save(cpu_args, "snapshot_fw.dump")
-                print("\nAn error occured in forward. Please forward snapshot_fw.dump for debugging.")
-                raise ex
-        else:
-            num_rendered, color, radii, geomBuffer, binningBuffer, imgBuffer = _C.rasterize_gaussians(*args)
+其中，$w_k$为高斯点$k$的Attributes，可以是颜色；$\rho_k(\bm x)$是高斯点$k$在像素$\bm x$处的概率密度值。
+所以这个$\mathbb I_{\bm x}$公式其实就是简化版的Gaussian Splatting，比上面讲的Gaussian Splatting少了基于球谐系数的各向异性和透明度$\alpha$。想想也挺符合这个文章标题“surface splatting”，只管构建表面不管高斯点中心要不要半透明。
 
-        # Keep relevant tensors for backward
-        ctx.raster_settings = raster_settings
-        ctx.num_rendered = num_rendered
-        ctx.save_for_backward(colors_precomp, means3D, scales, rotations, cov3Ds_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer)
-        return color, radii
+回到上面那个公式，其中的$\rho_k(\bm x)$表达式如下：
 
-    @staticmethod
-    def backward(ctx, grad_out_color, _):
+$$
+\rho_k(\bm x)=
+\left\{
+\begin{aligned}
+    &0&&\text{if }\frac{1}{2}\bm x^T(\bm J\bm V_k\bm J)\bm x>\mathcal C\\
+    &0&&\text{if }\bm p_{k}\text{ is occluded}\\
+    &\bar\rho_k(\bm x)&&\text{otherwise}
+\end{aligned}
+\right.
+$$
 
-        # Restore necessary values from context
-        num_rendered = ctx.num_rendered
-        raster_settings = ctx.raster_settings
-        colors_precomp, means3D, scales, rotations, cov3Ds_precomp, radii, sh, geomBuffer, binningBuffer, imgBuffer = ctx.saved_tensors
+从公式里看很明显，这个$\frac{1}{2}\bm x^T(\bm J\bm V_k\bm J)\bm x>\mathcal C$就是和Gaussian Splatting一样把高斯分布较远的地方截掉，此外也一样考虑了高斯点的顺序和遮挡。文中提到遮挡判断的条件很简单，就是对每个像素只求最近的5个高斯点，$\mathbb I_{\bm x}$公式里的$N=5$。
 
-        # Restructure args as C++ method expects them
-        args = (raster_settings.bg,
-                means3D, 
-                radii, 
-                colors_precomp, 
-                scales, 
-                rotations, 
-                raster_settings.scale_modifier, 
-                cov3Ds_precomp, 
-                raster_settings.viewmatrix, 
-                raster_settings.projmatrix, 
-                raster_settings.tanfovx, 
-                raster_settings.tanfovy, 
-                grad_out_color, 
-                sh, 
-                raster_settings.sh_degree, 
-                raster_settings.campos,
-                geomBuffer,
-                num_rendered,
-                binningBuffer,
-                imgBuffer,
-                raster_settings.debug)
+### 如何训练Gaussian点位置
 
-        # Compute gradients for relevant tensors by invoking backward method
-        if raster_settings.debug:
-            cpu_args = cpu_deep_copy_tuple(args) # Copy them before they can be corrupted
-            try:
-                grad_means2D, grad_colors_precomp, grad_opacities, grad_means3D, grad_cov3Ds_precomp, grad_sh, grad_scales, grad_rotations = _C.rasterize_gaussians_backward(*args)
-            except Exception as ex:
-                torch.save(cpu_args, "snapshot_bw.dump")
-                print("\nAn error occured in backward. Writing snapshot_bw.dump for debugging.\n")
-                raise ex
-        else:
-             grad_means2D, grad_colors_precomp, grad_opacities, grad_means3D, grad_cov3Ds_precomp, grad_sh, grad_scales, grad_rotations = _C.rasterize_gaussians_backward(*args)
+作者先从一维的情况开始解释，然后扩展到三维的情况。
 
-        grads = (
-            grad_means3D,
-            grad_means2D,
-            grad_sh,
-            grad_colors_precomp,
-            grad_opacities,
-            grad_scales,
-            grad_rotations,
-            grad_cov3Ds_precomp,
-            None,
-        )
+#### 一维的场景
 
-        return grads
+基本思想是用正态分布中心$\bm p_{k,0}$到像素中心$\bm q_x$和边界之间的距离和像素值$\Phi_{\bm x}$（和$\mathbb I_x$一个意思）的比值定义位置梯度：
 
-class GaussianRasterizationSettings(NamedTuple):
-    image_height: int
-    image_width: int 
-    tanfovx : float
-    tanfovy : float
-    bg : torch.Tensor
-    scale_modifier : float
-    viewmatrix : torch.Tensor
-    projmatrix : torch.Tensor
-    sh_degree : int
-    campos : torch.Tensor
-    prefiltered : bool
-    debug : bool
+![](i/20231229203751.png)
 
-class GaussianRasterizer(nn.Module):
-    def __init__(self, raster_settings):
-        super().__init__()
-        self.raster_settings = raster_settings
+从图上就能看个大概，其实就是以“高斯点中心像素中心越远值越小”为基础的“启发式”梯度😀
 
-    def markVisible(self, positions):
-        # Mark visible points (based on frustum culling for camera) with a boolean 
-        with torch.no_grad():
-            raster_settings = self.raster_settings
-            visible = _C.mark_visible(
-                positions,
-                raster_settings.viewmatrix,
-                raster_settings.projmatrix)
-            
-        return visible
+具体点，中心在$\bm p_{k,0}$的高斯点的对像素$\bm x$位置梯度定义为：
 
-    def forward(self, means3D, means2D, opacities, shs = None, colors_precomp = None, scales = None, rotations = None, cov3D_precomp = None):
-        
-        raster_settings = self.raster_settings
+$$
+\left.\frac{d\Phi_{\bm x}}{d\bm p_{k,0}}\right\vert_{\bm p_{k,0}}=
+\left\{
+\begin{aligned}
+    &\frac{\Delta\mathbb I_x}{\left\|\Delta\bm p_k^+\right\|+\epsilon}\Delta\bm p_k^+&&\bm p_k\text{ invisible at }\bm x\\
+    &\frac{\Delta\mathbb I_x}{\left\|\Delta\bm p_k^+\right\|+\epsilon}\Delta\bm p_k^++\frac{\Delta\mathbb I_x}{\left\|\Delta\bm p_k^-\right\|+\epsilon}\Delta\bm p_k^-&&\text{otherwise}\\
+\end{aligned}
+\right.
+$$
 
-        if (shs is None and colors_precomp is None) or (shs is not None and colors_precomp is not None):
-            raise Exception('Please provide excatly one of either SHs or precomputed colors!')
-        
-        if ((scales is None or rotations is None) and cov3D_precomp is None) or ((scales is not None or rotations is not None) and cov3D_precomp is not None):
-            raise Exception('Please provide exactly one of either scale/rotation pair or precomputed 3D covariance!')
-        
-        if shs is None:
-            shs = torch.Tensor([])
-        if colors_precomp is None:
-            colors_precomp = torch.Tensor([])
+其中$\epsilon$防止除数为0梯度爆炸，$\Delta\bm p_k^+$和$\Delta\bm p_k^-$在高斯点和像素相交与不相交时分别有不同的表示。如上图：
 
-        if scales is None:
-            scales = torch.Tensor([])
-        if rotations is None:
-            rotations = torch.Tensor([])
-        if cov3D_precomp is None:
-            cov3D_precomp = torch.Tensor([])
+* 如上图左所示，高斯点和像素不相交时$\Delta\bm p_k^+=\mathbb I_x/\|\overrightarrow{\bm p_{k,0}\bm q_x}\|$，$\Delta\bm p_k^-=0$
+* 如上图右所示，高斯点和像素相交时$\Delta\bm p_k^+$和$\Delta\bm p_k^-$分别是$\mathbb I_x$除高斯点中心和像素左侧和右侧的距离
 
-        # Invoke C++/CUDA rasterization routine
-        return rasterize_gaussians(
-            means3D,
-            means2D,
-            shs,
-            colors_precomp,
-            opacities,
-            scales, 
-            rotations,
-            cov3D_precomp,
-            raster_settings, 
-        )
-```
+#### 三维的场景
 
-可以看出主要的Rasterization和Differential过程应该分别在`_C.rasterize_gaussians`和`_C.rasterize_gaussians_backward`里面。再进Pybind11的`ext.cpp`文件里找这两个函数，发现`ext.cpp`只有三行：
+推广到三维的场景，其实就是基于输出的图片在xy两个方向上计算上述值。从实际出发，作者考虑以下三种情况：
 
-```cpp
-/*
- * Copyright (C) 2023, Inria
- * GRAPHDECO research group, https://team.inria.fr/graphdeco
- * All rights reserved.
- *
- * This software is free for non-commercial, research and evaluation use 
- * under the terms of the LICENSE.md file.
- *
- * For inquiries contact  george.drettakis@inria.fr
- */
+![](i/20231229222043.png)
 
-#include <torch/extension.h>
-#include "rasterize_points.h"
+* (a) 高斯点$k$没被任何像素渲染，像素$\bm x$也没有需要渲染的高斯点
+* (b) 高斯点$k$没被任何像素渲染，像素$\bm x$被其他高斯点覆盖
+  * $\bm p_k$ must move forward in order to become visible, resulting in a negative depth gradient.
+  * 为什么？
+* (c) 高斯点$k$被某个像素渲染，像素$\bm x$被其他高斯点覆盖
+  * 需要把梯度分两份给两个高斯点
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
-  m.def("rasterize_gaussians", &RasterizeGaussiansCUDA);
-  m.def("rasterize_gaussians_backward", &RasterizeGaussiansBackwardCUDA);
-  m.def("mark_visible", &markVisible);
-}
-```
+文中提到自己的方法和NMR《Neural 3d mesh renderer》很类似，要深入了解可以再去这篇里看看
 
-所以这里的`RasterizeGaussiansCUDA`和`RasterizeGaussiansBackwardCUDA`就是整个的Differential Gaussian Rasterization的入口函数了。
+### Surface regularization
+
+通过一些正则化方法避免局部最优。
+
+* Repulsion term: is aimed at **generating uniform point distributions** by **maximizing the
+distances between its neighbors on a local projection plane**
+* Projection term: **preserves clean surfaces** by **minimizing the distance from the point to the surface tangent plane**
+
+![](i/20231229223118.png)
