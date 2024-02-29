@@ -2,8 +2,8 @@
     "3DGaussianSplatting.md": {
         "title": "3D Gaussian Splatting",
         "created": "2023-12-19 05:38:10",
-        "updated": "2023-12-29 23:43:43",
-        "date": "2023-12-29 23:43:43",
+        "updated": "2023-12-30 06:36:34",
+        "date": "2023-12-30 06:36:34",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -15,9 +15,9 @@
     },
     "3DGaussianSplattingCode.md": {
         "title": "3D Gaussian Splatting 代码寻踪",
-        "created": "2023-12-29 21:40:08",
-        "updated": "2023-12-29 21:40:08",
-        "date": "2023-12-29 21:40:08",
+        "created": "2023-12-30 06:36:34",
+        "updated": "2023-12-30 06:36:34",
+        "date": "2023-12-30 06:36:34",
         "tags": [
             "图形学"
         ],
@@ -78,6 +78,18 @@
             "图形学"
         ],
         "cover": "/图形学/i/20170224140557254.jpg"
+    },
+    "InstantNGP.md": {
+        "title": "Instant-NGP中的NeRF渲染核心代码解析",
+        "created": "2024-02-29 06:04:52",
+        "updated": "2024-02-29 06:04:52",
+        "date": "2024-02-29 06:04:52",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ]
     },
     "LOD.md": {
         "title": "【摘录】LoD(Level Of Details)",
