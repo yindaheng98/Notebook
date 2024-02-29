@@ -673,3 +673,198 @@ __global__ void bitfield_max_pool(const uint32_t n_elements,
 ```
 
 于是就达到了分层`density_grid_bitfield`的效果。
+
+## 执行渲染`tracer.trace`
+
+```cpp
+uint32_t Testbed::NerfTracer::trace(
+	const std::shared_ptr<NerfNetwork<network_precision_t>>& network,
+	const BoundingBox& render_aabb,
+	const mat3& render_aabb_to_local,
+	const BoundingBox& train_aabb,
+	const vec2& focal_length,
+	float cone_angle_constant,
+	const uint8_t* grid,
+	ERenderMode render_mode,
+	const mat4x3 &camera_matrix,
+	float depth_scale,
+	int visualized_layer,
+	int visualized_dim,
+	ENerfActivation rgb_activation,
+	ENerfActivation density_activation,
+	int show_accel,
+	uint32_t max_mip,
+	float min_transmittance,
+	float glow_y_cutoff,
+	int glow_mode,
+	const float* extra_dims_gpu,
+	cudaStream_t stream
+) {
+	if (m_n_rays_initialized == 0) {
+		return 0;
+	}
+
+	CUDA_CHECK_THROW(cudaMemsetAsync(m_hit_counter, 0, sizeof(uint32_t), stream));
+
+	uint32_t n_alive = m_n_rays_initialized;
+	// m_n_rays_initialized = 0;
+
+	uint32_t i = 1;
+	uint32_t double_buffer_index = 0;
+	while (i < MARCH_ITER) {
+		RaysNerfSoa& rays_current = m_rays[(double_buffer_index + 1) % 2];
+		RaysNerfSoa& rays_tmp = m_rays[double_buffer_index % 2];
+		++double_buffer_index;
+
+		// Compact rays that did not diverge yet
+		{
+			CUDA_CHECK_THROW(cudaMemsetAsync(m_alive_counter, 0, sizeof(uint32_t), stream));
+			linear_kernel(compact_kernel_nerf, 0, stream,
+				n_alive,
+				rays_tmp.rgba, rays_tmp.depth, rays_tmp.payload,
+				rays_current.rgba, rays_current.depth, rays_current.payload,
+				m_rays_hit.rgba, m_rays_hit.depth, m_rays_hit.payload,
+				m_alive_counter, m_hit_counter
+			);
+			CUDA_CHECK_THROW(cudaMemcpyAsync(&n_alive, m_alive_counter, sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
+			CUDA_CHECK_THROW(cudaStreamSynchronize(stream));
+		}
+
+		if (n_alive == 0) {
+			break;
+		}
+
+		// Want a large number of queries to saturate the GPU and to ensure compaction doesn't happen toooo frequently.
+		uint32_t target_n_queries = 2 * 1024 * 1024;
+		uint32_t n_steps_between_compaction = clamp(target_n_queries / n_alive, (uint32_t)MIN_STEPS_INBETWEEN_COMPACTION, (uint32_t)MAX_STEPS_INBETWEEN_COMPACTION);
+
+		uint32_t extra_stride = network->n_extra_dims() * sizeof(float);
+		PitchedPtr<NerfCoordinate> input_data((NerfCoordinate*)m_network_input, 1, 0, extra_stride);
+		linear_kernel(generate_next_nerf_network_inputs, 0, stream,
+			n_alive,
+			render_aabb,
+			render_aabb_to_local,
+			train_aabb,
+			focal_length,
+			camera_matrix[2],
+			rays_current.payload,
+			input_data,
+			n_steps_between_compaction,
+			grid,
+			(show_accel>=0) ? show_accel : 0,
+			max_mip,
+			cone_angle_constant,
+			extra_dims_gpu
+		);
+		uint32_t n_elements = next_multiple(n_alive * n_steps_between_compaction, BATCH_SIZE_GRANULARITY);
+		GPUMatrix<float> positions_matrix((float*)m_network_input, (sizeof(NerfCoordinate) + extra_stride) / sizeof(float), n_elements);
+		GPUMatrix<network_precision_t, RM> rgbsigma_matrix((network_precision_t*)m_network_output, network->padded_output_width(), n_elements);
+		network->inference_mixed_precision(stream, positions_matrix, rgbsigma_matrix);
+
+		if (render_mode == ERenderMode::Normals) {
+			network->input_gradient(stream, 3, positions_matrix, positions_matrix);
+		} else if (render_mode == ERenderMode::EncodingVis) {
+			network->visualize_activation(stream, visualized_layer, visualized_dim, positions_matrix, positions_matrix);
+		}
+
+		linear_kernel(composite_kernel_nerf, 0, stream,
+			n_alive,
+			n_elements,
+			i,
+			train_aabb,
+			glow_y_cutoff,
+			glow_mode,
+			camera_matrix,
+			focal_length,
+			depth_scale,
+			rays_current.rgba,
+			rays_current.depth,
+			rays_current.payload,
+			input_data,
+			m_network_output,
+			network->padded_output_width(),
+			n_steps_between_compaction,
+			render_mode,
+			grid,
+			rgb_activation,
+			density_activation,
+			show_accel,
+			min_transmittance
+		);
+
+		i += n_steps_between_compaction;
+	}
+
+	uint32_t n_hit;
+	CUDA_CHECK_THROW(cudaMemcpyAsync(&n_hit, m_hit_counter, sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
+	CUDA_CHECK_THROW(cudaStreamSynchronize(stream));
+	return n_hit;
+}
+```
+
+最最核心的NeRF推断过程是`network->inference_mixed_precision(stream, positions_matrix, rgbsigma_matrix);`。
+按照NeRF的运行逻辑，推断前的`compact_kernel_nerf`和`generate_next_nerf_network_inputs`就应该是采样过程；
+推断后的`composite_kernel_nerf`就应该是体渲染过程。
+
+再看外面这一个`while (i < MARCH_ITER)`，哦原来是ray marching，懂了懂了，一步一步执行“采样->推断->体渲染”过程呗。
+
+`compact_kernel_nerf`这函数很简单，就是ray marching每一步开始时的初始化过程：
+
+```cpp
+__global__ void compact_kernel_nerf(
+	const uint32_t n_elements,
+	vec4* src_rgba, float* src_depth, NerfPayload* src_payloads,
+	vec4* dst_rgba, float* dst_depth, NerfPayload* dst_payloads,
+	vec4* dst_final_rgba, float* dst_final_depth, NerfPayload* dst_final_payloads,
+	uint32_t* counter, uint32_t* finalCounter
+) {
+	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x;
+	if (i >= n_elements) return;
+
+	NerfPayload& src_payload = src_payloads[i];
+
+	if (src_payload.alive) {
+		uint32_t idx = atomicAdd(counter, 1);
+		dst_payloads[idx] = src_payload;
+		dst_rgba[idx] = src_rgba[i];
+		dst_depth[idx] = src_depth[i];
+	} else if (src_rgba[i].a > 0.001f) {
+		uint32_t idx = atomicAdd(finalCounter, 1);
+		dst_final_payloads[idx] = src_payload;
+		dst_final_rgba[idx] = src_rgba[i];
+		dst_final_depth[idx] = src_depth[i];
+	}
+}
+```
+
+观察这个函数调用的周围，可以发现`compact_kernel_nerf`的输入来自于`m_rays`，这个`m_rays`在`init_rays_from_camera`末尾被赋值，其定义为`RaysNerfSoa m_rays[2];`：
+
+```cpp
+struct RaysNerfSoa {
+#if defined(__CUDACC__) || (defined(__clang__) && defined(__CUDA__))
+	void copy_from_other_async(const RaysNerfSoa& other, cudaStream_t stream) {
+		CUDA_CHECK_THROW(cudaMemcpyAsync(rgba, other.rgba, size * sizeof(vec4), cudaMemcpyDeviceToDevice, stream));
+		CUDA_CHECK_THROW(cudaMemcpyAsync(depth, other.depth, size * sizeof(float), cudaMemcpyDeviceToDevice, stream));
+		CUDA_CHECK_THROW(cudaMemcpyAsync(payload, other.payload, size * sizeof(NerfPayload), cudaMemcpyDeviceToDevice, stream));
+	}
+#endif
+
+	void set(vec4* rgba, float* depth, NerfPayload* payload, size_t size) {
+		this->rgba = rgba;
+		this->depth = depth;
+		this->payload = payload;
+		this->size = size;
+	}
+
+	vec4* rgba;
+	float* depth;
+	NerfPayload* payload;
+	size_t size;
+};
+```
+
+很明显，`m_rays`用于在这个ray marching循环中交替使用，一项存储了前一次的计算结果，另一项用于当前计算。
+
+### 采样`generate_next_nerf_network_inputs`
+
+### 体渲染`composite_kernel_nerf`
