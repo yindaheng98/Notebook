@@ -867,4 +867,111 @@ struct RaysNerfSoa {
 
 ### 采样`generate_next_nerf_network_inputs`
 
+就是前进最多`n_steps`步记下每步对应的点位置在`network_input`里。
+
+```cpp
+__global__ void generate_next_nerf_network_inputs(
+	const uint32_t n_elements,
+	BoundingBox render_aabb,
+	mat3 render_aabb_to_local,
+	BoundingBox train_aabb,
+	vec2 focal_length,
+	vec3 camera_fwd,
+	NerfPayload* __restrict__ payloads,
+	PitchedPtr<NerfCoordinate> network_input,
+	uint32_t n_steps,
+	const uint8_t* __restrict__ density_grid,
+	uint32_t min_mip,
+	uint32_t max_mip,
+	float cone_angle_constant,
+	const float* extra_dims
+) {
+	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x;
+	if (i >= n_elements) return;
+
+	NerfPayload& payload = payloads[i]; // 获取该像素的payload开始计算
+
+	if (!payload.alive) { // 该像素payload被标记无物则退出
+		return;
+	}
+
+	vec3 origin = payload.origin;
+	vec3 dir = payload.dir;
+	vec3 idir = vec3(1.0f) / dir;
+
+	float cone_angle = calc_cone_angle(dot(dir, camera_fwd), focal_length, cone_angle_constant); // 看样子是计算相机的角度用于后续计算
+
+	float t = payload.t; // 上一步的位置
+
+	for (uint32_t j = 0; j < n_steps; ++j) { // 向前采样n_steps个
+		t = if_unoccupied_advance_to_next_occupied_voxel(t, cone_angle, {origin, dir}, idir, density_grid, min_mip, max_mip, render_aabb, render_aabb_to_local);
+		if (t >= MAX_DEPTH()) { // 超范围了就记下当前采样多少步然后退出
+			payload.n_steps = j;
+			return;
+		}
+
+		float dt = calc_dt(t, cone_angle); // 计算当前步要前进多少，也就是确定下一个采样点在光线上的位置
+		network_input(i + j * n_elements)->set_with_optional_extra_dims(warp_position(origin + dir * t, train_aabb), warp_direction(dir), warp_dt(dt), extra_dims, network_input.stride_in_bytes); // XXXCONE
+		// 在network_input里面记下当前的采样点和方向和步长，作为NeRF模型的输入
+		t += dt;
+	}
+
+	payload.t = t;
+	payload.n_steps = n_steps;
+}
+```
+
+这里`network_input`用于记录NeRF模型的输入，其中的元素`NerfCoordinate`也就是点的位置方向采样步长：
+
+```cpp
+struct NerfPosition {
+	NGP_HOST_DEVICE NerfPosition(const vec3& pos, float dt)
+	:
+	p{pos}
+#ifdef TRIPLANAR_COMPATIBLE_POSITIONS
+	, x{pos.x}
+#endif
+	{}
+	vec3 p;
+#ifdef TRIPLANAR_COMPATIBLE_POSITIONS
+	float x;
+#endif
+};
+
+struct NerfDirection {
+	NGP_HOST_DEVICE NerfDirection(const vec3& dir, float dt) : d{dir} {}
+	vec3 d;
+};
+
+struct NerfCoordinate {
+	NGP_HOST_DEVICE NerfCoordinate(const vec3& pos, const vec3& dir, float dt) : pos{pos, dt}, dt{dt}, dir{dir, dt} {}
+	NGP_HOST_DEVICE void set_with_optional_extra_dims(const vec3& pos, const vec3& dir, float dt, const float* extra_dims, uint32_t stride_in_bytes) {
+		this->dt = dt;
+		this->pos = NerfPosition(pos, dt);
+		this->dir = NerfDirection(dir, dt);
+		copy_extra_dims(extra_dims, stride_in_bytes);
+	}
+	inline NGP_HOST_DEVICE const float* get_extra_dims() const { return (const float*)(this + 1); }
+	inline NGP_HOST_DEVICE float* get_extra_dims() { return (float*)(this + 1); }
+
+	NGP_HOST_DEVICE void copy(const NerfCoordinate& inp, uint32_t stride_in_bytes) {
+		*this = inp;
+		copy_extra_dims(inp.get_extra_dims(), stride_in_bytes);
+	}
+	NGP_HOST_DEVICE inline void copy_extra_dims(const float *extra_dims, uint32_t stride_in_bytes) {
+		if (stride_in_bytes >= sizeof(NerfCoordinate)) {
+			float* dst = get_extra_dims();
+			const uint32_t n_extra = (stride_in_bytes - sizeof(NerfCoordinate)) / sizeof(float);
+			for (uint32_t i = 0; i < n_extra; ++i) dst[i] = extra_dims[i];
+		}
+	}
+
+	NerfPosition pos;
+	float dt;
+	NerfDirection dir;
+};
+```
+
 ### 体渲染`composite_kernel_nerf`
+
+TODO

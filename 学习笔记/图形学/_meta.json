@@ -82,9 +82,10 @@
     "InstantNGP.md": {
         "title": "Instant-NGP中的NeRF渲染核心代码解析",
         "created": "2024-02-29 06:04:52",
-        "updated": "2024-02-29 06:04:52",
-        "date": "2024-02-29 06:04:52",
+        "updated": "2024-02-29 06:30:55",
+        "date": "2024-02-29 06:30:55",
         "tags": [
+            "Nerf",
             "图形学"
         ],
         "categories": [
