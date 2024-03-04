@@ -974,4 +974,220 @@ struct NerfCoordinate {
 
 ### 体渲染`composite_kernel_nerf`
 
-TODO
+体渲染，一言以蔽之，就是沿着光线方向对NeRF的推断结果(RGBA)进行积分（求和）。
+在Instant-NGP中，`composite_kernel_nerf`还兼具判定每条光线的ray marching是否结束的功能。
+具体来说就是沿着光线方向积分透明度值，直到透明度值大于某个阈值。
+如果经过`n_steps`步后透明度值仍然小于阈值，则判定该条光线ray marching未结束，`payload.alive = true`，则其在下一轮中继续进行ray marching。
+
+所以，整个NeRF渲染的过程实际上并没有用到`density_grid`而只在初始化光线的时候用到了`density_grid_bitmap`。
+想想也挺合理，结合这里的ray marching过程看，采样点并不是一次生成好的，而是在ray marching过程中一步一步前进的，每前进一步就对所有光线生成一批采样点，让模型推断输出density进行积分，一直这样循环直到所有光线上的density都超过给定阈值。
+
+```cpp
+__global__ void composite_kernel_nerf(
+	const uint32_t n_elements,
+	const uint32_t stride,
+	const uint32_t current_step,
+	BoundingBox aabb,
+	float glow_y_cutoff,
+	int glow_mode,
+	mat4x3 camera_matrix,
+	vec2 focal_length,
+	float depth_scale,
+	vec4* __restrict__ rgba,
+	float* __restrict__ depth,
+	NerfPayload* payloads,
+	PitchedPtr<NerfCoordinate> network_input,
+	const network_precision_t* __restrict__ network_output,
+	uint32_t padded_output_width,
+	uint32_t n_steps,
+	ERenderMode render_mode,
+	const uint8_t* __restrict__ density_grid,
+	ENerfActivation rgb_activation,
+	ENerfActivation density_activation,
+	int show_accel,
+	float min_transmittance
+) {
+	const uint32_t i = threadIdx.x + blockIdx.x * blockDim.x;
+	if (i >= n_elements) return;
+
+	NerfPayload& payload = payloads[i];
+
+	if (!payload.alive) {
+		return;
+	}
+
+	vec4 local_rgba = rgba[i];
+	float local_depth = depth[i];
+	vec3 origin = payload.origin;
+	vec3 cam_fwd = camera_matrix[2];
+	// Composite in the last n steps
+	uint32_t actual_n_steps = payload.n_steps;
+	uint32_t j = 0;
+
+	for (; j < actual_n_steps; ++j) {
+		tvec<network_precision_t, 4> local_network_output;
+		local_network_output[0] = network_output[i + j * n_elements + 0 * stride];
+		local_network_output[1] = network_output[i + j * n_elements + 1 * stride];
+		local_network_output[2] = network_output[i + j * n_elements + 2 * stride];
+		local_network_output[3] = network_output[i + j * n_elements + 3 * stride];
+		const NerfCoordinate* input = network_input(i + j * n_elements);
+		vec3 warped_pos = input->pos.p;
+		vec3 pos = unwarp_position(warped_pos, aabb);
+
+		float T = 1.f - local_rgba.a;
+		float dt = unwarp_dt(input->dt);
+		float alpha = 1.f - __expf(-network_to_density(float(local_network_output[3]), density_activation) * dt);
+		if (show_accel >= 0) {
+			alpha = 1.f;
+		}
+		float weight = alpha * T;
+
+		vec3 rgb = network_to_rgb_vec(local_network_output, rgb_activation);
+
+		if (glow_mode) { // random grid visualizations ftw!
+#if 0
+			if (0) {  // extremely startrek edition
+				float glow_y = (pos.y - (glow_y_cutoff - 0.5f)) * 2.f;
+				if (glow_y>1.f) glow_y=max(0.f,21.f-glow_y*20.f);
+				if (glow_y>0.f) {
+					float line;
+					line =max(0.f,cosf(pos.y*2.f*3.141592653589793f * 16.f)-0.95f);
+					line+=max(0.f,cosf(pos.x*2.f*3.141592653589793f * 16.f)-0.95f);
+					line+=max(0.f,cosf(pos.z*2.f*3.141592653589793f * 16.f)-0.95f);
+					line+=max(0.f,cosf(pos.y*4.f*3.141592653589793f * 16.f)-0.975f);
+					line+=max(0.f,cosf(pos.x*4.f*3.141592653589793f * 16.f)-0.975f);
+					line+=max(0.f,cosf(pos.z*4.f*3.141592653589793f * 16.f)-0.975f);
+					glow_y=glow_y*glow_y*0.5f + glow_y*line*25.f;
+					rgb.y+=glow_y;
+					rgb.z+=glow_y*0.5f;
+					rgb.x+=glow_y*0.25f;
+				}
+			}
+#endif
+			float glow = 0.f;
+
+			bool green_grid = glow_mode & 1;
+			bool green_cutline = glow_mode & 2;
+			bool mask_to_alpha = glow_mode & 4;
+
+			// less used?
+			bool radial_mode = glow_mode & 8;
+			bool grid_mode = glow_mode & 16; // makes object rgb go black!
+
+			{
+				float dist;
+				if (radial_mode) {
+					dist = distance(pos, camera_matrix[3]);
+					dist = min(dist, (4.5f - pos.y) * 0.333f);
+				} else {
+					dist = pos.y;
+				}
+
+				if (grid_mode) {
+					glow = 1.f / max(1.f, dist);
+				} else {
+					float y = glow_y_cutoff - dist; // - (ii*0.005f);
+					float mask = 0.f;
+					if (y > 0.f) {
+						y *= 80.f;
+						mask = min(1.f, y);
+						//if (mask_mode) {
+						//	rgb.x=rgb.y=rgb.z=mask; // mask mode
+						//} else
+						{
+							if (green_cutline) {
+								glow += max(0.f, 1.f - abs(1.f -y)) * 4.f;
+							}
+
+							if (y>1.f) {
+								y = 1.f - (y - 1.f) * 0.05f;
+							}
+
+							if (green_grid) {
+								glow += max(0.f, y / max(1.f, dist));
+							}
+						}
+					}
+					if (mask_to_alpha) {
+						weight *= mask;
+					}
+				}
+			}
+
+			if (glow > 0.f) {
+				float line;
+				line  = max(0.f, cosf(pos.y * 2.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.x * 2.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.z * 2.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.y * 4.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.x * 4.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.z * 4.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.y * 8.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.x * 8.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.z * 8.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.y * 16.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.x * 16.f * 3.141592653589793f * 16.f) - 0.975f);
+				line += max(0.f, cosf(pos.z * 16.f * 3.141592653589793f * 16.f) - 0.975f);
+				if (grid_mode) {
+					glow = /*glow*glow*0.75f + */ glow * line * 15.f;
+					rgb.y = glow;
+					rgb.z = glow * 0.5f;
+					rgb.x = glow * 0.25f;
+				} else {
+					glow = glow * glow * 0.25f + glow * line * 15.f;
+					rgb.y += glow;
+					rgb.z += glow * 0.5f;
+					rgb.x += glow * 0.25f;
+				}
+			}
+		} // glow
+
+		if (render_mode == ERenderMode::Normals) {
+			// Network input contains the gradient of the network output w.r.t. input.
+			// So to compute density gradients, we need to apply the chain rule.
+			// The normal is then in the opposite direction of the density gradient (i.e. the direction of decreasing density)
+			vec3 normal = -network_to_density_derivative(float(local_network_output[3]), density_activation) * warped_pos;
+			rgb = normalize(normal);
+		} else if (render_mode == ERenderMode::Positions) {
+			rgb = (pos - 0.5f) / 2.0f + 0.5f;
+		} else if (render_mode == ERenderMode::EncodingVis) {
+			rgb = warped_pos;
+		} else if (render_mode == ERenderMode::Depth) {
+			rgb = vec3(dot(cam_fwd, pos - origin) * depth_scale);
+		} else if (render_mode == ERenderMode::AO) {
+			rgb = vec3(alpha);
+		}
+
+		if (show_accel >= 0) {
+			uint32_t mip = max((uint32_t)show_accel, mip_from_pos(pos));
+			uint32_t res = NERF_GRIDSIZE() >> mip;
+			int ix = pos.x * res;
+			int iy = pos.y * res;
+			int iz = pos.z * res;
+			default_rng_t rng(ix + iy * 232323 + iz * 727272);
+			rgb.x = 1.f - mip * (1.f / (NERF_CASCADES() - 1));
+			rgb.y = rng.next_float();
+			rgb.z = rng.next_float();
+		}
+
+		local_rgba += vec4(rgb * weight, weight);
+		if (weight > payload.max_weight) {
+			payload.max_weight = weight;
+			local_depth = dot(cam_fwd, pos - camera_matrix[3]);
+		}
+
+		if (local_rgba.a > (1.0f - min_transmittance)) {
+			local_rgba /= local_rgba.a;
+			break;
+		}
+	}
+
+	if (j < n_steps) {
+		payload.alive = false;
+		payload.n_steps = j + current_step;
+	}
+
+	rgba[i] = local_rgba;
+	depth[i] = local_depth;
+}
+```
