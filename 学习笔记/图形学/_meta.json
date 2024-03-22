@@ -82,8 +82,8 @@
     "InstantNGP.md": {
         "title": "Instant-NGP中的NeRF渲染核心代码解析",
         "created": "2024-02-29 06:04:52",
-        "updated": "2024-02-29 06:30:55",
-        "date": "2024-02-29 06:30:55",
+        "updated": "2024-03-04 01:45:20",
+        "date": "2024-03-04 01:45:20",
         "tags": [
             "Nerf",
             "图形学"
@@ -104,6 +104,20 @@
             "图形学"
         ],
         "cover": "/图形学/i/ada19404-83ad-11ea-8557-827bb56bd060.gif"
+    },
+    "MobileNeRF.md": {
+        "title": "MobileNeRF论文解析",
+        "created": "2024-03-22 16:08:36",
+        "updated": "2024-03-22 16:08:36",
+        "date": "2024-03-22 16:08:36",
+        "tags": [
+            "Nerf",
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/zhimg.com/v2-11adfe98c34b32efc658189701d478eb_r.jpg"
     },
     "Nerf加速.md": {
         "title": "体渲染、体素、位置编码——主流Nerf质量优化和计算加速方法学习",
