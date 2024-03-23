@@ -106,10 +106,10 @@
         "cover": "/图形学/i/ada19404-83ad-11ea-8557-827bb56bd060.gif"
     },
     "MobileNeRF.md": {
-        "title": "MobileNeRF论文解析",
-        "created": "2024-03-22 16:08:36",
-        "updated": "2024-03-22 16:08:36",
-        "date": "2024-03-22 16:08:36",
+        "title": "【转载】MobileNeRF论文解析",
+        "created": "2024-03-22 23:24:23",
+        "updated": "2024-03-22 23:24:23",
+        "date": "2024-03-22 23:24:23",
         "tags": [
             "Nerf",
             "图形学"
@@ -117,7 +117,7 @@
         "categories": [
             "图形学"
         ],
-        "cover": "/图形学/zhimg.com/v2-11adfe98c34b32efc658189701d478eb_r.jpg"
+        "cover": "/图形学/zhimg.com/v2-34e3186bc54db3eccd03b23ff671241d_1440w.png"
     },
     "Nerf加速.md": {
         "title": "体渲染、体素、位置编码——主流Nerf质量优化和计算加速方法学习",

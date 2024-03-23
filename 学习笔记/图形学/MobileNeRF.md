@@ -1,5 +1,8 @@
-# MobileNeRF论文解析
+# 【转载】MobileNeRF论文解析
 
+[原文在此](https://zhuanlan.zhihu.com/p/568916195)
+
+![](zhimg.com/v2-34e3186bc54db3eccd03b23ff671241d_1440w.png)
 
 本文亮点：首次实现在移动设备上的实时神经渲染
 

@@ -13,6 +13,19 @@
         ],
         "cover": "/视频编解码/zhimg.com/v2-8ea6f953e394cdc005fb05859f214512_r.jpg"
     },
+    "H264AVC.md": {
+        "title": "【转载】音视频开发学习：H.264/AVC视频编解码技术",
+        "created": "2024-03-22 21:34:10",
+        "updated": "2024-03-22 21:34:10",
+        "date": "2024-03-22 21:34:10",
+        "tags": [
+            "视频编解码"
+        ],
+        "categories": [
+            "视频编解码"
+        ],
+        "cover": "/视频编解码/zhimg.com/v2-081ff165e607b32ed573c792d864b29b_r.jpg"
+    },
     "libvpx-decode-partition.md": {
         "title": "libvpx中的`decode_partition`",
         "created": "2022-10-21 07:00:42",
