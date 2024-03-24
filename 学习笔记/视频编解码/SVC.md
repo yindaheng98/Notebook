@@ -16,6 +16,8 @@ H.264规范提供了一种方法，允许根据特定的应用领域搭配不同
 
 与配置文件相关的是一个名为层级的概念。层级定义了特定配置文件中各种操作参数的限制。例如，它定义了特定解码器所能够处理的最大图片的大小。配置文件和级别是一个相当古老的概念：您的普通旧式DVD播放器中，播放MPEG-2格式的视频的主要配置文件是在主级解码器上。您的蓝光播放器所包含的H.264 AVC的高配置解码器则是在4.1级。
 
+>Scalable coding usually involves multiple layers, i.e., base layer (BL) and enhancement layers (ELs). For scalable extensions to H.264, scalable video coding (SVC) was developed, which uses the so-called “**single-loop decoding constraint**,” i.e., when decoding a bitstream containing multiple layers for temporal scalability, partial decoding of reference layers may be sufficient. As a result, it is more efficient, but **could not handle more sophisticated extensions, e.g., the arbitrary switching in multiple layers for spatial scalability**, etc. SHVC employs a multi-loop coding framework in which reference layers must be fully decoded first so that they can be used as prediction references. If there are more than two spatial or SNR layers, the intermediate ELs may also be used as reference layers. Moreover, SHVC uses multiple repurposed single-layer HEVC codec cores, with the addition of interlayer reference picture processing modules. The goal is to adopt a scalable coding architecture that relies on making high-level syntax only (HLS-only) changes to the underlying singlelayer HEVC standard. Due to its success, the general multilayer high-level syntax design becomes common to all multilayer HEVC extensions, including SHVC, MVHEVC, and 3D-HEVC.
+
 ## AVC和SVC有什么区别？
 
 SVC和AVC的根本区别在于，前者将视频信号编码为一组图层。各层互相依赖，形成一个层次结构。特定层及其所依赖的层提供了以特定的保真度解码视频信号时所必需的信息。这里的保真度涉及一个或多个空间分辨率，时间分辨率或信噪比(SNR)1。不依赖于任何其他层的最底层被称为基本层，并提供最低质量等级的图像。每个附加层可以通过三个维度（空间，时间或SNR）中任何一个维度提高信号质量。
