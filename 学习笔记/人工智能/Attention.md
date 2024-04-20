@@ -118,6 +118,8 @@ $$\alpha_{i,j}=\mathcal{H}(H_{i-1},s_j)$$
 
 ## 加入Attention机制后的Encoder-Decoder
 
+[(ICLR 2015) Neural Machine Translation by Jointly Learning to Align and Translate](https://arxiv.org/abs/1409.0473)
+
 ![Encoder-Decoder-Attention](i/EncoderDecoderAttention.png)
 
 输入序列(Source)：
