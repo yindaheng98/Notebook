@@ -56,3 +56,13 @@ Self Query：带元数据的Vectorstore|除Embedding之外，还存储Document�
 Contextual Compression|对Retrieval结果进行进一步提取，比如交给LLM进行Summary之后再输出|返回整个Document太多了？用它
 Ensemble|把多个Retrievers的返回内容拼一起|有好几个棒棒的Retrievers？用它
 Long-Context Reorder|把Retrievers的返回内容按向量查询时的相似性排序|研究表明一些长序列模型再推断时对于长文本开头和结尾的部分关注度更高，而对中间部分的关注度较低，所以Retrieval结果输入模型之前排序可以提升性能
+
+### 典型应用：ChatGPT Retriever Plugin
+
+[ChatGPT Retriever Plugin](https://github.com/openai/chatgpt-retrieval-plugin/blob/b808c100d8baebe832e3fe433358d12e93bba48f/README.md)本质上是一个基于[FastAPI](https://github.com/tiangolo/fastapi)的HTTP Server程序，其API主要有三：Documents的upserting上传, querying查询, 和 deleting删除。
+当这个HTTP Server程序运行起来并对外暴露端口后，在ChatGPT的网站中填写你的Server地址和验证方式，就可以让ChatGPT使用你的Plugin了。
+
+![](i/ChatGPTPlugin.png)
+
+目前(commit:b808c100d8baebe832e3fe433358d12e93bba48f)其使用的存储方法同ParentDocument，其将长段的文本内容切分为chunks，而后使用OpenAI的Embedding接口(默认使用`text-embedding-3-large`)将长段的文本内容转化为Embedding Vector存入指定的数据库中(比如向量数据库Qdrant)；
+由于ChatGPT目前未开源，所以其搜索过程未知，推测至少应该有Multi-Query Retriever(ChatGPT可以同时使用多种Plugin)和Time-Weighted Vectorstore+Self Query(README里写可以用元数据过滤refine查询结果)。
