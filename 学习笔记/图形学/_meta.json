@@ -79,6 +79,18 @@
         ],
         "cover": "/图形学/i/20170224140557254.jpg"
     },
+    "InstantNGP-EncodingGrid.md": {
+        "title": "InstantNGP中的EncodingGrid核心代码",
+        "created": "2024-03-01 15:05:10",
+        "updated": "2024-03-01 15:05:10",
+        "date": "2024-03-01 15:05:10",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
     "InstantNGP.md": {
         "title": "Instant-NGP中的NeRF渲染核心代码解析",
         "created": "2024-02-29 06:04:52",
@@ -368,8 +380,8 @@
     "矢量量化.md": {
         "title": "可微矢量量化",
         "created": "2024-04-23 04:57:40",
-        "updated": "2024-04-24 03:11:35",
-        "date": "2024-04-24 03:11:35",
+        "updated": "2024-04-26 00:20:28",
+        "date": "2024-04-26 00:20:28",
         "tags": [
             "数学",
             "图形学"
