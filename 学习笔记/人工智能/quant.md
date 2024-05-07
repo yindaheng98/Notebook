@@ -167,3 +167,11 @@ $$I^{q}=Q(I): I^{q}_k=K_{means}(r_k,g_k,b_k)$$
 
 而反量化过程就是根据整形数值查找对应的聚类中心：
 $$I^d=D(I^{q}): I^d_k=C(I^{q}_k)$$
+
+### Linde-Buzo-Gray (LBG) 矢量量化
+
+其实矢量量化和k-mean 差不多，区别在于矢量量化是从一个码矢开始分裂的，而k-mean一开始就给你N个聚类中心
+
+LBG算法码矢分裂过程：
+
+![](i/aHR0cDovL2ltYWdlczIwMTUuY25ibG9ncy5jb20vYmxvZy8xMDg1MzQzLzIwMTcwNS8xMDg1MzQzLTIwMTcwNTMxMjE1NjU0MjQzLTE3MTU3NjgzMTkuZ2lm.gif)
