@@ -192,6 +192,8 @@ git filter-branch --subdirectory-filter trunk HEAD
 
 ## 注意事项
 
+[原文在此](https://github.com/orgs/community/discussions/22695)
+
 一个Commit被修改了，其后的所有Commit都需要修改（内容发生变化），而rebase操作在修改Commit时会在CommitDate里面记录下其修改时间，就像下面这样。
 输入`git log --format=fuller`看时间：
 
@@ -201,14 +203,8 @@ git filter-branch --subdirectory-filter trunk HEAD
 
 `git log`里看到的是`AuthorDate`，GitHub上的History里看到的是`CommitDate`，使用时需要注意。
 
-如果不想时间被修改，可以在rebase时带个参数：
+如果不想时间被修改，可以在rebase后把时间改回去：
 
 ```sh
-git rebase --committer-date-is-author-date
-```
-
-或者也可以在rebase后把时间改回去：
-
-```sh
-git rebase --committer-date-is-author-date
+git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"'
 ```
