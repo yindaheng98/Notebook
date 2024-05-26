@@ -114,16 +114,19 @@ git log
 变基操作。 可以用`commit~n`或`commit^^`这种形式替代：前者表示当前提交到n次以前的提交，后者^符号越多表示的范围越大，commit可以是HEAD或者某次提交的hash值；`-i`参数表示进入交互模式。
 
 ```sh
-git rebase -i <commit range>
+git rebase -i <commit range>~
 ```
 以上变基命令会进入文本编辑器，其中每一行就是某次提交，把`pick`修改为`edit`，保存退出该文本编辑器。
+
+>Please note the tilde ~ at the end of the command, because you need to reapply commits on top of the previous commit of `bbc643cd` (i.e. `bbc643cd~`).
 
 **注意：** 变基命令打开的文本编辑器中的commit顺序跟`git log`查看的顺序是相反的，也就是最近的提交在下面，老旧的提交在上面
 
 **注意：** 变基命令其实可以同时对多个提交进行修改，只需要修改将对应行前的`pick`都修改为`edit`，保存退出后会根据你修改的数目多次打开修改某次commit的文本编辑器界面。但是这个范围内的最终祖先commit不能修改，也就是如果有5行commit信息，你只能修改下面4行的，这不仅限于commit修改，重排、删除以及合并都如此。
 
 ```sh
-git commit --amend
+git commit --amend # 打开编辑器改commit message
+git commit --all --amend --no-edit # 不需要改commit message就使用这条指令
 ```
 
 接下来修改提交描述内容或者文件内容，跟最近一次的commit的操作相同，不赘述。
