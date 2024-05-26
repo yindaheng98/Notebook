@@ -1,4 +1,4 @@
-# 【转载】Commit的合并与修改——rebase变基指令
+# 【摘录】Commit的合并与修改——rebase变基指令
 
 ## 合并 commit
 
@@ -100,6 +100,8 @@ git commit --amend # 将缓存区的内容做为最近一次提交
 ```
 
 ## 修改任意提交历史位置的commit
+
+[原文在此](https://stackoverflow.com/questions/1186535/how-do-i-modify-a-specific-commit)
 
 可以通过变基命令，修改最近一次提交以前的某次提交。不过修改的提交到当前提交之间的所有提交的hash值都会改变。
 变基操作需要非常小心，一定要多用`git status`命令来查看你是否还处于变基操作，可能某次误操作的会对后面的提交历史造成很大影响。
