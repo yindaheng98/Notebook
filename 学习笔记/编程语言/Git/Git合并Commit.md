@@ -1,4 +1,4 @@
-# 【摘录】Commit的合并与修改——rebase变基指令
+# 【转载】Commit的合并与修改——rebase变基指令
 
 ## 合并 commit
 
@@ -101,8 +101,6 @@ git commit --amend # 将缓存区的内容做为最近一次提交
 
 ## 修改任意提交历史位置的commit
 
-[原文在此](https://stackoverflow.com/questions/1186535/how-do-i-modify-a-specific-commit)
-
 可以通过变基命令，修改最近一次提交以前的某次提交。不过修改的提交到当前提交之间的所有提交的hash值都会改变。
 变基操作需要非常小心，一定要多用`git status`命令来查看你是否还处于变基操作，可能某次误操作的会对后面的提交历史造成很大影响。
 
@@ -116,19 +114,16 @@ git log
 变基操作。 可以用`commit~n`或`commit^^`这种形式替代：前者表示当前提交到n次以前的提交，后者^符号越多表示的范围越大，commit可以是HEAD或者某次提交的hash值；`-i`参数表示进入交互模式。
 
 ```sh
-git rebase -i <commit range>~
+git rebase -i <commit range>
 ```
 以上变基命令会进入文本编辑器，其中每一行就是某次提交，把`pick`修改为`edit`，保存退出该文本编辑器。
-
->Please note the tilde ~ at the end of the command, because you need to reapply commits on top of the previous commit of `bbc643cd` (i.e. `bbc643cd~`).
 
 **注意：** 变基命令打开的文本编辑器中的commit顺序跟`git log`查看的顺序是相反的，也就是最近的提交在下面，老旧的提交在上面
 
 **注意：** 变基命令其实可以同时对多个提交进行修改，只需要修改将对应行前的`pick`都修改为`edit`，保存退出后会根据你修改的数目多次打开修改某次commit的文本编辑器界面。但是这个范围内的最终祖先commit不能修改，也就是如果有5行commit信息，你只能修改下面4行的，这不仅限于commit修改，重排、删除以及合并都如此。
 
 ```sh
-git commit --amend # 打开编辑器改commit message
-git commit --all --amend --no-edit # 不需要改commit message就使用这条指令
+git commit --amend
 ```
 
 接下来修改提交描述内容或者文件内容，跟最近一次的commit的操作相同，不赘述。
@@ -192,8 +187,6 @@ git filter-branch --subdirectory-filter trunk HEAD
 
 ## 注意事项
 
-[原文在此](https://github.com/orgs/community/discussions/22695)
-
 一个Commit被修改了，其后的所有Commit都需要修改（内容发生变化），而rebase操作在修改Commit时会在CommitDate里面记录下其修改时间，就像下面这样。
 输入`git log --format=fuller`看时间：
 
@@ -203,8 +196,14 @@ git filter-branch --subdirectory-filter trunk HEAD
 
 `git log`里看到的是`AuthorDate`，GitHub上的History里看到的是`CommitDate`，使用时需要注意。
 
-如果不想时间被修改，可以在rebase后把时间改回去：
+如果不想时间被修改，可以在rebase时带个参数：
 
 ```sh
-git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"'
+git rebase --committer-date-is-author-date
+```
+
+或者也可以在rebase后把时间改回去：
+
+```sh
+git rebase --committer-date-is-author-date
 ```
