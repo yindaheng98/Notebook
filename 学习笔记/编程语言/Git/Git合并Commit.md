@@ -1,4 +1,4 @@
-# 【转载】Commit的合并与修改——rebase变基指令
+# 【摘录】Commit的合并与修改——rebase变基指令
 
 ## 合并 commit
 
@@ -101,6 +101,8 @@ git commit --amend # 将缓存区的内容做为最近一次提交
 
 ## 修改任意提交历史位置的commit
 
+[原文在此](https://stackoverflow.com/a/1186549/23652839)
+
 可以通过变基命令，修改最近一次提交以前的某次提交。不过修改的提交到当前提交之间的所有提交的hash值都会改变。
 变基操作需要非常小心，一定要多用`git status`命令来查看你是否还处于变基操作，可能某次误操作的会对后面的提交历史造成很大影响。
 
@@ -126,7 +128,11 @@ git rebase -i <commit range>
 git commit --amend
 ```
 
-接下来修改提交描述内容或者文件内容，跟最近一次的commit的操作相同，不赘述。
+接下来修改提交描述内容或者文件内容，跟最近一次的commit的操作相同，不赘述。或直接不修改commit信息：
+
+```sh
+git commit --all --amend --no-edit
+```
 
 然后完成变基操作
 
@@ -187,6 +193,8 @@ git filter-branch --subdirectory-filter trunk HEAD
 
 ## 注意事项
 
+[原文在此](https://github.com/orgs/community/discussions/22695#discussioncomment-3237743)
+
 一个Commit被修改了，其后的所有Commit都需要修改（内容发生变化），而rebase操作在修改Commit时会在CommitDate里面记录下其修改时间，就像下面这样。
 输入`git log --format=fuller`看时间：
 
@@ -205,5 +213,5 @@ git rebase --committer-date-is-author-date
 或者也可以在rebase后把时间改回去：
 
 ```sh
-git rebase --committer-date-is-author-date
+git filter-branch --env-filter 'export GIT_COMMITTER_DATE="$GIT_AUTHOR_DATE"'
 ```
