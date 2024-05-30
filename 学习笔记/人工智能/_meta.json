@@ -56,6 +56,21 @@
         ],
         "cover": "/人工智能/i/KD1.jpg"
     },
+    "LoRA.md": {
+        "title": "【摘录】LoRA（Low-Rank Adaptation）和PEFT （Parameter-Efficient Fine-Tuning）",
+        "created": "2024-05-29 23:48:02",
+        "updated": "2024-05-29 23:48:02",
+        "date": "2024-05-29 23:48:02",
+        "tags": [
+            "人工智能",
+            "训练方法",
+            "大模型"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/i/v2-bafe467a7ec7be6c3190b8ac19a79c03_1440w.webp"
+    },
     "LSTM.md": {
         "title": "【纯转载】《Understanding LSTM Networks》翻译",
         "created": "2021-03-22 07:56:22",
@@ -87,6 +102,21 @@
             "人工智能"
         ],
         "cover": "/人工智能/qpic/Psho9dm7oDEZQYfMbu7bYc0Vrfia7yJ9Vt42Mic6FNIc8uzMTy5TdxDhOGC0uicvrWUWA1vwGPFhhocdjGoYPQGQQ.png"
+    },
+    "PromptTuning.md": {
+        "title": "【摘录】Prompt Tuning",
+        "created": "2024-05-29 23:41:17",
+        "updated": "2024-05-29 23:41:17",
+        "date": "2024-05-29 23:41:17",
+        "tags": [
+            "人工智能",
+            "训练方法",
+            "大模型"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/i/v2-5ceed3c3f887e7d38c3b3534d89d2c7e_1440w.webp"
     },
     "quant-for-begin.md": {
         "title": "【纯转载】神经网络量化入门--量化感知训练",
