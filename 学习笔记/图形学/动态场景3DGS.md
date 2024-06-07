@@ -2,6 +2,21 @@
 
 ## (3DV 2024) Dynamic 3D gaussians: Tracking by persistent dynamic view synthesis
 
+![](i/20240606211903.png)
+
+基于物理启发出了三个正则化项加在loss函数里面：
+
+* local-rigidity loss 局部刚度：一个Gaussian绕着某个轴旋转，相近的Gaussian都要跟着绕这个轴转
+$$\mathcal{L}^{\text{rigid}}_{i, j} = w_{i,j} \left\| (\mu_{j,t-1} - \mu_{i,t-1}) - R^{}_{i,t-1} R^{-1}_{i,t} (\mu_{j,t} - \mu_{i,t}) \right\|_2$$
+$$\mathcal{L}^{\text{rigid}} = \frac{1}{k |\mathcal{S}|} \sum_{i \in \mathcal{S}} \sum_{ j \in \text{knn}_{i;k}} \mathcal{L}^{\text{rigid}}_{i, j}$$
+* local-rotation similarity 局部旋转相似性：相近的Gaussian相同旋转，作者加它的理由是实验发现效果更好
+$$\mathcal{L}^{\text{rot}} = \frac{1}{k |\mathcal{S}|} \sum_{i \in \mathcal{S}} \sum_{ j \in \text{knn}_{i;k}} w_{i,j} \left\| \hat{q}^{}_{j,t} \hat{q}^{-1}_{j,t-1} - \hat{q}^{}_{i,t} \hat{q}^{-1}_{i,t-1}  \right\|_2$$
+* local-isometry loss 局部等距：相近的Gaussian相对位置不变，作者加它的理由是上面两个loss容易导致撕裂，加它防止撕裂
+$$\mathcal{L}^{\text{iso}}\hspace{-0.5ex}=\hspace{-0.5ex}\frac{1}{k |\mathcal{S}|} \sum_{ i \in \mathcal{S}} \sum_{ j \in \text{knn}_{i;k}}\hspace{-1.5ex}w_{i,j} \left| \left\| \mu_{j,0} - \mu_{i,0} \right\|_2\hspace{-0.5ex}-\left\| \mu_{j,t} - \mu_{i,t} \right\|_2 \right|$$
+
+其中，这里的“相近的Gaussian”是用K-nearst给每个Gaussian找20个点，并将其距离作为算上述正则化项的权值：
+$$w_{i,j} = \exp\left( -\lambda_w \left\|\mu_{j,0} - \mu_{i,0} \right\|^2_2 \right)$$
+
 ## (ICLR 2024) Real-time Photorealistic Dynamic Scene Representation and Rendering with 4D Gaussian Splatting
 
 ![](i/teaser.png)
