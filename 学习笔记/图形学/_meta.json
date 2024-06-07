@@ -81,9 +81,9 @@
     },
     "InstantNGP-EncodingGrid.md": {
         "title": "InstantNGP中的EncodingGrid核心代码",
-        "created": "2024-03-01 15:05:10",
-        "updated": "2024-03-01 15:05:10",
-        "date": "2024-03-01 15:05:10",
+        "created": "2024-04-26 23:58:42",
+        "updated": "2024-04-26 23:58:42",
+        "date": "2024-04-26 23:58:42",
         "tags": [
             "图形学"
         ],
@@ -268,6 +268,20 @@
             "图形学"
         ],
         "cover": "/图形学/i/20231227161059.png"
+    },
+    "动态场景3DGS.md": {
+        "title": "3D Gaussian Splatting 用于动态场景表示",
+        "created": "2024-06-06 21:03:22",
+        "updated": "2024-06-06 21:03:22",
+        "date": "2024-06-06 21:03:22",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/teaser.png"
     },
     "双目相机.md": {
         "title": "双目视觉模型和三角定位",
