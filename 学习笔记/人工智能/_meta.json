@@ -41,6 +41,22 @@
         ],
         "cover": "/人工智能/zhimg/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg"
     },
+    "GraphRAG源码解读.md": {
+        "title": "【摘录】微软GraphRAG框架源码解读",
+        "created": "2024-08-14 11:09:06",
+        "updated": "2024-08-14 11:09:06",
+        "date": "2024-08-14 11:09:06",
+        "tags": [
+            "人工智能",
+            "大模型",
+            "RAG",
+            "NLP"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/zhimg.com/v2-5bdaa087a521b3a4b03b65625111c60d_r.jpg"
+    },
     "KnowledgeDistillation.md": {
         "title": "【纯转载】【经典简读】知识蒸馏(Knowledge Distillation) 经典之作",
         "created": "2021-05-04 13:08:11",
@@ -59,8 +75,8 @@
     "LoRA.md": {
         "title": "【摘录】LoRA（Low-Rank Adaptation）和PEFT （Parameter-Efficient Fine-Tuning）",
         "created": "2024-05-30 06:52:17",
-        "updated": "2024-05-30 06:52:17",
-        "date": "2024-05-30 06:52:17",
+        "updated": "2024-06-07 04:05:11",
+        "date": "2024-06-07 04:05:11",
         "tags": [
             "人工智能",
             "训练方法",
@@ -169,6 +185,7 @@
         "tags": [
             "人工智能",
             "大模型",
+            "RAG",
             "NLP"
         ],
         "categories": [
