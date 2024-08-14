@@ -1,28 +1,28 @@
 import os
 import re
-import brotli
 import requests
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from urllib.parse import unquote
-link = "https://zhuanlan.zhihu.com/p/58987388"
+link = "https://zhuanlan.zhihu.com/p/707843145"
 response = requests.get(link, headers={
-    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,image/svg+xml,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "accept-encoding": "gzip, deflate, br",
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
     "cache-control": "max-age=0",
-    "referer": link,
-    "sec-ch-ua": '" Not;A Brand";v="99", "Microsoft Edge";v="103", "Chromium";v="103"',
+    "priority": "u=0, i",
+    "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Microsoft Edge\";v=\"127\", \"Chromium\";v=\"127\"",
     "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": "Windows",
+    "sec-ch-ua-platform": "\"Windows\"",
     "sec-fetch-dest": "document",
     "sec-fetch-mode": "navigate",
-    "sec-fetch-site": "same-origin",
+    "sec-fetch-site": "cross-site",
     "sec-fetch-user": "?1",
     "upgrade-insecure-requests": "1",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.66 Safari/537.36 Edg/103.0.1264.44"
+    "cookie": "__snaker__id=ooWNEq3vYqZ781tP; SESSIONID=LQiXtzpg5mzjfyDKYLWi5UpROakIuQJSUD9S91ISxg9; JOID=VV8UC02iWvpz0Fypca2rbKYuZ_Ng0y6hBZIlw0CQCLYyqRb6EguJRxrRWqZ2utxK5wvHymLh9d0JcRQWGP5ZBbw=; osd=VVoTCkuiX_1y1lysdqytbKMpZvVg1imgA5IgxEGWCLM1qBD6FwyIQRrUXadwutlN5g3Hz2Xg890MdhUQGPteBLo=; _xsrf=S8WqWd8BUUXPirZNTNq71bYUEXrIzk2C; _zap=215a42e9-d64a-4c1e-ab46-21a09438545d; d_c0=AFCQ7xX-uxiPTp1H402TBYa8ZDGW83Zkgx4=|1717712825; KLBRSID=dc02df4a8178e8c4dfd0a3c8cbd8c726|1720026847|1720026847; HMACCOUNT=B8AA57B9C4215583; __zse_ck=001_ROrF6cLFStobM0Zp7H3=/f=9DWlHh15ThNsl7VObWBpd8KOsS1gulhcWKA66IWVKOBCt7fHj60T6BfBXXOl86mc/ZwzMQ/QTElhUlsiHzrYut5NBkkarHUMY9aAbKHz9; Hm_lvt_98beee57fd2ef70ccdd5ca52b9740c49=1723159234; z_c0=2|1:0|10:1723521959|4:z_c0|80:MS4xbEtWVEFRQUFBQUFtQUFBQVlBSlZUYWNwcUdkRjdyQmlDbTFaOVo4WEFpaFdwMXN3TXVWX1NRPT0=|48caf67ff61b822af6f5f8239387ba8b5d6bfb8e94144781af53c096501ecd92; Hm_lpvt_98beee57fd2ef70ccdd5ca52b9740c49=1723655752; BEC=36dafdc5edb6c00297b032c63dc4b447",
+    "Referer": link,
+    "Referrer-Policy": "unsafe-url"
 })
-soup = BeautifulSoup(response.text, 'html.parser')
+soup = BeautifulSoup(response.content, 'html.parser')
 body = soup.body.div.div.article.find_all("div", class_="Post-RichTextContainer")[0].div.div
 content = str(body)
 content = re.sub(r'\n+', "\n", content)
