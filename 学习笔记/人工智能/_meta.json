@@ -41,11 +41,27 @@
         ],
         "cover": "/人工智能/zhimg/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg"
     },
+    "document-ai.md": {
+        "title": "【转载】加速 Document AI (文档智能) 发展",
+        "created": "2024-08-16 21:46:56",
+        "updated": "2024-08-16 21:46:56",
+        "date": "2024-08-16 21:46:56",
+        "tags": [
+            "人工智能",
+            "大模型",
+            "RAG",
+            "NLP"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/112_document-ai/ocr.png"
+    },
     "GraphRAG源码解读.md": {
-        "title": "【摘录】微软GraphRAG框架源码解读",
-        "created": "2024-08-14 11:09:06",
-        "updated": "2024-08-14 11:09:06",
-        "date": "2024-08-14 11:09:06",
+        "title": "【转载】微软GraphRAG框架源码解读",
+        "created": "2024-08-14 18:12:38",
+        "updated": "2024-08-14 18:14:02",
+        "date": "2024-08-14 18:14:02",
         "tags": [
             "人工智能",
             "大模型",
