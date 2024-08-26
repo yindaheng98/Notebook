@@ -194,3 +194,18 @@ $$\mathcal L_{conf}=\sum_{v\in\{1,2\}}\sum_iC_i^{v,1}\ell(v,i)-\alpha\log C_i^{v
 首先，$C_i^{v,1}\ell(v,i)$强迫模型在$\ell(v,i)$较高时给出较低置信度$C_i$，从而使得模型对自己预测的point map给出置信度；其次，模型总是给出较低的$C_i^{v,1}$也可以降低loss，因此再用一个正则化项$\alpha\log C_i^{v,1}$强迫模型给出较高的$C_i^{v,1}$。
 
 如此这般，模型就能学到预测point map的准确度，在不准确的地方给出较低的$C_i^{v,1}$。
+
+### Global Alignment 全局对齐
+
+DUSt3R的模型只能输入两张图片，但通常3D重建会拍很多张图片，比只拍两张效果要好。
+为了和传统方法竞争，DUSt3R也要实现更多视角更高精度。
+为了实现这一目的，本文作者提出了Global Alignment：
+
+首先构造一个连通图$\mathcal G=(\mathcal V,\mathcal E)$表示相机Pairwise的连通性，其中每个Pairwise $e=(m,n)\in\mathcal E$表示输入图像$I^m,I^n$有部分内容重合。
+
+将每个视角都与其他所有有重合内容的视角输入到模型中推断一遍，得到多对pointmap和confidence map $\{((X^{m,e},C^{m,e}),(X^{m,e},C^{n,e}))|e=(m,n)\in\mathcal E\}$，而后用梯度下降优化各视角下的pointmap $\chi=\{\chi^v|v\in\mathcal V\}$使loss最小：
+
+$$\chi^* = \argmin_{\chi,P,\sigma} \sum_{e \in \mathcal E} \sum_{v \in e} \sum_{i=1}^{HW}C^{v,e}_i \left\Vert \chi_i^v - \sigma_e P_e X^{v,e}_i \right\Vert$$
+
+其中，$\sigma_e>0$和$P_e\in\mathbb R^{3\times 4}$分别表示Pairwise之间的缩放尺度和相对位姿；$\sum_{i=1}^{HW}C^{v,e}_i \left\Vert \chi_i^v - \sigma_e P_e X^{v,e}_i \right\Vert$表示待优化的pointmap和推断出的pointmap之间的置信度加权差。
+使该loss最小就是让$\chi^v$与所有推断出的$X^{v,e}$的置信度加权差最小。
