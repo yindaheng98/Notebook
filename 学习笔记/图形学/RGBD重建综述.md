@@ -4,6 +4,8 @@
 
 相关综述：[State of the Art on 3D Reconstruction with RGB-D Cameras](https://zollhoefer.com/papers/EG18_RecoSTAR/paper.pdf)
 
+![](i/20240826165538.png)
+
  **近年来，随着AR，VR，虚拟试衣，自动驾驶等领域的兴起，三维重建技术得到了广泛的应用。** 
 
 三维匠自接触三维重建以来，一直为基于RGB-D相机的三维重建所惊艳 **。** 同时，心头一直盘旋着写个总结的想法，相信大家也能体会三维匠的感受， **空中阁楼，如鲠在喉。** 
