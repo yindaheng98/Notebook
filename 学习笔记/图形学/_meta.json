@@ -69,10 +69,11 @@
     "DenseReconstruct.md": {
         "title": "Dense Reconstruction in Multi View Stereo (MVS)",
         "created": "2024-08-22 00:23:46",
-        "updated": "2024-08-25 01:18:37",
-        "date": "2024-08-25 01:18:37",
+        "updated": "2024-08-26 22:49:17",
+        "date": "2024-08-26 22:49:17",
         "tags": [
-            "图形学"
+            "图形学",
+            "3D重建"
         ],
         "categories": [
             "图形学"
@@ -214,6 +215,20 @@
             "图形学"
         ],
         "cover": "/图形学/i/47ee86932c3a340636b4d724ac7bcc1b.png"
+    },
+    "RGBD重建综述.md": {
+        "title": "【转载】基于RGB-D相机的三维重建总览 包括静态与动态三维重建",
+        "created": "2024-08-26 16:40:51",
+        "updated": "2024-08-26 16:40:51",
+        "date": "2024-08-26 16:40:51",
+        "tags": [
+            "图形学",
+            "3D重建"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/zhimg.com/v2-9542f99293ed80f3a3f05d023eacd517_r.jpg"
     },
     "SDF.md": {
         "title": "【摘录】SDF(Signed Distance Field)简介",
