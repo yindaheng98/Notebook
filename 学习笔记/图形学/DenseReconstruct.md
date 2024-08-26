@@ -134,7 +134,63 @@ Newton型方法收敛的时候特别快，尤其是对于二次函数而言一�
 
 更多详情可见[《Bundle Adjustment简述》](https://blog.csdn.net/OptSolution/article/details/64442962)
 
-* Gauss-Newton方法：Gauss-Newton方法避免了求Hessian矩阵，并且在收敛的时候依旧很快。但是依旧无法保证每次迭代的时候函数都是下降的（虽然从上式可以推导出来是下降方向，但是步长可能过长）。
-* 利用矩阵稀疏性减少Gauss-Newton方法的计算量：Gauss-Newton方法中需要求解超定参数方程，SVD等方法计算量是$O(n^3)$，面对BA这种超大规模的优化有点不太实用。但是要求解的求解超定参数方程中有很多$\sigma_{ij}=0$可通过稀疏矩阵的Cholesky分解求近似解大幅减少计算量
-* Levenberg-Marquardt(LM)方法：LM方法就是在以上方法基础上的改进，通过参数的调整使得优化能在最速下降法和Gauss-Newton法之间自由的切换，在保证下降的同时也能保证快速收敛。
+* [Gauss-Newton方法](https://en.wikipedia.org/wiki/Gauss%E2%80%93Newton_algorithm)：Gauss-Newton方法是一种求解非线性最小二乘问题的方法，其避免了求Hessian矩阵，并且在收敛的时候依旧很快。但是无法保证每次迭代的时候函数都是下降的。
+* Gauss-Newton方法+[稀疏矩阵Cholesky分解](https://en.wikipedia.org/wiki/Cholesky_decomposition)：Gauss-Newton方法中需要求解超定参数方程，通常矩阵分解的计算量是$O(n^3)$，面对BA这种超大规模的优化有点不太实用，而Cholesky分解在求解线性方程组中的效率约两倍于LU分解。
+* [Levenberg-Marquardt(LM)方法](https://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm)：LM方法又称阻尼最小二乘(DLS)方法，用于求解非线性最小二乘问题。LM方法就是在以上方法基础上的改进，通过参数的调整使得优化能在最速下降法和Gauss-Newton法之间自由的切换，在保证下降的同时也能保证快速收敛。
 * 李群求解：详情可见[《Bundle Adjustment原理及应用（附代码）》](https://www.bilibili.com/read/cv9304256/)
+
+![](i/25-8-2024_16116_www.bilibili.com.jpeg)
+
+## CVPR2023《DUSt3R: Geometric 3D Vision Made Easy》:不需要相机位姿输入的Dense Reconstruction
+
+给定一个无约束的图像集合，即**一组具有未知相机姿态和内参的照片**，DUSt3R输出一组相应的 **点图(pointmap)** 和对应的 **置信度图(confidence maps)** ，从而可用于各种下游任务，例如相机参数估计、深度估计、3D重建等。
+
+![](i/20240825163216.png)
+
+### 网络结构
+
+![](i/20240825163438.png)
+
+简言之就是 一个ViT提取特征、Transformer Decoder做Cross Attention、MLP Head输出pointmap和confidence map。
+
+输入为两张图片切成Patch分别为$I_1,I_2$，输出为：
+* pointmap $X^{1,1},X^{2,1}\mathbb R^{w\times H\times 3}$: 图像上的每个点在三维空间中的位置
+* confidence map $C^{1},C^{2}\in\mathbb R^{w\times H}$: 图像上的每个点的置信度
+
+其中，Transformer Decoder使用[CroCo](https://github.com/naver/croco)中的预训练模型。
+相关论文：[CroCo: Self-Supervised Pre-training for 3D Vision Tasks by Cross-View Completion](https://openreview.net/pdf?id=wZEfHUM5ri)
+CroCo是一个Self-Supervised Pre-training的Cross-View Completion模型，根据一个视角中的图像对另一个视角中的图像进行补全：
+
+![](i/CroCo_brand.jpg)
+
+其模型结构与DUSt3R类似，也是用ViT提取特征然后用Transformer Decoder做Cross Attention、Head输出结果：
+
+![](i/arch.jpg)
+
+DUSt3R就改了最后的Head，让它从输出RGB图片变成输出pointmap和confidence map，前面预训练好的模型参数直接拿来就用，所以论文里说DUSt3R可以"benefit from powerful pretraining schemes"。
+
+### 训练方式
+
+#### 3D Regression loss
+
+两张输入图片的ground truth pointmap分别记为$\bar X_i^{1,1}，\bar X_i^{2,1}$，则两张图的 3D Regression loss $\ell(v,i)$定义为：
+
+$$\ell(v,i)=\left\|\frac{1}{z}X_i^{v,1}-\frac{1}{\bar z}\bar X_i^{v,1}\right\|,v\in\{1,2\}$$
+
+其中，$z=\text{norm}(X_i^{1,1},X_i^{2,1})$、$\bar z=\text{norm}(\bar X_i^{1,1},\bar X_i^{2,1})$为缩放参数，用于处理3D空间中不同的尺度：
+
+$$\text{norm}(X^1,X^2)=\frac{\sum_i\|X_i^1\|+\sum_i\|X_i^2\|}{|\mathcal D^1|+|\mathcal D^2|}$$
+
+#### Confidence-aware loss
+
+两张输入图片拍摄到的区域不一定完美重合，且可能会有深度不好确定的远景或眩光，因此图像上的某些区域深度不好确定。
+confidence map就是为了应对这种情况。
+
+为了训练模型输出的confidence map，作者定义了一个巧妙而合理的Confidence-aware loss:
+
+$$\mathcal L_{conf}=\sum_{v\in\{1,2\}}\sum_iC_i^{v,1}\ell(v,i)-\alpha\log C_i^{v,1}$$
+
+可以看出，Confidence-aware loss由两项组成。
+首先，$C_i^{v,1}\ell(v,i)$强迫模型在$\ell(v,i)$较高时给出较低置信度$C_i$，从而使得模型对自己预测的point map给出置信度；其次，模型总是给出较低的$C_i^{v,1}$也可以降低loss，因此再用一个正则化项$\alpha\log C_i^{v,1}$强迫模型给出较高的$C_i^{v,1}$。
+
+如此这般，模型就能学到预测point map的准确度，在不准确的地方给出较低的$C_i^{v,1}$。
