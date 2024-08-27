@@ -116,7 +116,7 @@ KinectFusion是Richard A. Newcombe的经典之作。该系统仅需要一个移�
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/PHVQSAoOBjU?si=e3q5duRKVkZTMk0x" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-### BundleFusion
+### (ACM Transactions on Graphics 2017 (TOG)) BundleFusion
 
 ![](zhimg.com/v2-96b0422e0f0ed576d1599186f414ee14_r.jpg)
 
