@@ -1,4 +1,4 @@
-# 【摘录】Physiccal-Guided Generative Dynamics/生成符合物理动态场景
+# 【摘录】Generative Dynamics/生成式动力学
 
 ## (大概是Generative Dynamics的前世) Animating Pictures with Stochastic Motion Textures, ACM SIGGRAPH 2005
 
@@ -79,3 +79,58 @@ CVPR今年2篇best paper都给了图像生成模型，可见社区对生产式�
 ## (3DGS的Generative Dynamics) PhysGaussian: Physics-Integrated 3D Gaussians for Generative Dynamics
 
 ## (PhysGaussian扩展) PhysDreamer: Physics-Based Interaction with 3D Objects via Video Generation
+
+将3DGS静态场景变成符合物理的可交互场景
+
+![](i/view4_force_0.mp4)
+
+<video style="height: 512px; max-width: 100%;" m="" loop="" playsinline="" autoplay="" muted=""><source src="assets/videos/red_rose/view4_force_0.mp4"></video>
+
+### 实现流程
+
+1. 3DGS静态场景渲染出一张图片
+2. 用Image2Video模型从渲染出的图片生成一小段运动视频
+3. 以视频作为训练数据用可微物理仿真+可微渲染训练一个材质场(material field)和一个初始速度场(velocity field)
+4. 材质场拿去 Material Point Methods (MPM) 实现物理仿真
+
+![](i/20240912210702.png)
+
+### 仿真过程（连续介质力学和MPM简介）
+
+连续介质力学(Continuum mechanics)将材料的扭曲建模为一个材质空间$\bm X$到扭曲后的世界空间$\bm x$的映射$\bm x=\phi(\bm X, t)$，这个映射对位置$\bm X$的偏导数（雅可比行列式）$\bm F=\nabla\bm X\phi(\bm X, t)$称为形变梯度(deformation gradient)。
+
+<iframe src="//player.bilibili.com/player.html?isOutside=true&aid=764452804&bvid=BV1nr4y1Q73e&cid=448248024&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
+不同的物理系统中$\bm F$的计算多种多样。在本文中，$\bm F$的定义和杨氏模量、泊松比、密度相关。
+
+本文所谓的材质场实际上就是给3D Gaussian的参数增加杨氏模量、泊松比、密度、体积的四项参数，从而可计算$\bm F$，进而放进MPM里根据上一时刻各点的位置和速度计算下一时刻的位置和速度：
+
+![](i/20240912222429.png)
+
+于是实现物理仿真。
+
+### Loss函数定义
+
+上述可微仿真过程可以表示为一个函数：
+
+$$\bm x^{t+1},\bm v^{t+1},\bm F^{t+1},\bm C^{t+1}=\mathcal S(\bm x^t,\bm v^t,\bm F^t,\bm C^t,\theta,\Delta t)$$
+
+其中$\theta$包含每个3D Gaussian点的：质量$\bm m=[m_1,\dots m_P]$、杨氏模量$\bm E=[E_1,\dots E_P]$、泊松比$\bm v=[v_1,\dots v_P]$、体积$\bm V=[V_1,\dots V_P]$。
+
+待训练的参数有初始速度场$\bm v_0$和杨氏模量$\bm E=[E_1,\dots E_P]$。
+
+可微渲染表示为：
+
+$\hat I^t=\mathcal F_{render}(\bm x^{t+1},\bm\alpha,\bm R^t,\Sigma,\bm c)$
+
+进而定义loss函数为渲染图$\hat I^t$和Image2Video模型输出的视频帧$I^t$之间的差：
+
+$$L^t=\lambda L_1(\hat I^t,I^t)+(1-\lambda) L_D-\text{SSIM}(\hat I^t,I^t)$$
+
+杨氏模量场和初始速度场在训练时的数据结构类似NeRF，是Triplane+3层MLP，并且用正则化保证平滑。
+
+### 训练过程
+
+为了保证训练的稳定性，本文没有进行杨氏模量场和初始速度场的联合训练，而是分了两步：
+1. 随机初始化杨氏模量场参数并冻结之，在前视频前三帧上训练初始速度场参数
+2. 冻结初始速度场参数，在整个视频上训练杨氏模量场参数
