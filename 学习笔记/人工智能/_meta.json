@@ -57,20 +57,6 @@
         ],
         "cover": "/人工智能/112_document-ai/ocr.png"
     },
-    "GenerativeImageDynamics.md": {
-        "title": "【转载】5分钟极减阅读CVPR24 best paper《Generative Image Dynamics》",
-        "created": "2024-09-10 20:45:17",
-        "updated": "2024-09-10 20:45:17",
-        "date": "2024-09-10 20:45:17",
-        "tags": [
-            "人工智能",
-            "Diffusion"
-        ],
-        "categories": [
-            "人工智能"
-        ],
-        "cover": "/人工智能/zhimg.com/v2-8b8bc4a7fe2ea2957176a2432e183cca_r.jpg"
-    },
     "GraphRAG源码解读.md": {
         "title": "【转载】微软GraphRAG框架源码解读",
         "created": "2024-08-14 18:12:38",

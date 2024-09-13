@@ -93,6 +93,21 @@
         ],
         "cover": "/图形学/i/20170224140557254.jpg"
     },
+    "GenerativeDynamics.md": {
+        "title": "【摘录】Generative Dynamics/生成式动力学",
+        "created": "2024-09-12 22:54:23",
+        "updated": "2024-09-12 22:54:23",
+        "date": "2024-09-12 22:54:23",
+        "tags": [
+            "图形学",
+            "物理引擎",
+            "AIGC"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/v2-ee684a114e7dde2d012e3656d25d9ff4_b.webp"
+    },
     "InstantNGP-EncodingGrid.md": {
         "title": "InstantNGP中的EncodingGrid核心代码",
         "created": "2024-04-26 23:58:42",
@@ -218,9 +233,9 @@
     },
     "RGBD重建综述.md": {
         "title": "【转载】基于RGB-D相机的三维重建总览 包括静态与动态三维重建",
-        "created": "2024-08-26 16:40:51",
-        "updated": "2024-08-26 16:40:51",
-        "date": "2024-08-26 16:40:51",
+        "created": "2024-08-26 23:44:19",
+        "updated": "2024-08-27 03:30:52",
+        "date": "2024-08-27 03:30:52",
         "tags": [
             "图形学",
             "3D重建"
@@ -228,7 +243,7 @@
         "categories": [
             "图形学"
         ],
-        "cover": "/图形学/zhimg.com/v2-9542f99293ed80f3a3f05d023eacd517_r.jpg"
+        "cover": "/图形学/i/20240826165538.png"
     },
     "SDF.md": {
         "title": "【摘录】SDF(Signed Distance Field)简介",
