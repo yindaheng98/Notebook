@@ -80,11 +80,11 @@ CVPR今年2篇best paper都给了图像生成模型，可见社区对生产式�
 
 ## (PhysGaussian扩展) PhysDreamer: Physics-Based Interaction with 3D Objects via Video Generation
 
-将3DGS静态场景变成符合物理的可交互场景
+将3DGS静态场景变成符合物理的可交互场景：静态场景渲染出一个图片👉用Image2Video模型生成一段视频👉用视频训练出PhysGaussian中的物理参数👉直接套用PhysGaussian
 
-![](i/view4_force_0.mp4)
+![](i/20240915163235.png)
 
-<video style="height: 512px; max-width: 100%;" m="" loop="" playsinline="" autoplay="" muted=""><source src="assets/videos/red_rose/view4_force_0.mp4"></video>
+<video style="height: 512px; max-width: 100%;" m="" loop="" playsinline="" autoplay="" muted=""><source src="./i/view4_force_0.mp4"></video>
 
 ### 实现流程
 
