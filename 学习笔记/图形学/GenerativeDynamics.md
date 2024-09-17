@@ -175,6 +175,40 @@ $$S'_{f_j}(\bold{p})=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bold{p})}{s_{f_
 * 将通过softmax splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
 * 使用从真实视频中随机采样的起始帧和目标帧 $(I_0,I_t)$ 联合训练特征提取器和合成网络；使用从 $I_0$ 到 $I_t$ 的估计运动场来扭曲（wrap，我理解为约束） $I_0$ 的编码特征；并使用VGG 感知损失对 $\hat{I_t}$ 和 $I_t$ 进行监督。
 
+### 应用
+
+#### 图像到视频 (Image-to-video)
+
+我们的系统通过先从输入图像预测运动频谱体积，然后将频谱体积转换的运动纹理应用于图像渲染模块来动画单张静止图片。由于我们明确建模场景运动，这使我们能够
+
+* 通过线性插值运动纹理来生成慢动作视频
+* 通过调整预测的频谱体积系数的幅度来放大（或缩小）动画运动。
+
+#### 无缝循环 (Seamless looping)
+
+开发了运动自引导 motion self-guidance 技术，使用显式循环约束来指导运动去噪采样处理。
+
+* 在标准的无分类器指导旁边结合了一个额外的运动引导信号
+* 强制每个像素在开始帧和结束帧的位置和速度尽可能相似
+
+$$\hat{\epsilon}^n=(1+w)\epsilon_{\theta}(z^n;n,c)-w\epsilon_{\theta}(z^n;n,\emptyset)+u\sigma^n\nabla_{z^n}\mathcal{L}^n_g$$
+
+$$\mathcal{L}^n_g=||F^n_T-F^n_1||_1+||\nabla F^n_T-\nabla F^n_1||_1$$
+
+其中  $F^n_t$ 是  $t$ 时刻去噪步骤  $n$ 的运动场，  $w$ 是无分类器引导权重，  $u$ 是运动自引导权重。
+
+#### 来自单个图像的交互动态 (Interactive dynamics from a single image)
+
+根据Davis的观点[2][3]，在某些共振频率下评估的光谱体积可以近似为图像空间模态基，其是底层场景振动模式的投影（或更广泛地捕捉到振荡动态中的空间和时间相关性），并可用于模拟物体对用户定义力的响应。
+
+采用了这种模态分析方法，能够将物体物理响应的图像空间二维运动位移场表示为运动谱系数  $S_{f_j}$ 的加权和，调制由每个模拟时间步  $t$ 的复数模态坐标  $\bold{q}_{f_{j}}(t)$ 的状态控制。
+
+$$F_t(\bold{p})=\sum_{f_j}{S_{f_j}(\bold{p})\bold{q}_{f_{j}}(t)}$$
+
+(作者建议读者参考补充材料和原始工作以获得完整的推导)
+
+请注意，这个方法从单张图片生成交互式场景，而这些先前的方法需要视频作为输入。
+
 ## (3DGS的Generative Dynamics) PhysGaussian: Physics-Integrated 3D Gaussians for Generative Dynamics
 
 将3DGS静态场景变成符合物理的可交互场景：手工给3D Gaussians绑定物理参数👉用Material Point Method (MPM)进行物理仿真
