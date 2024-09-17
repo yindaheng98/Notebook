@@ -36,7 +36,7 @@
 
 2015年TED演讲 [Abe Davis: New video technology that reveals an object's hidden properties](https://www.youtube.com/watch?v=npNYP2vzaPo) 包括 Visual Microphone 和 Interactive Dynamic Video
 
-## (Abe Davis的Generative Dynamics融合了Diffusion) Generative Image Dynamics, CVPR24 best paper
+## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
 [原文](https://zhuanlan.zhihu.com/p/705219283)
 
@@ -174,6 +174,8 @@ $$S'_{f_j}(\bold{p})=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bold{p})}{s_{f_
 * softmax splatting策略输入运动场 $F_t$ ，每个像素的权重 $W$ 和起始帧 $I_0$ 经过特征提取器（Feature extractor）多尺度编码后的特征。其中每个像素的权重通过所有时刻平均运动场进行计算 $W(\bold{p})=\frac{1}{T}\sum_{T}{||F_t(\bold{p})||_2}$ 。
 * 将通过softmax splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
 * 使用从真实视频中随机采样的起始帧和目标帧 $(I_0,I_t)$ 联合训练特征提取器和合成网络；使用从 $I_0$ 到 $I_t$ 的估计运动场来扭曲（wrap，我理解为约束） $I_0$ 的编码特征；并使用VGG 感知损失对 $\hat{I_t}$ 和 $I_t$ 进行监督。
+
+softmax splatting的过程就像是用运动场$\hat F_t$在特征图上挪动像素。距离越远的像素权重越小，距离近、L2范数大的像素权重越高，更优先可见。这样经过融合就能得到运动物体在未来时刻的变形结果。
 
 ### 应用
 
