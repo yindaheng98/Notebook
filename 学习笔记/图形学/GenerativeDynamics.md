@@ -173,7 +173,7 @@ $$S'_{f_j}(\bm p)=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bm p)}{s_{f_j}}|}$
 * 将通过Softmax Splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
 
 Softmax Splatting论文：Softmax Splatting for Video Frame Interpolation, CVPR 2020。
-原版Softmax Splatting是用来插帧的，如下图所示，本文只用到了Softmax Splatting结构的左半边，且因为有$F_t$输入所以不需要光流估计，因此速度很快。
+原版Softmax Splatting是用来插帧的，如下图所示，本文只用到了Softmax Splatting结构的左半边，且因为有$F_t$输入所以不需要光流估计，因此速度很快（25FPS on a Nvidia V100 GPU）。
 
 ![](i/20240917212348.png)
 
