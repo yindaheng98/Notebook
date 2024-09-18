@@ -109,9 +109,9 @@ $$I'_t(\bm p+F_t\left( \bm p \right))=I_0(\bm p)$$
 如果直接通过运动纹理生成视频，对于长度为 $T$ 的视频，则需要同样长度为 $T$ 的运动纹理。要在这么多运动纹理中保持模型预测时空一致性，很难。
 
 而根据Abe Davis的观点[2][3]，可以使用光谱体积（spectral volume）在频域中对这些自然运动（近似周期性运动）进行建模。因此，本文中使用 $4K$ 个通道的光谱体积图对运动进行表征。其中 $K$ 是频率数量，$K <<T$ 。
-对于每个频率，4个通道分别对应 $x$ 轴和 $y$ 轴的**复数傅里叶系数**。像素在未来时刻 $t$ 的运动轨迹 $\mathcal{F}(\bm p)=\left\{ F_t(\bm p)|t=1,2,...,T \right\}$ 和光谱体积 $\mathcal{S}(\bm p)=\left\{ S_{f_k}(\bold{p})|k=0,1,...,\frac{T}{2}-1 \right\}$ 之间和通过傅里叶变换进行转换：
+对于每个频率，4个通道分别对应 $x$ 轴和 $y$ 轴的**复数傅里叶系数**。像素在未来时刻 $t$ 的运动轨迹 $\mathcal{F}(\bm p)=\left\{ F_t(\bm p)|t=1,2,...,T \right\}$ 和光谱体积 $\mathcal{S}(\bm p)=\left\{ S_{f_k}(\bm p)|k=0,1,...,\frac{T}{2}-1 \right\}$ 之间和通过傅里叶变换进行转换：
 
-$$\mathcal{S}(\bm p)=\text{FFT}(\mathcal{F}(\bold{p}))$$
+$$\mathcal{S}(\bm p)=\text{FFT}(\mathcal{F}(\bm p))$$
 
 对于频率数 $K$ 的选取，作者认为 $K=16$ 个傅里叶系数足以在一系列真实视频和场景中真实地再现原始的自然运动。
 
@@ -133,13 +133,13 @@ $$\mathcal{L}_{\text{LDM}}=\mathbb{E}_{n\in \mathcal{U}[1,N],\epsilon \in \mathc
 
 为保证模型收敛，采用如下两个技巧
 
-**技巧1：频率自适应归一化 (Frequency adaptive normalization)**
+##### 技巧1：频率自适应归一化 (Frequency adaptive normalization)
 
 扩散模型需要输出在$[-1,1]$之间才能稳定训练，但傅里叶级数的系数取值范围$(-\infty,+\infty)$。实际应用中存在低频系数较大，如果按照先前工作对 $\mathcal{S}$ 进行归一化，则大部分高频系数会趋近于0。
 
 为解决此问题，本文进行如下自适应归一化处理：
 
-$$S'_{f_j}(\bold{p})=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bold{p})}{s_{f_j}}|}$$
+$$S'_{f_j}(\bm p)=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bm p)}{s_{f_j}}|}$$
 
 * 每个频率$f_j$单独进行归一化，有各自的归一化系数$s_{f_j}$
 * 对于每个单独的频率 $f_j$，统计训样本中的傅立叶系数，取95%处的值
@@ -150,7 +150,7 @@ $$S'_{f_j}(\bold{p})=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bold{p})}{s_{f_
 上图展示了3.0 Hz傅里叶项幅度的直方图：（1）按图像宽度和高度缩放幅度（蓝色），或（2）频率自适应归一化（红色）。我们的自适应归一化方法防止系数集中于极端值。
 
 
-**技巧2：频率协调去噪 (Frequency-coordinated denoising)**
+##### 技巧2：频率协调去噪 (Frequency-coordinated denoising)
 
 原有工作直接预测K个频带的光谱体积（即每个样本维度为 $K\times C \times H \times W$ ），这样可能会产生过于平滑和不稳定的输出。另一种预测单个频带的方法（即每个样本维度为 $C \times H \times W$ ）会导致频率之间不相关。
 
@@ -162,20 +162,24 @@ $$S'_{f_j}(\bold{p})=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bold{p})}{s_{f_
 
 本节描述如何通过给定的输入图像 $I_0$ 和预测的光谱体积 $\mathcal{S}$ 在时间 $t$ 渲染视频帧 $\hat{I_t}$。
 
-1. 使用傅里叶逆变换得到运动纹理 $\mathcal{F}(\bm p)=\text{FFT}^{-1}(\mathcal{S}(\bold{p}))$ 
+1. 使用傅里叶逆变换得到运动纹理 $\mathcal{F}(\bm p)=\text{FFT}^{-1}(\mathcal{S}(\bm p))$ 
 2. 通过 $I_0$ 和 $F_t$ ，使用特征金字塔softmax splatting技术渲染 $\hat{I_t}$ 。
 
 ![图4：渲染模块。我们使用深度图像渲染模块填充缺失内容并优化变形的输入图像。首先从输入图像I0提取多尺度特征，然后在这些特征上应用基于运动场Ft（从时间0到t）的Softmax splatting（软最大散射）操作（受权重W影响）。最后，将变形后的特征输入图像合成网络，生成渲染图像It。](zhimg.com/v2-60148e43b201bae428a3d2561fccae2c_r.jpg)
 
-**渲染过程**
+前向扭曲（wraping）过程（指公式 $I'_t(\bm p+F_t\left( \bm p \right))=I_0(\bm p)$ ）可能带来像素空洞，因为多个源像素可能映射到同一个位置。为解决此问题，深度神经网络沿用之前关于帧插值的工作中提出的特征金字塔Softmax Splatting策略：
 
-前向扭曲（wraping）过程（指公式 $I '_t(\bm p+F_t\left( \bm p \right))=I_0(\bm p)$ ）可能带来像素空洞，因为多个源像素可能映射到同一个位置。为解决此问题，深度神经网络沿用之前关于帧插值的工作中提出的特征金字塔softmax splatting策略：
+* Softmax Splatting策略输入运动场 $F_t$ ，每个像素的权重 $W$ 和起始帧 $I_0$ 经过特征提取器（Feature extractor）多尺度编码后的特征（本文实验用的ResNet34）。其中每个像素的权重通过所有时刻平均运动场进行计算 $W(\bm p)=\frac{1}{T}\sum_{T}{||F_t(\bm p)||_2}$ 。
+* 将通过Softmax Splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
 
-* softmax splatting策略输入运动场 $F_t$ ，每个像素的权重 $W$ 和起始帧 $I_0$ 经过特征提取器（Feature extractor）多尺度编码后的特征。其中每个像素的权重通过所有时刻平均运动场进行计算 $W(\bold{p})=\frac{1}{T}\sum_{T}{||F_t(\bold{p})||_2}$ 。
-* 将通过softmax splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
-* 使用从真实视频中随机采样的起始帧和目标帧 $(I_0,I_t)$ 联合训练特征提取器和合成网络；使用从 $I_0$ 到 $I_t$ 的估计运动场来扭曲（wrap，我理解为约束） $I_0$ 的编码特征；并使用VGG 感知损失对 $\hat{I_t}$ 和 $I_t$ 进行监督。
+Softmax Splatting论文：Softmax Splatting for Video Frame Interpolation, CVPR 2020。
+原版Softmax Splatting是用来插帧的，如下图所示，本文只用到了Softmax Splatting结构的左半边，且因为有$F_t$输入所以不需要光流估计，因此速度很快。
 
-softmax splatting的过程就像是用运动场$\hat F_t$在特征图上挪动像素。距离越远的像素权重越小，距离近、L2范数大的像素权重越高，更优先可见。这样经过融合就能得到运动物体在未来时刻的变形结果。
+![](i/20240917212348.png)
+
+Softmax Splatting的过程就像是用运动场$\hat F_t$在特征图上挪动像素。距离越远的像素权重越小，距离近、L2范数大的像素权重越高，更优先可见。这样经过融合就能得到运动物体在未来时刻的变形结果。
+
+训练过程：使用从真实视频中随机采样的起始帧和目标帧 $(I_0,I_t)$ 联合训练特征提取器和合成网络；使用从 $I_0$ 到 $I_t$ 的估计运动场来扭曲（wrap，我理解为约束） $I_0$ 的编码特征；并使用VGG 感知损失对 $\hat{I_t}$ 和 $I_t$ 进行监督。
 
 ### 应用
 
@@ -205,7 +209,7 @@ $$\mathcal{L}^n_g=||F^n_T-F^n_1||_1+||\nabla F^n_T-\nabla F^n_1||_1$$
 
 采用了这种模态分析方法，能够将物体物理响应的图像空间二维运动位移场表示为运动谱系数  $S_{f_j}$ 的加权和，调制由每个模拟时间步  $t$ 的复数模态坐标  $\bold{q}_{f_{j}}(t)$ 的状态控制。
 
-$$F_t(\bold{p})=\sum_{f_j}{S_{f_j}(\bold{p})\bold{q}_{f_{j}}(t)}$$
+$$F_t(\bm p)=\sum_{f_j}{S_{f_j}(\bm p)\bold{q}_{f_{j}}(t)}$$
 
 (作者建议读者参考补充材料和原始工作以获得完整的推导)
 
