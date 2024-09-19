@@ -36,6 +36,24 @@
 
 2015年TED演讲 [Abe Davis: New video technology that reveals an object's hidden properties](https://www.youtube.com/watch?v=npNYP2vzaPo) 包括 Visual Microphone 和 Interactive Dynamic Video
 
+### 基础知识：模态分析 (Modal Analysis)
+
+有限元模型(Finite Element Model)将物体视为有限个刚体和弹簧连接而成的震动系统，其震动过程的受力平衡方程为：
+
+$$\bm M\ddot{\bm u}(t)+\bm C\dot{\bm u}(t)+\bm K\bm u(t)=\bm f(t)$$
+
+其中：
+
+$\ddot{\bm u}$、$\dot{\bm u}$、$\bm u$分别表示$t$时刻的加速度、速度、位置
+
+$\bm M$表示质量（i.e. 这里的$\bm M\ddot{\bm u}$表示外力产生加速度$F=ma$）
+
+$\bm C$表示阻尼（e.g. 空气阻力$\bm C\dot{\bm u}$和速度$\bm u$成正比）
+
+$\bm K$表示刚度（e.g. 弹簧的拉力$\bm K\bm u$和拉伸的长度$\bm u$成正比）
+
+$\bm f(t)$表示受到的外力，抵消阻力$\bm C\dot{\bm u}$、弹簧的拉力$\bm K\bm u$并给物体带来加速度$\ddot{\bm u}$
+
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
 [原文](https://zhuanlan.zhihu.com/p/705219283)
@@ -167,7 +185,11 @@ $$S'_{f_j}(\bm p)=\text{sign}(S_{f_j})\sqrt{|\frac{(S_{f_j})(\bm p)}{s_{f_j}}|}$
 
 ![图4：渲染模块。我们使用深度图像渲染模块填充缺失内容并优化变形的输入图像。首先从输入图像I0提取多尺度特征，然后在这些特征上应用基于运动场Ft（从时间0到t）的Softmax splatting（软最大散射）操作（受权重W影响）。最后，将变形后的特征输入图像合成网络，生成渲染图像It。](zhimg.com/v2-60148e43b201bae428a3d2561fccae2c_r.jpg)
 
-前向扭曲（wraping）过程（指公式 $I'_t(\bm p+F_t\left( \bm p \right))=I_0(\bm p)$ ）可能带来像素空洞，因为多个源像素可能映射到同一个位置。为解决此问题，深度神经网络沿用之前关于帧插值的工作中提出的特征金字塔Softmax Splatting策略：
+前向扭曲（wraping）过程（指公式 $I'_t(\bm p+F_t\left( \bm p \right))=I_0(\bm p)$ ）可能带来像素空洞，因为多个源像素可能映射到同一个位置。
+
+![](i/20240917222743.png)
+
+为解决此问题，深度神经网络沿用之前关于帧插值的工作中提出的特征金字塔Softmax Splatting策略：
 
 * Softmax Splatting策略输入运动场 $F_t$ ，每个像素的权重 $W$ 和起始帧 $I_0$ 经过特征提取器（Feature extractor）多尺度编码后的特征（本文实验用的ResNet34）。其中每个像素的权重通过所有时刻平均运动场进行计算 $W(\bm p)=\frac{1}{T}\sum_{T}{||F_t(\bm p)||_2}$ 。
 * 将通过Softmax Splatting策略后得到的扭曲特征送入解码器合成网络（Synthesis network）得到 $t$ 时刻的预测图像 $\hat{I_t}$ 。
