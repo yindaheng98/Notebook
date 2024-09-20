@@ -36,23 +36,118 @@
 
 2015年TED演讲 [Abe Davis: New video technology that reveals an object's hidden properties](https://www.youtube.com/watch?v=npNYP2vzaPo) 包括 Visual Microphone 和 Interactive Dynamic Video
 
-### 基础知识：模态分析 (Modal Analysis)
+### 基础知识：模态分析/频率分析 (Modal Analysis)
 
-有限元模型(Finite Element Model)将物体视为有限个刚体和弹簧连接而成的震动系统，其震动过程的受力平衡方程为：
+模态分析主要用于计算结构的振动频率和振动形态，因此又可以叫做频率分析或者是振型分析。动力学分析可分为时域分析与频域分析，模态分析是动力学频域分析的基础分析类型。
+
+#### 有限元模型
+
+有限元模型(Finite Element Model)将结构视为有限个刚体和弹簧连接而成的震动系统，其震动过程的受力平衡为可表示为微分方程：
 
 $$\bm M\ddot{\bm u}(t)+\bm C\dot{\bm u}(t)+\bm K\bm u(t)=\bm f(t)$$
 
 其中：
 
-$\ddot{\bm u}$、$\dot{\bm u}$、$\bm u$分别表示$t$时刻的加速度、速度、位置
+$\ddot{\bm u}$、$\dot{\bm u}$、$\bm u$分别表示$t$时刻的加速度矢量、速度矢量、位移矢量，其中的元素$\ddot{\bm u}_i$、$\dot{\bm u}_i$、$\bm u_i$分别表示刚体$i$的加速度、速度、位移
 
-$\bm M$表示质量（i.e. 这里的$\bm M\ddot{\bm u}$表示外力产生加速度$F=ma$）
+$\bm M$表示质量矩阵(Mass)，是一个对角矩阵，$M_{i,i}$为刚体$i$的质量。
+i.e. $\bm M_{i,i}\ddot{\bm u}_i$表示外力产生加速度$F=ma$
 
-$\bm C$表示阻尼（e.g. 空气阻力$\bm C\dot{\bm u}$和速度$\bm u$成正比）
+$\bm C$表示阻尼矩阵(Damping)，是一个对称矩阵，$\bm C_{i,j}$为刚体$i$和刚体$j$之间的阻尼。
+e.g. 刚体$i$受到的外部阻力（如空气阻力）与他自身的速度$\dot{\bm u}_i$成正比，刚体$i$受到的来自刚体$j$的阻力与他们之间的相对速度$\dot{\bm u}_i-\dot{\bm u}_j$成正比，若分别表示为$c_{i}\dot{\bm u}_i$和$c_{i,j}(\dot{\bm u}_i-\dot{\bm u}_j)$，则刚体$i$受到总阻力为：
 
-$\bm K$表示刚度（e.g. 弹簧的拉力$\bm K\bm u$和拉伸的长度$\bm u$成正比）
+$$c_{i}\dot{\bm u}_i+\sum_{j=0}^Nc_{i,j}(\dot{\bm u}_i-\dot{\bm u}_j)=(c_{i}+\sum_{j=0}^Nc_{i,j})\dot{\bm u}_i+\sum_{j=0}^N-c_{i,j}\dot{\bm u}_j=(c_{i}+\sum_{j=0}^{N,i\not=j}c_{i,j})\dot{\bm u}_i+\sum_{j=0}^{N,i\not=j}-c_{i,j}\dot{\bm u}_j$$
 
-$\bm f(t)$表示受到的外力，抵消阻力$\bm C\dot{\bm u}$、弹簧的拉力$\bm K\bm u$并给物体带来加速度$\ddot{\bm u}$
+而矩阵乘中的得到的刚体$i$受到总阻力为$\sum_{j=0}^N\bm C_{i,j}\dot{\bm u}_j$，因此有：
+
+$$\begin{aligned}
+    \bm C_{i,i}&=c_{i}+\sum_{j=0}^{N,j\not=i}c_{i,j}\\
+    \bm C_{i,j}&=-c_{i,j}\quad(i\not=j)\\
+\end{aligned}$$
+
+阻尼的种类很多，在有限元分析中有材料阻尼、结构阻尼、系统阻尼以及瑞利阻尼等。
+上述推导是线性阻尼的情况，适用于粘性阻尼和瑞利阻尼等，有些阻尼并不是线性不能直接套用。
+
+$\bm K$表示刚度矩阵(Stiffness)，是一个对称矩阵，$\bm K_{i,j}$为刚体$i$和刚体$j$之间的阻尼。
+e.g. 刚体$i$受到的外部拉力（如和地面或墙壁相连）与他自身的位移$\bm u_i$成正比，刚体$i$受到的来自刚体$j$的拉力与他们之间拉伸的长度$\bm u_i-\bm u_j$成正比，若分别表示为$k_{i}\bm u_i$和$k_{i,j}(\bm u_i-\bm u_j)$，则同理可得：
+
+$$\begin{aligned}
+    \bm K_{i,i}&=k_{i}+\sum_{j=0}^{N,j\not=i}k_{i,j}\\
+    \bm K_{i,j}&=-k_{i,j}\quad(i\not=j)\\
+\end{aligned}$$
+
+$\bm f(t)$表示受到的随时间变化的外力载荷函数 Load，抵消阻力$\bm C\dot{\bm u}$、弹簧的拉力$\bm K\bm u$并给质量为$\bm M$的各刚体带来加速度$\ddot{\bm u}$
+
+#### 简谐震动和无阻尼固有频率
+
+结构系统在受到外界激励产生运动时，将按特定频率发生自然振动，这个特定的频率被称为结构的固有频率，通常一个结构有很多个固有频率。固有频率与外界激励没有关系，是结构的一种固有属性。不管外界有没有对结构进行激励，结构的固有频率都是存在的，只是当外界有激励时，结构是按固有频率产生振动响应的。
+
+对应到有限元模型中就是$\bm C=\bm 0$和$\bm f(t)=\bm 0$，于是微分方程变为：
+
+$$\bm M\ddot{\bm u}(t)+\bm K\bm u(t)=\bm 0$$
+
+用傅里叶变换将其转换到频域，令$U(\omega)=\mathcal F(\bm u(t))$，则方程化为：
+
+$$\begin{aligned}
+    -\bm M\omega^2\bm U(\omega)+\bm K\bm U(\omega)&=\bm 0\\
+    (\bm K-\omega^2\bm M)\bm U(\omega)&=\bm 0\\
+\end{aligned}$$
+
+有限元模型的简谐震动中，各刚体的震动频率相同都是$\omega$（系统的固有圆周频率）且相位相同，仅有震动幅度不一样。
+若以正弦函数表示各刚体的震动，设各刚体的震动幅度组成幅度向量$\bm\phi$，则位移矢量可表示为$\bm u(t)=\bm\phi\sin(\omega t)$，其，代入上式可将正弦函数部分消去只留下震动幅度：
+
+$$\begin{aligned}
+    (\bm K-\omega^2\bm M)\bm\phi&=\bm 0\\
+    \bm K\bm\phi&=\omega^2\bm M\bm\phi\\
+\end{aligned}$$
+
+$\bm K$为实对称矩阵、$\bm M$为对角矩阵矩阵也是实对称正定矩阵，于是$\bm K\bm\phi=\omega^2\bm M\bm\phi$的求解是一个**广义特征值问题**，$\omega^2$和$\bm\phi$分别为$\bm M,\bm K$的广义特征值和广义特征向量。
+
+求解这个特征值问题可得到多组固有频率$\omega^2$和振幅向量$\bm\phi$，每组都对应模态(mode)中的一个阶，模态的阶数最多等于方阵$\bm M,\bm K$的长宽，也就是系统中的刚体数量，也称为自由度(Degree of Freedom, DOF)。
+
+在高中物理课本中，我们就学习过单自由度系统的固有频率公式。用的是单自由度的弹簧-集中质量模型，如下面左图所示。其运动方程为正弦波Asinωt（简谐运动），对应一阶固有频率。对于两自由度系统而言，如下面中图所示，运动方程是两个正弦波叠加的结果，因而，对应两阶固有频率。同时，三自由度系统对应三个正弦波，因而，有三阶固有频率。
+
+![](i/0.gif)
+
+![](i/1.gif)
+
+因此，似乎“阶”与自由度相对应：1个自由度对应1阶固有频率（或者是1阶模态），情况的确是这样的。自由度是指用于确定结构在空间上运动所需要的最少、独立的坐标个数。质点有三个平动自由度；刚体有六个自由度，分别为三个平动和三个转动自由度。
+ 
+一个连续体或弹性体实际上有无穷多个自由度，此时，任意连续结构都可以看成是无限多个微刚体组成的，每个微刚体有6个自由度，因而，我们可以认为任意连续结构具有无限多个自由度，但是，所有这些结构又可以近似地看作是由有限个微刚体组成的（比方有限元分析时只能划分有限数量的单元），因此又可以认为连续结构具有有限个自由度。该自由度数决定了解析质量矩阵、刚度矩阵和阻尼矩阵的维数，也决定上理论上存在的固有频率阶数和模态振型阶数。
+ 
+虽然连续体在理论上是有无限多阶固有频率，但很多情况下我们只关心低阶的固有频率或者特定阶的固有频率。这是因为固有频率越低，越容易被外界所激励起来。另外，结构也可能受到特定的激励，如在某恒定转速下运行，因此，也可能关心特定阶的固有频率。
+
+#### 瑞利阻尼
+
+瑞利(Rayleigh)阻尼简单、方便，因而在结构动力分析中得到了广泛应用。
+瑞利阻尼假设结构的阻尼矩阵是质量矩阵和刚度矩阵的组合：
+
+$$\bm C=\alpha\bm M+\beta\bm K$$
+
+如果假设结构体系的阻尼满足正交条件，并采用振型叠加法求解，则不必构造整体阻尼，而直接采用振型阻尼比，其中刚体$i$的振型阻尼比$\xi_i$可由其固有频率$\omega_i$表示：
+
+$$\xi_i=\frac12(\frac\alpha\omega_i+\beta\omega_i)$$
+
+可将各阶模态的固有频率和振幅向量组成矩阵$\Omega=\text{diag}(\omega_i^2)$和$\Phi=[\bm\phi_i]$，则可将质量和刚度矩阵化为对角矩阵$\Phi^T\bm M\Phi=\text{diag}(\bm m_i)$和$\Phi^T\bm K\Phi=\text{diag}(\bm k_i)$，令$\bm u(t)=\Phi\bm q(t)$带入原式：
+
+$$\begin{aligned}
+    \bm M\Phi\ddot{\bm q}(t)+\bm C\Phi\dot{\bm q}(t)+\bm K\Phi\bm q(t)&=\bm f(t)\\
+    \Phi^T\bm M\Phi\ddot{\bm q}(t)+\Phi^T(\alpha\bm M+\beta\bm K)\Phi\dot{\bm q}(t)+\Phi^T\bm K\Phi\bm q(t)&=\Phi^T\bm f(t)\\
+    \text{diag}(\bm m_i)\ddot{\bm q}(t)+(\alpha\text{diag}(\bm m_i)+\beta\text{diag}(\bm k_i))\dot{\bm q}(t)+\text{diag}(\bm k_i)\bm q(t)&=\Phi^T\bm f(t)\\
+\end{aligned}$$
+
+方程左边全成了对角矩阵乘向量，令$f_i(t)=\bm\phi_i^T\bm f(t)$，则方程可以按阶数全拆开：
+
+$$\bm m_i\ddot q(t)+(\alpha\bm m_i+\beta\bm k_i)\dot q(t)+\bm k_i q(t)=f_i(t)$$
+
+进而可带入各刚体的固有频率$\omega_i=\sqrt{\frac{\bm k_i}{\bm m_i}}$和振型阻尼比$\xi_i=\frac12(\frac\alpha\omega_i+\beta\omega_i)$：
+
+$$\begin{aligned}
+    \bm m_i\ddot q(t)+(\alpha\bm m_i+\beta\bm k_i)\dot q(t)+\bm k_i q(t)&=f_i(t)\\
+    \ddot q(t)+(\alpha+\beta\frac{\bm k_i}{\bm m_i})\dot q(t)+\frac{\bm k_i}{\bm m_i} q(t)&=\frac{f_i(t)}{\bm m_i}\\
+    \ddot q(t)+(\alpha+\beta\omega_i^2)\dot q(t)+\omega_i^2 q(t)&=\frac{f_i(t)}{\bm m_i}\\
+    \ddot q(t)+2\xi_i\omega_i\dot q(t)+\omega_i^2 q(t)&=\frac{f_i(t)}{\bm m_i}\\
+\end{aligned}$$
 
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
