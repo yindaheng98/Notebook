@@ -186,31 +186,37 @@ $$\begin{aligned}
 
 ### 单位脉冲响应
 
-若$f_i(t)$为单位脉冲函数$f_i(t)=\delta(t)$，要求时域变化${\bm q_i}(t)$即是在求一个二阶系统的单位脉冲响应，则先进行傅里叶变换转频域。
+若$f_i(t)$为脉冲函数$f_i(t)=A_i\delta(t)$，要求时域变化${\bm q_i}(t)$即是在求一个二阶系统的脉冲响应${\bm q_i}(t)=A_ih_i(t)$，则先进行傅里叶变换转频域。
 
-单位脉冲函数的傅里叶变换$\mathcal F(\delta(t))=1$，令$\bm Q_i(\omega)=\mathcal F({\bm q_i}(t))$，则有：
+单位脉冲函数的傅里叶变换$\mathcal F(\delta(t))=1$，令$H_i(\omega)=\mathcal F(h_i(t))$，则有：
 
 $$\begin{aligned}
-    \omega^2\bm Q_i(\omega)+2\xi_i\omega_i\omega\bm Q_i(\omega)+\omega_i^2\bm Q_i(\omega)&=\frac{1}{\bm m_i}\\
-    \bm Q_i(\omega)&=\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2}\\
+    \omega^2H_i(\omega)+2\xi_i\omega_i\omega H_i(\omega)+\omega_i^2H_i(\omega)&=\frac{1}{\bm m_i}\\
+    H_i(\omega)&=\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2}\\
 \end{aligned}$$
 
 过程略，直接给出二阶系统的单位脉冲响应：
 
 $$\mathcal F^{-1}(\frac{\omega_i^2}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})=\frac{\omega_i}{\sqrt{1-\xi_i}}e^{-\xi_i\omega_it}\text{sin}(\omega_i\sqrt{1-\xi_i}t)$$
 
-于是$\bm Q_i(\omega)$傅里叶反变换到时域：
+于是$H_i(\omega)$傅里叶反变换到时域：
 
 $$\begin{aligned}
-    {\bm q_i}(t)=\mathcal F^{-1}(\bm Q_i(\omega))&=\mathcal F^{-1}(\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})\\
+    h_i(t)=\mathcal F^{-1}(H_i(\omega))&=\mathcal F^{-1}(\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})\\
     &=\mathcal F^{-1}(\frac{1}{\bm m_i\omega_i^2}\cdot\frac{\omega_i^2}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})\\
     &=\frac{1}{\bm m_i\omega_i^2}\cdot\frac{\omega_i}{\sqrt{1-\xi_i}}e^{-\xi_i\omega_it}\text{sin}(\omega_i\sqrt{1-\xi_i}t)\\
     &=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_i\sqrt{1-\xi_i}}\text{sin}(\omega_i\sqrt{1-\xi_i}t)\\
 \end{aligned}$$
 
-$\omega_{di}=\omega_i\sqrt{1-\xi_i}$称为有阻尼自震荡频率，从而：
+$\omega_{di}=\omega_i\sqrt{1-\xi_i}$称为有阻尼自震荡频率，从而单位脉冲响应函数为：
 
-$${\bm q_i}(t)=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_{di}}\text{sin}(\omega_{di}t)$$
+$$h_i(t)=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_{di}}\text{sin}(\omega_{di}t)$$
+
+进而可求模态坐标下的${\bm q_i}(t)=A_ih_i(t)$，于是可求自然坐标下的$\bm u(t)=\bm\Phi\bm q(t)$为各自由度上的脉冲响应之和：
+
+$$\bm u_i(t)=\sum_j\bm\Phi_{ij}\bm q_j(t)=\sum_j\bm\Phi_{ij}A_jh_j(t)$$
+
+### 图像空间
 
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
