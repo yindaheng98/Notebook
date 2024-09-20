@@ -233,6 +233,20 @@ $$\bm V\bm U_i(\omega_{dj})=\bm V\bm\Phi_{ij}A_jH_j(\omega_{dj})$$
 
 具体来说，上式中的$\bm U_i(\omega_{dj})$从像素的移动轨迹中经过FFT获得，$\bm V\bm\Phi_{ij}$为未知变量，$A_jH_j(\omega_{dj})$为常数，从而可可拟合出$\bm V\bm\Phi_{ij}$。
 
+### 渲染
+
+直接计算$\bm u_i(t)$得到像素$i$的位移
+
+$$\bm u_i(t)=\sum_j\bm\Phi_{ij}\bm q_j(t)=\sum_j\bm\Phi_{ij}A_jh_j(t)$$
+
+所有像素的位移组成 Deformation map $\bm D(t)$：
+
+$$\bm D(t)=\{\bm u_i(t)\}$$
+
+照着移动像素即可。
+
+如果有像素重合，移动多的盖住移动少的。
+
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
 [原文](https://zhuanlan.zhihu.com/p/705219283)
