@@ -216,7 +216,22 @@ $$h_i(t)=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_{di}}\text{sin}(\omega_{di}t)$
 
 $$\bm u_i(t)=\sum_j\bm\Phi_{ij}\bm q_j(t)=\sum_j\bm\Phi_{ij}A_jh_j(t)$$
 
-### 图像空间
+### 图像空间模态分析
+
+对自然坐标下的$\bm u(t)$进行傅里叶变换：
+
+$$\bm U_i(\omega)=\mathcal F(\bm u_i(t))=\sum_j\bm\Phi_{ij}A_jH_j(\omega)$$
+
+作者通过两个假设使得$\omega=\omega_{di}$时的脉冲响应简化：
+
+$$\bm U_i(\omega_{dj})=\bm\Phi_{ij}A_jH_j(\omega_{dj})$$
+
+作者将图像中的每个像素视为一个刚体，$xy$方向上各有一个$\bm\Phi$：$\bm\Phi_x,\bm\Phi_y$，其中的每个$\bm\phi_i$长度为像素数量。
+在像素的移动轨迹（光流）上拟合$\bm\phi_i$，和一个二值对角矩阵$\bm V$用于表征像素之间的关联：
+
+$$\bm V\bm U_i(\omega_{dj})=\bm V\bm\Phi_{ij}A_jH_j(\omega_{dj})$$
+
+具体来说，上式中的$\bm U_i(\omega_{dj})$从像素的移动轨迹中经过FFT获得，$\bm V\bm\Phi_{ij}$为未知变量，$A_jH_j(\omega_{dj})$为常数，从而可可拟合出$\bm V\bm\Phi_{ij}$。
 
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
