@@ -156,7 +156,7 @@ $$\begin{aligned}
 
 这样，方程中的参数完全解耦，化成了阶数个标量方程，更好求解。
 
-### 有瑞利阻尼情况下的冲击响应
+### 瑞利阻尼
 
 瑞利(Rayleigh)阻尼简单、方便，因而在结构动力分析中得到了广泛应用。
 瑞利阻尼假设结构的阻尼矩阵是质量矩阵和刚度矩阵的组合：
@@ -169,20 +169,48 @@ $$\Phi^T\bm C\Phi=\Phi^T(\alpha\bm M+\beta\bm K)\Phi=\alpha\text{diag}(\bm m_i)+
 
 从而可以按‌模态坐标转换将方程解耦：
 
-$$\bm m_i\ddot q(t)+(\alpha\bm m_i+\beta\bm k_i)\dot q(t)+\bm k_i q(t)=\bm\phi_i^T\bm f(t)$$
+$$\bm m_i\ddot{\bm q_i}(t)+(\alpha\bm m_i+\beta\bm k_i)\dot{\bm q_i}(t)+\bm k_i{\bm q_i}(t)=\bm\phi_i^T\bm f(t)$$
 
 如果假设结构体系的阻尼满足正交条件，并采用振型叠加法求解，则不必构造整体阻尼，而直接采用振型阻尼比，其中刚体$i$的振型阻尼比$\xi_i$可由其固有频率$\omega_i$表示：
 
 $$\xi_i=\frac12(\frac\alpha\omega_i+\beta\omega_i)$$
 
-令$f_i(t)=\bm\phi_i^T\bm f(t)$，可带入各刚体的固有频率$\omega_i=\sqrt{\frac{\bm k_i}{\bm m_i}}$和振型阻尼比$\xi_i=\frac12(\frac\alpha\omega_i+\beta\omega_i)$：
+令$f_i(t)=\bm\phi_i^T\bm f(t)$，可带入‌模态坐标下的固有频率$\omega_i=\sqrt{\frac{\bm k_i}{\bm m_i}}$和振型阻尼比$\xi_i=\frac12(\frac\alpha\omega_i+\beta\omega_i)$：
 
 $$\begin{aligned}
-    \bm m_i\ddot q(t)+(\alpha\bm m_i+\beta\bm k_i)\dot q(t)+\bm k_i q(t)&=f_i(t)\\
-    \ddot q(t)+(\alpha+\beta\frac{\bm k_i}{\bm m_i})\dot q(t)+\frac{\bm k_i}{\bm m_i} q(t)&=\frac{f_i(t)}{\bm m_i}\\
-    \ddot q(t)+(\alpha+\beta\omega_i^2)\dot q(t)+\omega_i^2 q(t)&=\frac{f_i(t)}{\bm m_i}\\
-    \ddot q(t)+2\xi_i\omega_i\dot q(t)+\omega_i^2 q(t)&=\frac{f_i(t)}{\bm m_i}\\
+    \bm m_i\ddot{\bm q_i}(t)+(\alpha\bm m_i+\beta\bm k_i)\dot{\bm q_i}(t)+\bm k_i{\bm q_i}(t)&=f_i(t)\\
+    \ddot{\bm q_i}(t)+(\alpha+\beta\frac{\bm k_i}{\bm m_i})\dot{\bm q_i}(t)+\frac{\bm k_i}{\bm m_i}{\bm q_i}(t)&=\frac{f_i(t)}{\bm m_i}\\
+    \ddot{\bm q_i}(t)+(\alpha+\beta\omega_i^2)\dot{\bm q_i}(t)+\omega_i^2{\bm q_i}(t)&=\frac{f_i(t)}{\bm m_i}\\
+    \ddot{\bm q_i}(t)+2\xi_i\omega_i\dot{\bm q_i}(t)+\omega_i^2{\bm q_i}(t)&=\frac{f_i(t)}{\bm m_i}\\
 \end{aligned}$$
+
+### 单位脉冲响应
+
+若$f_i(t)$为单位脉冲函数$f_i(t)=\delta(t)$，要求时域变化${\bm q_i}(t)$即是在求一个二阶系统的单位脉冲响应，则先进行傅里叶变换转频域。
+
+单位脉冲函数的傅里叶变换$\mathcal F(\delta(t))=1$，令$\bm Q_i(\omega)=\mathcal F({\bm q_i}(t))$，则有：
+
+$$\begin{aligned}
+    \omega^2\bm Q_i(\omega)+2\xi_i\omega_i\omega\bm Q_i(\omega)+\omega_i^2\bm Q_i(\omega)&=\frac{1}{\bm m_i}\\
+    \bm Q_i(\omega)&=\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2}\\
+\end{aligned}$$
+
+过程略，直接给出二阶系统的单位脉冲响应：
+
+$$\mathcal F^{-1}(\frac{\omega_i^2}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})=\frac{\omega_i}{\sqrt{1-\xi_i}}e^{-\xi_i\omega_it}\text{sin}(\omega_i\sqrt{1-\xi_i}t)$$
+
+于是$\bm Q_i(\omega)$傅里叶反变换到时域：
+
+$$\begin{aligned}
+    {\bm q_i}(t)=\mathcal F^{-1}(\bm Q_i(\omega))&=\mathcal F^{-1}(\frac{1}{\bm m_i}\cdot\frac{1}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})\\
+    &=\mathcal F^{-1}(\frac{1}{\bm m_i\omega_i^2}\cdot\frac{\omega_i^2}{\omega^2+2\xi_i\omega_i\omega+\omega_i^2})\\
+    &=\frac{1}{\bm m_i\omega_i^2}\cdot\frac{\omega_i}{\sqrt{1-\xi_i}}e^{-\xi_i\omega_it}\text{sin}(\omega_i\sqrt{1-\xi_i}t)\\
+    &=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_i\sqrt{1-\xi_i}}\text{sin}(\omega_i\sqrt{1-\xi_i}t)\\
+\end{aligned}$$
+
+$\omega_{di}=\omega_i\sqrt{1-\xi_i}$称为有阻尼自震荡频率，从而：
+
+$${\bm q_i}(t)=\frac{e^{-\xi_i\omega_it}}{\bm m_i\omega_{di}}\text{sin}(\omega_{di}t)$$
 
 ## (用Diffusion生成Abe Davis提出的Image-Space Modal Bases并用Softmax Splatting渲染之) Generative Image Dynamics, CVPR24 best paper
 
