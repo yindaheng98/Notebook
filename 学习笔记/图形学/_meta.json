@@ -25,6 +25,19 @@
             "图形学"
         ]
     },
+    "3D高斯代码解析.md": {
+        "title": "3D Gaussian Splatting核心CUDA代码注释",
+        "created": "2024-10-09 11:29:40",
+        "updated": "2024-10-09 11:29:40",
+        "date": "2024-10-09 11:29:40",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
     "3D高斯数学推导.md": {
         "title": "【转载】3D Gaussian Splatting中的数学推导",
         "created": "2023-12-20 01:41:11",
@@ -96,8 +109,8 @@
     "GenerativeDynamics.md": {
         "title": "【摘录】Generative Dynamics/生成式动力学",
         "created": "2024-09-11 03:48:45",
-        "updated": "2024-09-16 05:39:04",
-        "date": "2024-09-16 05:39:04",
+        "updated": "2024-09-20 18:47:58",
+        "date": "2024-09-20 18:47:58",
         "tags": [
             "图形学",
             "物理引擎",
