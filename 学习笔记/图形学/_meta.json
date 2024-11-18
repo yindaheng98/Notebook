@@ -26,10 +26,23 @@
         ]
     },
     "3D高斯代码解析.md": {
-        "title": "3D Gaussian Splatting核心CUDA代码注释",
-        "created": "2024-10-09 11:29:40",
-        "updated": "2024-10-09 11:29:40",
-        "date": "2024-10-09 11:29:40",
+        "title": "3D Gaussian Splatting核心CUDA代码注释：Forward部分",
+        "created": "2024-10-09 21:55:30",
+        "updated": "2024-10-11 04:00:22",
+        "date": "2024-10-11 04:00:22",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
+    "3D高斯反向传播代码解析.md": {
+        "title": "3D Gaussian Splatting核心CUDA代码注释：反向传播部分",
+        "created": "2024-11-17 21:05:11",
+        "updated": "2024-11-17 21:05:11",
+        "date": "2024-11-17 21:05:11",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -202,6 +215,18 @@
         ],
         "cover": "/图形学/./i/2f54150145095c59f605941a1170f071.gif"
     },
+    "NeRF矩阵分解.md": {
+        "title": "NeRF矩阵分解",
+        "created": "2024-04-28 22:55:19",
+        "updated": "2024-04-28 22:55:19",
+        "date": "2024-04-28 22:55:19",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
     "NeRF系列工作总结.md": {
         "title": "【转载】NeRF系列工作总结",
         "created": "2023-10-23 00:50:19",
@@ -271,6 +296,18 @@
             "图形学"
         ],
         "cover": "/图形学/i/NvidiaSDF.png"
+    },
+    "shading.md": {
+        "title": "【GAMES101课程笔记】着色 Shading",
+        "created": "2023-12-24 14:29:49",
+        "updated": "2023-12-24 14:29:49",
+        "date": "2023-12-24 14:29:49",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ]
     },
     "体渲染.md": {
         "title": "【摘抄】Nerf基础知识：体渲染",
