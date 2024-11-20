@@ -39,10 +39,23 @@
         ]
     },
     "3D高斯反向传播代码解析.md": {
-        "title": "3D Gaussian Splatting核心CUDA代码注释：反向传播部分",
-        "created": "2024-11-17 21:05:11",
-        "updated": "2024-11-17 21:05:11",
-        "date": "2024-11-17 21:05:11",
+        "title": "3D Gaussian Splatting核心CUDA代码注释：反向传播部分（一）`BACKWARD::render`",
+        "created": "2024-11-18 05:06:36",
+        "updated": "2024-11-20 00:38:15",
+        "date": "2024-11-20 00:38:15",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
+    "3D高斯反向传播代码解析2.md": {
+        "title": "3D Gaussian Splatting核心CUDA代码注释：反向传播部分（二）`BACKWARD::preprocess`",
+        "created": "2024-11-19 16:43:27",
+        "updated": "2024-11-19 16:43:27",
+        "date": "2024-11-19 16:43:27",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
