@@ -59,10 +59,10 @@
         "cover": "/计算机网络/./i/6ec6a5e2f8dce9bf4305bba48818df22.png"
     },
     "帧同步.md": {
-        "title": "【摘录】帧同步LockStep：原理与实现",
+        "title": "【摘录】帧同步LockStep、状态同步、状态帧同步",
         "created": "2024-08-17 23:31:13",
-        "updated": "2024-08-17 23:31:13",
-        "date": "2024-08-17 23:31:13",
+        "updated": "2024-08-19 00:44:36",
+        "date": "2024-08-19 00:44:36",
         "tags": [
             "计算机网络",
             "网络游戏"
@@ -70,7 +70,7 @@
         "categories": [
             "计算机网络"
         ],
-        "cover": "/计算机网络/./i/framesync.gif"
+        "cover": "/计算机网络/i/Xr3Q0asWhdeQTzRtmAjiV1pfDIlho2VSr0Mw9ihq.png"
     },
     "计算机网络复习.md": {
         "title": "计算机网络复习",
