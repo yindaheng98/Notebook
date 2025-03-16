@@ -1,4 +1,4 @@
-# 【纯转载】从 git commit 中永久删除某个文件
+# 从 git commit 中永久删除某些文件
 
 ## 背景
 
@@ -14,13 +14,11 @@ venv/
 
 **一般情况下，并不建议执行 `git push -f` 这个操作**
 
-## 操作
+## 删除指定文件/文件夹
 
 如果我新增一个 commit 把这些不必要的文件删掉，并且使用 `.gitignore` 来主动忽略，这是可行的。不过这些文件依然会在 commit 历史中出现，别人 `git clone` 的时候也会被下载下来，因此打算从 commit 历史中完全删掉这些文件，就像他们从来没有出现过一样。
 
-下列代码整理自互联网
-
-```
+```sh
 git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch venv/ -r' --prune-empty --tag-name-filter cat -- --all
 git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
 git reflog expire --expire=now --all
@@ -30,6 +28,19 @@ git push --force
 ```
 
 其中，要删去的是目录 `venv/` ，由于是目录所以我加上了 `-r` 参数。
+
+## 删除除指定的文件/文件夹外的所有文件
+
+要删除所有文件，一个个的删麻烦不说还容易漏掉在历史里标记为删除HEAD里不显示的文件。
+所以换个思路，导出要保存的文件的历史记录：
+```sh
+git fast-export HEAD -- `find code/ venv/ -type f` > ../his.fi
+```
+然后在别的地方新建一个库导入之：
+```sh
+git init
+git fast-import < ../his.fi
+```
 
 ## 缺陷
 
