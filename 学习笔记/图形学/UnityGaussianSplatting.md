@@ -172,3 +172,74 @@ void OnPreCullCamera(Camera cam)
     m_CommandBuffer.ReleaseTemporaryRT(GaussianSplatRenderer.Props.GaussianSplatRT);
 }
 ```
+
+### `GaussianSplatRenderSystem.GatherSplatsForCamera`
+
+`GatherSplatsForCamera` 从 `m_Splats` 中取出所有需要渲染的3DGS对象放入 `m_ActiveSplats` 并对其按 `m_RenderOrder` 或其距离相机的远近进行排序：
+
+```c#
+public bool GatherSplatsForCamera(Camera cam)
+{
+    if (cam.cameraType == CameraType.Preview)
+        return false;
+    // gather all active & valid splat objects
+    m_ActiveSplats.Clear();
+    foreach (var kvp in m_Splats)
+    {
+        var gs = kvp.Key;
+        if (gs == null || !gs.isActiveAndEnabled || !gs.HasValidAsset || !gs.HasValidRenderSetup)
+            continue;
+        m_ActiveSplats.Add((kvp.Key, kvp.Value));
+    }
+    if (m_ActiveSplats.Count == 0)
+        return false;
+
+    // sort them by order and depth from camera
+    var camTr = cam.transform;
+    m_ActiveSplats.Sort((a, b) =>
+    {
+        var orderA = a.Item1.m_RenderOrder;
+        var orderB = b.Item1.m_RenderOrder;
+        if (orderA != orderB)
+            return orderB.CompareTo(orderA);
+        var trA = a.Item1.transform;
+        var trB = b.Item1.transform;
+        var posA = camTr.InverseTransformPoint(trA.position);
+        var posB = camTr.InverseTransformPoint(trB.position);
+        return posA.z.CompareTo(posB.z);
+    });
+
+    return true;
+}
+```
+
+这里的 `m_RenderOrder` 是3DGS对象上的一个可调变量，用于手动控制多个3DGS对象的渲染顺序：
+
+```c#
+public int m_RenderOrder;
+[Range(0.1f, 2.0f)] [Tooltip("Additional scaling factor for the splats")]
+```
+
+### `GaussianSplatRenderSystem.InitialClearCmdBuffer`
+
+`InitialClearCmdBuffer` 创建了一个 `CommandBuffer` 对象并将其绑定到相机的 `CameraEvent.BeforeForwardAlpha` 事件上，并通过判断条件保证每个相机只绑定一次：
+
+```c#
+public CommandBuffer InitialClearCmdBuffer(Camera cam)
+{
+    m_CommandBuffer ??= new CommandBuffer {name = "RenderGaussianSplats"};
+    if (GraphicsSettings.currentRenderPipeline == null && cam != null && !m_CameraCommandBuffersDone.Contains(cam))
+    {
+        cam.AddCommandBuffer(CameraEvent.BeforeForwardAlpha, m_CommandBuffer);
+        m_CameraCommandBuffersDone.Add(cam);
+    }
+
+    // get render target for all splats
+    m_CommandBuffer.Clear();
+    return m_CommandBuffer;
+}
+```
+
+其中，`CommandBuffer` ‌是Unity提供的GPU渲染命令列表，可以延迟提交渲染指令，减少CPU/GPU负担，批量执行DrawCall，避免CPU过度调用API。它支持插入自定义渲染指令，如深度处理、后处理效果，并且可以脱离GameObject直接控制渲染，如画辅助线、调试网格等；`CameraEvent.BeforeForwardAlpha` 是在Unity中用于指定摄像机渲染事件的一个枚举值，它表示在渲染透明对象之前执行的操作。
+
+>在Unity渲染管线中，前向渲染路径通常包括以下几个主要阶段：‌不透明物体渲染 ‌-> ‌透明物体渲染‌ -> 后期效果处理‌。`CameraEvent.BeforeForwardAlpha`‌ 允许你在透明物体渲染之前插入自定义的渲染命令或效果。这可以用于在透明物体渲染之前执行一些特殊的处理，比如添加额外的光照效果、修改场景的某些部分等‌。
