@@ -4,9 +4,12 @@
 
 按照 README 所述，主要调用逻辑位于 [package/Runtime/GaussianSplatRenderer.cs](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Runtime/GaussianSplatRenderer.cs) 中，将 `GaussianSplatRenderer.cs` 脚本绑定到任意 Game Object 上并且将3DGS文件设置为其 Assert 即可实现3DGS渲染。
 
-## `GaussianSplatRenderSystem.OnEnable` 中的初始化过程
+[package/Runtime/GaussianSplatRenderer.cs](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Runtime/GaussianSplatRenderer.cs) 有两个类：`GaussianSplatRenderSystem` 类和其内部的 `GaussianSplatRenderer` 类。
+其中，`GaussianSplatRenderSystem` 类为单例类，全局唯一，通过 `GaussianSplatRenderSystem.instance` 进行调用；而每个3DGS对象上都会绑定一个 `GaussianSplatRenderer` 类，`GaussianSplatRenderer` 类通过调用全局唯一的 `GaussianSplatRenderSystem` 单例类的类方法执行渲染操作，从而实现所有3DGS对象中的Gaussians统统合并到一起进行渲染。
 
-`GaussianSplatRenderSystem` 位于 [package/Runtime/GaussianSplatRenderer.cs](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Runtime/GaussianSplatRenderer.cs) 中，是3DGS渲染的入口，相关运行逻辑注册于 `OnEnable` 中：
+## `GaussianSplatRenderer.OnEnable` 中的初始化过程
+
+3DGS渲染初始化过程位于 `GaussianSplatRenderer.OnEnable` 中：
 
 ```c#
 public void OnEnable()
@@ -37,8 +40,9 @@ public void EnsureMaterials()
     }
 }
 ```
+### `GaussianSplatRenderer.EnsureSorterAndRegister`
 
-`EnsureSorterAndRegister` 初始化了排序用的类并注册了3DGS渲染函数的入口
+`EnsureSorterAndRegister` 初始化了排序用的类并在全局 `GaussianSplatRenderSystem` 单例中注册了3DGS对象：
 ```c#
     public void EnsureSorterAndRegister()
     {
@@ -55,9 +59,11 @@ public void EnsureMaterials()
     }
 ```
 
-其中，`GpuSorting` 是用于GPU排序的类，定义于 [package/Runtime/GpuSorting.cs](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Runtime/GpuSorting.cs) 中，其中包含排序时用到的变量和方法，其底层是调用 [package/Shaders/DeviceRadixSort.hlsl](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Shaders/DeviceRadixSort.hlsl) 中定义的几个 Kernel实现GPU并行排序；
+其中，`GpuSorting` 是用于GPU排序的类，定义于 [package/Runtime/GpuSorting.cs](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Runtime/GpuSorting.cs) 中，包含排序时用到的变量和方法，其底层是调用 [package/Shaders/DeviceRadixSort.hlsl](https://github.com/aras-p/UnityGaussianSplatting/blob/2f371e121db7c56159be634545d5bf9c5b2ce55b/package/Shaders/DeviceRadixSort.hlsl) 中定义的几个 Kernel实现GPU并行排序；
 
-`RegisterSplat` 注册了3DGS渲染函数的入口，具体来说是将一个 `OnPreCullCamera` 函数绑定在 `Camera.onPreCull` 事件中：
+### `GaussianSplatRenderSystem.RegisterSplat`
+
+`RegisterSplat` 是 `GaussianSplatRenderSystem` 中用于注册3DGS对象的方法，具体来说是将 `GaussianSplatRenderSystem.OnPreCullCamera` 方法绑定在 `Camera.onPreCull` 事件中，并在`m_Splats`中为当前的 `GaussianSplatRenderer` 新建一块 `MaterialPropertyBlock`：
 
 ```c#
 public void RegisterSplat(GaussianSplatRenderer r)
@@ -72,7 +78,9 @@ public void RegisterSplat(GaussianSplatRenderer r)
 }
 ```
 
-这个 `OnPreCullCamera` 函数就是3DGS渲染的主程序，绑定到 `Camera.onPreCull` 将令其在摄像机开始裁剪阶段之前被触发；
+这个 `OnPreCullCamera` 函数就是3DGS渲染的主程序，绑定到 `Camera.onPreCull` 将令其在摄像机开始裁剪阶段之前被触发，这里的判断条件保证了 `OnPreCullCamera` 只被绑定一次；`MaterialPropertyBlock` 是Unity提供的一种轻量级容器，用于存储材质属性的覆盖值。它允许开发者为单个Renderer实例设置特定的材质属性值，同时保持原始材质的共享引用，维护GPU批处理的优势；`m_Splats` 是 `GaussianSplatRenderSystem` 一个以`GaussianSplatRenderer` 为key，`MaterialPropertyBlock` 为value的`Dictionary`，它通过 `RegisterSplat` 记录了场景中的所有3DGS对象。
+
+### `GaussianSplatRenderer.CreateResourcesForAsset`
 
 `CreateResourcesForAsset` 根据Gaussians的数量 `m_SplatCount = asset.splatCount` 初始化了几个GPU Buffer `m_GpuPosData`、`m_GpuOtherData`、`m_GpuSHData`、`m_GpuColorData`、`m_GpuChunks`，`m_GpuIndexBuffer`，调用从`asset.xxXX.GetData` 读取数据并用 `GetData` 给这些GPU Buffer设置了数据，最后调用 `InitSortBuffers` 初始化了GPU排序用到的各种Buffers：
 
