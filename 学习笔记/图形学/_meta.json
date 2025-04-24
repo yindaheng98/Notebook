@@ -42,8 +42,8 @@
     "3D高斯反向传播代码解析.md": {
         "title": "详解3D Gaussian Splatting CUDA Kernel：反向传播（一）`BACKWARD::render`",
         "created": "2024-11-18 05:06:36",
-        "updated": "2024-11-23 06:14:48",
-        "date": "2024-11-23 06:14:48",
+        "updated": "2025-03-03 19:05:20",
+        "date": "2025-03-03 19:05:20",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -56,8 +56,8 @@
     "3D高斯反向传播代码解析2.md": {
         "title": "详解3D Gaussian Splatting CUDA Kernel：反向传播（二）`BACKWARD::preprocess`",
         "created": "2024-11-20 00:45:11",
-        "updated": "2025-02-24 01:51:38",
-        "date": "2025-02-24 01:51:38",
+        "updated": "2025-03-03 19:05:20",
+        "date": "2025-03-03 19:05:20",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
@@ -324,6 +324,19 @@
             "图形学"
         ]
     },
+    "UnityGaussianSplatting.md": {
+        "title": "`aras-p/UnityGaussianSplatting` Runtime 源码浅析",
+        "created": "2025-04-24 11:51:09",
+        "updated": "2025-04-24 11:51:09",
+        "date": "2025-04-24 11:51:09",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ]
+    },
     "体渲染.md": {
         "title": "【摘抄】Nerf基础知识：体渲染",
         "created": "2023-09-09 04:41:27",
@@ -344,6 +357,7 @@
         "updated": "2023-09-13 23:55:02",
         "date": "2023-09-13 23:55:02",
         "tags": [
+            "Nerf",
             "图形学"
         ],
         "categories": [
@@ -370,6 +384,7 @@
         "updated": "2023-12-28 01:08:19",
         "date": "2023-12-28 01:08:19",
         "tags": [
+            "Nerf",
             "图形学"
         ],
         "categories": [
@@ -512,6 +527,18 @@
             "图形学"
         ],
         "cover": "/图形学/zhimg.com/v2-ff5969172410c94a252b09cb8516a2f0_r.jpg"
+    },
+    "相机对齐.md": {
+        "title": "相机对齐",
+        "created": "2025-03-26 20:16:05",
+        "updated": "2025-03-26 20:16:05",
+        "date": "2025-03-26 20:16:05",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ]
     },
     "矢量量化.md": {
         "title": "可微矢量量化",
