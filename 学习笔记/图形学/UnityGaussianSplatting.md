@@ -255,6 +255,10 @@ public CommandBuffer InitialClearCmdBuffer(Camera cam)
     m_CommandBuffer.GetTemporaryRT(GaussianSplatRenderer.Props.GaussianSplatRT, -1, -1, 0, FilterMode.Point, GraphicsFormat.R16G16B16A16_SFloat);
     m_CommandBuffer.SetRenderTarget(GaussianSplatRenderer.Props.GaussianSplatRT, BuiltinRenderTextureType.CurrentActive);
     m_CommandBuffer.ClearRenderTarget(RTClearFlags.Color, new Color(0, 0, 0, 0), 0, 0);
+
+    // We only need this to determine whether we're rendering into backbuffer or not. However, detection this
+    // way only works in BiRP so only do it here.
+    m_CommandBuffer.SetGlobalTexture(GaussianSplatRenderer.Props.CameraTargetTexture, BuiltinRenderTextureType.CameraTarget);
 ```
 
 这里调用的 `GetTemporaryRT` 就是分配一段 Render Texture 内存空间用于渲染 Render Texture。
@@ -265,13 +269,13 @@ public CommandBuffer InitialClearCmdBuffer(Camera cam)
 4. `filter` 是纹理采样模式，设置为 `FilterMode.Point` 表示点采样模式，在这种模式下，屏幕上的像素会寻找最近的贴图像素点作为输出，这种采样方式比较生硬，但性能较好，由于直接使用了相机的长宽，这个 Render Texture 的像素和输出图像的像素一一对应，不需要考虑采样问题，所以用最快的采样方法；
 5. `format` 设置为 `GraphicsFormat.R16G16B16A16_SFloat` 表示 Render Texture 的像素RGBA均为16位浮点数。
 
-接下来的 `SetRenderTarget` 为 `m_CommandBuffer` 设置了输出位置，表示将 `m_CommandBuffer` 的渲染结果放入上面申请的 Render Texture 中。`ClearRenderTarget` 即清空这个 Render Texture 开始新一轮渲染
+接下来的 `SetRenderTarget` 为 `m_CommandBuffer` 设置了输出位置，表示将 `m_CommandBuffer` 的渲染结果放入上面申请的 Render Texture 中；
+`ClearRenderTarget` 即清空这个 Render Texture 开始新一轮渲染；
+最后 `SetGlobalTexture` 将这个 Render Texture 设置为全局 Texture 以供其他着色器使用。
 
 #### 执行渲染
 
 ```c#
-    m_CommandBuffer.SetGlobalTexture(GaussianSplatRenderer.Props.CameraTargetTexture, BuiltinRenderTextureType.CameraTarget);
-
     // add sorting, view calc and drawing commands for each splat object
     Material matComposite = SortAndRenderSplats(cam, m_CommandBuffer);
 
