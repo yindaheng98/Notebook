@@ -143,7 +143,7 @@ void CreateResourcesForAsset()
 
 ## `GaussianSplatRenderSystem.OnPreCullCamera` 中的渲染主程序
 
-在 `OnEnable` 中绑定的 `OnPreCullCamera` 函数为3DGS渲染的主程序：
+在 `OnEnable` 中绑定的 `OnPreCullCamera` 函数为3DGS渲染的主程序，核心思想就是使用 Unity 中提供的`CommandBuffer` 对渲染管线进行扩展，在渲染过程中插入3DGS的渲染逻辑：
 
 ```c#
 void OnPreCullCamera(Camera cam)
@@ -240,6 +240,45 @@ public CommandBuffer InitialClearCmdBuffer(Camera cam)
 }
 ```
 
-其中，`CommandBuffer` ‌是Unity提供的GPU渲染命令列表，可以延迟提交渲染指令，减少CPU/GPU负担，批量执行DrawCall，避免CPU过度调用API。它支持插入自定义渲染指令，如深度处理、后处理效果，并且可以脱离GameObject直接控制渲染，如画辅助线、调试网格等；`CameraEvent.BeforeForwardAlpha` 是在Unity中用于指定摄像机渲染事件的一个枚举值，它表示在渲染透明对象之前执行的操作。
+其中，`CommandBuffer` ‌是Unity提供的GPU渲染命令列表，可以延迟提交渲染指令，减少CPU/GPU负担，批量执行DrawCall，避免CPU过度调用API，它支持插入自定义渲染指令，如深度处理、后处理效果，并且可以脱离GameObject直接控制渲染，如画辅助线、调试网格等；`CameraEvent.BeforeForwardAlpha` 是在Unity中用于指定摄像机渲染事件的一个枚举值，它表示在渲染透明对象之前执行的操作。
 
 >在Unity渲染管线中，前向渲染路径通常包括以下几个主要阶段：‌不透明物体渲染 ‌-> ‌透明物体渲染‌ -> 后期效果处理‌。`CameraEvent.BeforeForwardAlpha`‌ 允许你在透明物体渲染之前插入自定义的渲染命令或效果。这可以用于在透明物体渲染之前执行一些特殊的处理，比如添加额外的光照效果、修改场景的某些部分等‌。
+
+### `GaussianSplatRenderSystem.OnPreCullCamera` 剩余部分
+
+渲染纹理 (Render Texture) 是一种 Unity 在运行时创建和更新的纹理。你可以在其上绘制，然后像使用其它纹理一样使用。渲染纹理的一个典型应用是镜面的渲染，例如汽车的后视镜就可以贴一个Render Texture，它是从这个镜子所对应视角的摄像机渲染而来。
+而3DGS对象的渲染过程就是使用 Render Texture 实现的。
+
+#### 设置渲染纹理
+
+```c#
+    m_CommandBuffer.GetTemporaryRT(GaussianSplatRenderer.Props.GaussianSplatRT, -1, -1, 0, FilterMode.Point, GraphicsFormat.R16G16B16A16_SFloat);
+    m_CommandBuffer.SetRenderTarget(GaussianSplatRenderer.Props.GaussianSplatRT, BuiltinRenderTextureType.CurrentActive);
+    m_CommandBuffer.ClearRenderTarget(RTClearFlags.Color, new Color(0, 0, 0, 0), 0, 0);
+```
+
+这里调用的 `GetTemporaryRT` 就是分配一段 Render Texture 内存空间用于渲染 Render Texture。
+查阅 Unity 文档中关于 `GetTemporaryRT` 的部分可以知道这里输入的几个参数的含义：
+1. `nameID` 为这个 Render Texture 的 ID，`GetTemporaryRT`对相同的 `nameID` 会返回同一段 Render Texture 内存空间，避免重复申请和销毁
+2. `width` 和 `height` 是这个 Render Texture 的长宽，这里设置为 `-1` 表示使用 `CommandBuffer` 所绑定的相机的长宽；
+3. `depthBuffer` 设置为 `0` 表示这个 Render Texture 没有深度信息；
+4. `filter` 是纹理采样模式，设置为 `FilterMode.Point` 表示点采样模式，在这种模式下，屏幕上的像素会寻找最近的贴图像素点作为输出，这种采样方式比较生硬，但性能较好，由于直接使用了相机的长宽，这个 Render Texture 的像素和输出图像的像素一一对应，不需要考虑采样问题，所以用最快的采样方法；
+5. `format` 设置为 `GraphicsFormat.R16G16B16A16_SFloat` 表示 Render Texture 的像素RGBA均为16位浮点数。
+
+接下来的 `SetRenderTarget` 为 `m_CommandBuffer` 设置了输出位置，表示将 `m_CommandBuffer` 的渲染结果放入上面申请的 Render Texture 中。`ClearRenderTarget` 即清空这个 Render Texture 开始新一轮渲染
+
+#### 执行渲染
+
+```c#
+    m_CommandBuffer.SetGlobalTexture(GaussianSplatRenderer.Props.CameraTargetTexture, BuiltinRenderTextureType.CameraTarget);
+
+    // add sorting, view calc and drawing commands for each splat object
+    Material matComposite = SortAndRenderSplats(cam, m_CommandBuffer);
+
+    // compose
+    m_CommandBuffer.BeginSample(s_ProfCompose);
+    m_CommandBuffer.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+    m_CommandBuffer.DrawProcedural(Matrix4x4.identity, matComposite, 0, MeshTopology.Triangles, 3, 1);
+    m_CommandBuffer.EndSample(s_ProfCompose);
+    m_CommandBuffer.ReleaseTemporaryRT(GaussianSplatRenderer.Props.GaussianSplatRT);
+```
