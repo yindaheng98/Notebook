@@ -8,11 +8,12 @@
             "编程语言",
             "Node",
             "编程框架",
-            "前端"
+            "前端",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ]
     },
     "nextjs.md": {
@@ -24,13 +25,14 @@
             "编程语言",
             "Node",
             "编程框架",
-            "前端"
+            "前端",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
-        "cover": "/编程语言/Node/i/nextjs.png"
+        "cover": "/编程语言/JavaScript/i/nextjs.png"
     },
     "nodejs-class.md": {
         "title": "nodejs模块化（类和对象）",
@@ -38,11 +40,12 @@
         "tags": [
             "Node",
             "面向对象",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
         "created": "2019-04-27 06:18:40",
         "updated": "2019-04-27 06:18:40"
@@ -54,11 +57,12 @@
             "Node",
             "编程框架",
             "实操",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
         "created": "2019-04-27 06:18:40",
         "updated": "2019-04-27 06:18:40"
@@ -70,13 +74,14 @@
             "Node",
             "实操",
             "框架",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
-        "cover": "/编程语言/Node/i/nodejs_1.jpg",
+        "cover": "/编程语言/JavaScript/i/nodejs_1.jpg",
         "created": "2019-04-27 06:18:40",
         "updated": "2019-12-06 15:24:37"
     },
@@ -87,11 +92,12 @@
             "Node",
             "实操",
             "概念",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
         "created": "2019-04-27 06:18:40",
         "updated": "2019-04-27 06:18:40"
@@ -104,13 +110,14 @@
             "实操",
             "框架",
             "概念",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
-        "cover": "/编程语言/Node/i/nodejs_4.png",
+        "cover": "/编程语言/JavaScript/i/nodejs_4.png",
         "created": "2019-05-10 11:28:49",
         "updated": "2019-12-09 12:10:32"
     },
@@ -120,11 +127,12 @@
         "tags": [
             "Node",
             "实操",
-            "编程语言"
+            "编程语言",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
         "created": "2019-11-29 01:30:25",
         "updated": "2019-11-29 01:30:25"
@@ -138,11 +146,12 @@
             "编程语言",
             "Node",
             "前端",
-            "编程框架"
+            "编程框架",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ]
     },
     "wasm.md": {
@@ -152,13 +161,14 @@
         "date": "2023-04-07 13:32:32",
         "tags": [
             "编程语言",
-            "Node"
+            "Node",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
-        "cover": "/编程语言/Node/wasm/22b7e25948d3e023af5ffb805d0d429c.png"
+        "cover": "/编程语言/JavaScript/wasm/22b7e25948d3e023af5ffb805d0d429c.png"
     },
     "前端风雨.md": {
         "title": "【转载】前端技术的十八年风雨（2006-2024）",
@@ -170,11 +180,12 @@
             "Node",
             "前端",
             "编程框架",
-            "历史"
+            "历史",
+            "JavaScript"
         ],
         "categories": [
             "编程语言",
-            "Node"
+            "JavaScript"
         ],
         "cover": "https://www.bilibili.com/video/BV1eC411p73m"
     }
