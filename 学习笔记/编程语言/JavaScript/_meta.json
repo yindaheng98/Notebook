@@ -1,4 +1,19 @@
 {
+    "codesplit.md": {
+        "title": "【翻译】 Code-splitting for libraries—bundling for npm with Rollup 1.0 面向库的代码分割——使用 Rollup 1.0 为 npm 打包",
+        "created": "2025-05-30 01:25:01",
+        "updated": "2025-05-31 01:22:03",
+        "date": "2025-05-31 01:22:03",
+        "tags": [
+            "编程语言",
+            "JavaScript"
+        ],
+        "categories": [
+            "编程语言",
+            "JavaScript"
+        ],
+        "cover": "/编程语言/JavaScript/i/1_NwvhYnDktuJJZ942e3UEhA.webp"
+    },
     "ESMvsCJS.md": {
         "title": "【转载】模块化规范：ESM与CJS 的差异",
         "created": "2025-05-06 23:01:13",
