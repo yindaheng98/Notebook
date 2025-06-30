@@ -28,3 +28,28 @@ V-PCC 的核心思想类似物体三视图，其将3D物体（点云）在不同
 最后，对于每块补丁，分别存储其中的每个点的颜色(Attribute)和相对于选定平面的深度(Geometry)，放入2D图像上，并用一张 Occupancy map 指示哪块是有用的数据：
 
 ![](i/vpcc-atlas.png)
+
+## 从 V-PCC 到 MIV
+
+V-PCC 本质上还是一种点云编码器，它并不关心点云从何而来，只是对交给它的点云数据进行压缩。
+而 MIV 的输入数据是多个视角下拍摄的视频，这也是它又被称为 Multi-view Video 的原因。
+
+如图所示，MIV的核心思想是寻找多个视角下视频帧之间的相似区域，以一个视角的视频为基准，剔除其他视角视频帧中的冗余区域，并将剩下的区域切出来作为补丁 (Atlas) 拼成新的视频帧进行编码：
+
+![](i/MIV.png)
+
+其直接在2D视频上进行操作，无所谓视频帧是颜色还是深度，深度图可以看作是视频帧的一个额外色彩通道进行编码。
+
+视频解码出来就是多个视角的颜色+深度图，拼起来就相当于一个点云，其渲染过程称为 Depth-image-based rendering (DIBR)。
+
+## MIV 的缺陷
+
+MIV 的质量主要依赖于高精度的相机位姿和深度图，在 3D Fundation Model 满天飞的当下已经不是问题。
+
+MIV 的算法复杂，编码速度比较慢。
+
+👇一段缺陷介绍，来自 C. Zhu, G. Lu, B. He, R. Xie and L. Song, “Implicit-Explicit Integrated Representations for Multi-View Video Compression,” in IEEE Transactions on Image Processing, vol. 34, pp. 1106-1118, 2025
+
+>However, these methods require high-precision depth maps and camera calibration parameters, and the corresponding hand-crafted modules are computationally complex, leading to poor coding efficiency.
+
+MIV 基于深度的表示方法本质上还是点云，没法表示复杂的光照信息，比如半透明物体（半透明玻璃和其后物体有两个深度，没法用一张深度图表示）和反光（同一个点从不同方向看颜色不一样）。
