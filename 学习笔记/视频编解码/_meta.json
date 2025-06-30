@@ -115,6 +115,20 @@
         ],
         "cover": "/视频编解码/./i/get_vpx_encoder_by_name.png"
     },
+    "MIV.md": {
+        "title": "MPEG Immersive Video (MIV) 简介",
+        "created": "2025-06-30 07:16:21",
+        "updated": "2025-06-30 08:11:12",
+        "date": "2025-06-30 08:11:12",
+        "tags": [
+            "视频编解码",
+            "图形学"
+        ],
+        "categories": [
+            "视频编解码"
+        ],
+        "cover": "/视频编解码/i/home_panel_06.jpg"
+    },
     "SVC.md": {
         "title": "【纯转载】SVC和视频通信",
         "created": "2021-11-25 09:25:45",
