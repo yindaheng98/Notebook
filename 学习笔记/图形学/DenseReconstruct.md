@@ -1,4 +1,4 @@
-# Dense Reconstruction in Multi View Stereo (MVS)
+# 从 Bundle Adjustment 到 VGGT - Brief History of Dense Reconstruction in Multi View Stereo (MVS)
 
 一言以蔽之，Dense Reconstruction就是根据输入的RGB图像和稀疏重建结果重建出高密度点云。
 其中包括深度图估计、点云融合及过滤操作。
@@ -209,3 +209,32 @@ $$\chi^* = \argmin_{\chi,P,\sigma} \sum_{e \in \mathcal E} \sum_{v \in e} \sum_{
 
 其中，$\sigma_e>0$和$P_e\in\mathbb R^{3\times 4}$分别表示Pairwise之间的缩放尺度和相对位姿；$\sum_{i=1}^{HW}C^{v,e}_i \left\Vert \chi_i^v - \sigma_e P_e X^{v,e}_i \right\Vert$表示待优化的pointmap和推断出的pointmap之间的置信度加权差。
 使该loss最小就是让$\chi^v$与所有推断出的$X^{v,e}$的置信度加权差最小。
+
+## CVPR2025 Best Paper 《VGGT: Visual Geometry Grounded Transformer》:Feed-Forward Dense Reconstruction的终极解决方案
+
+DUST3R及其后续研究MAST3R是Dense Reconstruction领域的一大进步，其昭示了Transformer在三维重建领域的巨大潜力。
+但他们的Transformer只能输入两张图片，重建过程仍然需要依赖后处理方法。
+由此，作者提出了一个设想：
+
+>**we ask if, finally, 3D tasks can be solved directly by a neural net-
+work, eschewing geometry post-processing almost entirely.**
+
+作者将相机位姿估计、多目深度估计、点云重建、3D点追踪这类三维重建任务概括为“从多视角图像估计3D属性”的任务，并思考这些问题能否用单个神经网络解决。
+基于此思想，本文提出的VGGT进一步发掘了Transformer的潜力，验证了Transformer在多种三维重建任务上强大的泛化能力。
+
+>VGGT uses a shared backbone to predict all 3D quantities of interest together.
+
+VGGT的思想类似大语言模型的预训练。
+大语言模型中，Transformer在大量数据上训练后作为Backbone微调用于下游任务；
+而VGGT同样在大量数据上训练，之后将其输出的特征应用于下游任务。
+
+VGGT的结构大道至简，由一堆Transformer构成：
+
+![](./i/vggt.png)
+
+其中：
+1. 多视角图片经过一个DINO，每16x16的区域给出一个token
+2. 每个图像的token前面拼一个相机token和4个register token（这两种token都是可训练的nn.Parameter，每个图像拼的token都一样，关于register token的原理可参考[Vision transformers need registers](https://arxiv.org/abs/2309.16588)）
+3. Global Attention计算帧间注意力，Frame Attention计算帧内注意力，作者管这叫Alternating Attention
+4. 输出的相机token经过一个相机位姿head输出相机位姿，图像的token经过一个DPT Head输出像素级特征
+5. 像素级特征经过一个3x3的CNN输出深度图+三维点图+置信度，或经过CoTracker2实现点追踪
