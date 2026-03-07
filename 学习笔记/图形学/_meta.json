@@ -108,10 +108,10 @@
         "cover": "/图形学/i/v2-ddb7d2e1cc719b6d39bf06996aa0b07a_r.jpg"
     },
     "DenseReconstruct.md": {
-        "title": "Dense Reconstruction in Multi View Stereo (MVS)",
+        "title": "从 Bundle Adjustment 到 VGGT - Brief History of Dense Reconstruction in Multi View Stereo (MVS)",
         "created": "2024-08-22 00:23:46",
-        "updated": "2024-08-26 22:49:17",
-        "date": "2024-08-26 22:49:17",
+        "updated": "2026-03-07 07:16:19",
+        "date": "2026-03-07 07:16:19",
         "tags": [
             "图形学",
             "3D重建"
@@ -326,9 +326,9 @@
     },
     "UnityGaussianSplatting.md": {
         "title": "`aras-p/UnityGaussianSplatting` Runtime 源码浅析",
-        "created": "2025-04-24 11:51:09",
-        "updated": "2025-04-24 11:51:09",
-        "date": "2025-04-24 11:51:09",
+        "created": "2025-04-24 18:54:48",
+        "updated": "2025-04-25 00:06:23",
+        "date": "2025-04-25 00:06:23",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
