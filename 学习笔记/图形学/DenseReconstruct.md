@@ -238,3 +238,18 @@ VGGT的结构大道至简，由一堆Transformer构成：
 3. Global Attention计算帧间注意力，Frame Attention计算帧内注意力，作者管这叫Alternating Attention
 4. 输出的相机token经过一个相机位姿head输出相机位姿，图像的token经过一个DPT Head输出像素级特征
 5. 像素级特征经过一个3x3的CNN输出深度图+三维点图+置信度，或经过CoTracker2实现点追踪
+
+## Test-Time Training (TTT) 加速3D重建
+
+2025以来，TTT已被引入3D重建中作为一种加速方法。
+其核心思想和RNN很像，用一种隐式的中间状态代替VGGT等模型的全局注意力，每帧计算都将这个中间状态作为输入且对中间状态进行更新（时间复杂度O(n)），从而避免时间复杂度为O(n^2)的全局注意力，显著加速3D重建。
+
+### CVPR2025 Oral Paper 《CUT3R: Continuous 3D Perception Model with Persistent State》:用RNN思想代替DUSt3R全局对齐实现长序列快速重建
+
+### ICLR2026 Paper 《TTT3R: 3D Reconstruction as Test-Time Training》:用TTT更新CUT3R的中间状态
+
+![](./i/TTT3R.png)
+
+### CVPR2025 Oral Paper 《VGG-T³: Offline Feed-Forward 3D Reconstruction at Scale》:返祖-RNN思想+TTT代替VGGT全局注意力
+
+![](./i/VGGT3.avif)
