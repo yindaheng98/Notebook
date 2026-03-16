@@ -1,6 +1,8 @@
 # VGGT 原理解析
 
-原版VGGT由一个骨干网络和4个Head构成：
+![](./i/vggt.png)
+
+原版[VGGT](https://github.com/facebookresearch/vggt/blob/44b3afbd1869d8bde4894dd8ea1e293112dd5eba)由一个骨干网络和4个Head构成：
 
 ```python
 self.aggregator = Aggregator(img_size=img_size, patch_size=patch_size, embed_dim=embed_dim)
@@ -83,3 +85,120 @@ def forward(self, images: torch.Tensor, query_points: torch.Tensor = None):
 
     return predictions
 ```
+
+VGGT的结构决定了它只能输入固定尺寸的图片。
+原版VGGT参数输入尺寸为518x518，patch_size为14x14。
+在原版代码中，对于任意尺寸的图片，在输入VGGT之前是先由[`load_and_preprocess_images_square`](https://github.com/facebookresearch/vggt/blob/44b3afbd1869d8bde4894dd8ea1e293112dd5eba/vggt/utils/load_fn.py#L13)padding为正方形再缩放到1024x1024，再在[`run_VGGT`](https://github.com/facebookresearch/vggt/blob/44b3afbd1869d8bde4894dd8ea1e293112dd5eba/demo_colmap.py#L72)里缩放到518x518。
+
+## `Aggregator` 结构解析
+
+### `patch_embed`
+
+图片输入先经过一个`patch_embed`：
+
+```python
+B, S, C_in, H, W = images.shape
+
+if C_in != 3:
+    raise ValueError(f"Expected 3 input channels, got {C_in}")
+
+# Normalize images and reshape for patch embed
+images = (images - self._resnet_mean) / self._resnet_std
+
+# Reshape to [B*S, C, H, W] for patch embedding
+images = images.view(B * S, C_in, H, W)
+patch_tokens = self.patch_embed(images)
+
+if isinstance(patch_tokens, dict):
+    patch_tokens = patch_tokens["x_norm_patchtokens"]
+```
+
+这个`patch_embed`就是DINOv2或者卷积：
+
+```python
+if "conv" in patch_embed:
+    self.patch_embed = PatchEmbed(img_size=img_size, patch_size=patch_size, in_chans=3, embed_dim=embed_dim)
+else:
+    vit_models = {
+        "dinov2_vitl14_reg": vit_large,
+        "dinov2_vitb14_reg": vit_base,
+        "dinov2_vits14_reg": vit_small,
+        "dinov2_vitg2_reg": vit_giant2,
+    }
+
+    self.patch_embed = vit_models[patch_embed](
+        img_size=img_size,
+        patch_size=patch_size,
+        num_register_tokens=num_register_tokens,
+        interpolate_antialias=interpolate_antialias,
+        interpolate_offset=interpolate_offset,
+        block_chunks=block_chunks,
+        init_values=init_values,
+    )
+
+    # Disable gradient updates for mask token
+    if hasattr(self.patch_embed, "mask_token"):
+        self.patch_embed.mask_token.requires_grad_(False)
+```
+
+### `camera_token`和`register_token`
+
+再拿两个`camera_token`和`register_token`给拼在`patch_embed`后面：
+
+```python
+_, P, C = patch_tokens.shape
+
+# Expand camera and register tokens to match batch size and sequence length
+camera_token = slice_expand_and_flatten(self.camera_token, B, S)
+register_token = slice_expand_and_flatten(self.register_token, B, S)
+
+# Concatenate special tokens with patch tokens
+tokens = torch.cat([camera_token, register_token, patch_tokens], dim=1)
+```
+
+这里的`slice_expand_and_flatten`就是根据`patch_embed`的尺寸把`token_tensor`复制几遍：
+
+```python
+def slice_expand_and_flatten(token_tensor, B, S):
+    """
+    Processes specialized tokens with shape (1, 2, X, C) for multi-frame processing:
+    1) Uses the first position (index=0) for the first frame only
+    2) Uses the second position (index=1) for all remaining frames (S-1 frames)
+    3) Expands both to match batch size B
+    4) Concatenates to form (B, S, X, C) where each sequence has 1 first-position token
+       followed by (S-1) second-position tokens
+    5) Flattens to (B*S, X, C) for processing
+
+    Returns:
+        torch.Tensor: Processed tokens with shape (B*S, X, C)
+    """
+
+    # Slice out the "query" tokens => shape (1, 1, ...)
+    query = token_tensor[:, 0:1, ...].expand(B, 1, *token_tensor.shape[2:])
+    # Slice out the "other" tokens => shape (1, S-1, ...)
+    others = token_tensor[:, 1:, ...].expand(B, S - 1, *token_tensor.shape[2:])
+    # Concatenate => shape (B, S, ...)
+    combined = torch.cat([query, others], dim=1)
+
+    # Finally flatten => shape (B*S, ...)
+    combined = combined.view(B * S, *combined.shape[2:])
+    return combined
+```
+
+这两个`camera_token`和`register_token`就是两个可训练的`nn.Parameter`：
+
+```python
+# Note: We have two camera tokens, one for the first frame and one for the rest
+# The same applies for register tokens
+self.camera_token = nn.Parameter(torch.randn(1, 2, 1, embed_dim))
+self.register_token = nn.Parameter(torch.randn(1, 2, num_register_tokens, embed_dim))
+```
+
+并且经过`normal_`初始化参数：
+```python
+# Initialize parameters with small values
+nn.init.normal_(self.camera_token, std=1e-6)
+nn.init.normal_(self.register_token, std=1e-6)
+```
+
+所以，这两个`camera_token`和`register_token`就是把可训练的两个token拼接在图片的`patch_embed`后面输入给transformer，每张图片后面的。
