@@ -1003,3 +1003,36 @@ def get_2d_embedding(xy: torch.Tensor, C: int, cat_coords: bool = True) -> torch
 ```
 
 这是用transformer能听懂的语言告诉"这个点已经偏移了多远"。
+
+#### 操作 ③：Update Transformer
+
+把**运动信息 (`flows_emb`)**、**局部匹配度 (`fcorrs_`)** 和 **当前特征 (`track_feats_`)** 拼接起来，送入 `EfficientUpdateFormer`。这个 Transformer 会在时间（帧与帧之间）和空间（点与点之间）进行注意力交互，从而输出坐标的修正量 `delta_coords` 和特征的修正量 `delta_feats`。
+
+```python
+class EfficientUpdateFormer(nn.Module):
+    // ...
+    def forward(self, input_tensor, mask=None):
+        tokens = self.input_transform(input_tensor)  # B, N, S, hidden
+        // ...
+        for i in range(len(self.time_blocks)):
+            # Time attention: each point independently attend across frames
+            time_tokens = tokens.view(B * N, T, -1)
+            time_tokens = self.time_blocks[i](time_tokens)
+
+            # Space attention (every few layers): points interact within each frame
+            if self.add_space_attn and ...:
+                space_tokens = tokens.permute(0,2,1,3).view(B*T, N, -1)
+                # virtual tokens act as communication bottleneck
+                virtual_tokens = self.space_virtual2point_blocks[j](virtual_tokens, point_tokens)
+                virtual_tokens = self.space_virtual_blocks[j](virtual_tokens)
+                point_tokens = self.space_point2virtual_blocks[j](point_tokens, virtual_tokens)
+```
+
+**两种注意力交替**：
+
+- **Time Attention**：把每个点的 S 帧 token 当一条序列做自注意力。让同一个点在不同帧之间交流，理解"这个点的时间轨迹应该是怎样的"
+- **Space Attention**：把同一帧中所有 N 个点当一条序列做注意力。让同帧的不同点互相交流，利用"刚性运动约束"——如果周围点都往右移，那我大概也该往右
+
+空间注意力用了 **虚拟 token 瓶颈**（64 个 virtual tracks）来避免 O(N^2) 的开销：先 point→virtual（cross-attn），再 virtual self-attn，最后 virtual→point（cross-attn）。
+
+输出：每个点每帧的 `delta`（坐标增量 + 特征增量）。
