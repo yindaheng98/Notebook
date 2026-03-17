@@ -774,3 +774,54 @@ def forward(self, aggregated_tokens_list, images, patch_start_idx, query_points=
 ```
 
 这个Tracker模块是`TrackHead`的核心，它的原理来自 CoTracker / RAFT 家族：基于相关性的迭代坐标细化。
+
+结合代码，我们可以把它的原理拆解为以下几个个核心步骤：
+
+### 轨迹初始化 (Initialization)
+
+进入 `BaseTrackerPredictor` 后，模型需要一个初始的“猜测”。
+它直接把第一帧（参考帧）的 `query_points` 复制到所有帧作为初始坐标，并在第一帧的特征图上“抠”出一个特征来，作为初始的跟踪特征（`track_feats`）。
+
+```python
+    def forward(self, query_points, fmaps=None, iters=6, ...):
+        B, N, D = query_points.shape
+        B, S, C, HH, WW = fmaps.shape
+        // ...
+        query_points = query_points / float(self.stride)
+
+        # Init with coords as the query points
+        coords = query_points.clone().reshape(B, 1, N, 2).repeat(1, S, 1, 1)
+
+        # Sample/extract the features of the query points in the query frame
+        query_track_feat = sample_features4d(fmaps[:, 0], coords[:, 0])
+
+        # init track feats by query feats
+        track_feats = query_track_feat.unsqueeze(1).repeat(1, S, 1, 1)  # B, S, N, C
+
+        fcorr_fn = CorrBlock(fmaps, num_levels=self.corr_levels, radius=self.corr_radius)
+```
+
+- `query_points`（`[B,N,2]`）是你想要跟踪的像素坐标
+- `coords` 初始化为"所有帧都在 query 坐标位置"——即假设点不动
+- `query_track_feat`：在第 0 帧（query 帧）采样 query 点的特征，作为"要找什么"
+- `track_feats`：每个点在每帧的特征表示，初始时 copy query 特征
+- `CorrBlock`：对特征图构建多尺度金字塔
+
+### 构建相关性金字塔（CorrBlock）
+
+`CorrBlock`的`__init__`就是在对 `[B,S,C,HH,WW]` 的特征图反复做 2x 平均池化放入`self.fmaps_pyramid`中：
+
+```python
+class CorrBlock:
+    def __init__(self, fmaps, num_levels=4, radius=4, ...):
+        // ...
+        self.fmaps_pyramid = [fmaps]  # level 0 is full resolution
+        current_fmaps = fmaps
+        for i in range(num_levels - 1):
+            // ...
+            current_fmaps = F.avg_pool2d(current_fmaps, kernel_size=2, stride=2)
+            self.fmaps_pyramid.append(current_fmaps)
+```
+
+这相当于建立了 `num_levels` 层特征金字塔，越往上分辨率越低但是每个像素包含越大邻近区域的信息。
+基于这个特征金字塔，后续操作让 tracker 能同时看到大范围（粗粒度）和精细（细粒度）的匹配信息。
