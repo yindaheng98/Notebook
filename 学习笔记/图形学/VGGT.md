@@ -195,6 +195,7 @@ self.register_token = nn.Parameter(torch.randn(1, 2, num_register_tokens, embed_
 ```
 
 并且经过`normal_`初始化参数：
+
 ```python
 # Initialize parameters with small values
 nn.init.normal_(self.camera_token, std=1e-6)
@@ -418,3 +419,33 @@ def _process_global_attention(self, tokens, B, S, P, C, global_idx, pos=None):
 
 帧内Attention的batch维是`B*S`，序列长度是`P`（单帧内部token），因此每个batch是在同一帧内计算attention。
 全局Attention的batch 维是`B`，序列长度是`S*P`（所有帧token串起来），因此每个batch是在所有帧的所有token间计算attention。
+
+## `CameraHead`：迭代式的相机参数细化
+
+输入是 `aggregator` 输出的最后一层 token（`[B,S,P,2C]`），`CameraHead` 只取第 0 个 token（相机 token），得到 `pose_tokens: [B,S,2C]`，目标输出是每帧 9 维相机编码：`[T(3), quat(4), FoV(2)]`：
+
+```python
+def forward(self, aggregated_tokens_list: list, num_iterations: int = 4) -> list:
+    """
+    Forward pass to predict camera parameters.
+
+    Args:
+        aggregated_tokens_list (list): List of token tensors from the network;
+            the last tensor is used for prediction.
+        num_iterations (int, optional): Number of iterative refinement steps. Defaults to 4.
+
+    Returns:
+        list: A list of predicted camera encodings (post-activation) from each iteration.
+    """
+    # Use tokens from the last block for camera prediction.
+    tokens = aggregated_tokens_list[-1]
+
+    # Extract the camera tokens
+    pose_tokens = tokens[:, :, 0]
+    pose_tokens = self.token_norm(pose_tokens)
+
+    pred_pose_enc_list = self.trunk_fn(pose_tokens, num_iterations)
+    return pred_pose_enc_list
+```
+
+`CameraHead.trunk_fn`是`CameraHead`的核心功能，其包含迭代增量式相机回归。
