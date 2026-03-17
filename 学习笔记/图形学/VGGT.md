@@ -449,3 +449,127 @@ def forward(self, aggregated_tokens_list: list, num_iterations: int = 4) -> list
 ```
 
 `CameraHead.trunk_fn`是`CameraHead`的核心功能，其包含迭代增量式相机回归。
+
+下面是对 `trunk_fn` 迭代细化机制的逐步解读。
+
+---
+
+#### 总览
+
+`trunk_fn` 的设计思想来自 DiT（Diffusion Transformer）中的 **AdaLN（Adaptive Layer Norm）调制** 和 RAFT 中的 **迭代增量更新**。它不是一次性回归出相机参数，而是每一轮都用"当前估计"去调制 token，然后预测一个增量，逐步逼近真实值。
+
+---
+
+#### Step 0：初始化
+
+```python
+B, S, C = pose_tokens.shape   # B=batch, S=帧数, C=2048
+pred_pose_enc = None           # 还没有任何相机估计
+pred_pose_enc_list = []        # 收集每轮输出
+```
+
+`pose_tokens` 是 aggregator 输出的 **camera token**（每帧 1 个），经过 `LayerNorm` 后传入。它编码了"这个场景中每帧的相机应该是什么"的全局信息，但还没有被解码成具体的 9D 参数。
+
+---
+
+接下来运行多轮：
+
+```python
+for _ in range(num_iterations):
+```
+
+---
+
+#### Step 1：构造条件输入（当前相机估计）
+
+```python
+if pred_pose_enc is None:
+    module_input = self.embed_pose(self.empty_pose_tokens.expand(B, S, -1))
+else:
+    pred_pose_enc = pred_pose_enc.detach()
+    module_input = self.embed_pose(pred_pose_enc)
+```
+
+- **第 1 轮**：没有任何先验，用可学习的 `empty_pose_tokens`通过 `embed_pose`（Linear 9->2048）映射到 token 空间（全零初始化，形状 `[1,1,9]`广播到 `[B,S,9]`，所以每个相机token相同）。
+- **后续轮次**：把上一轮的 9D 相机预测映射到 token 空间（`detach()` 切断跨迭代梯度，让每轮独立优化，类似 RAFT 的做法）。
+
+此时 `module_input` 形状为 `[B, S, 2048]`，代表"当前对相机参数的最优估计"在 token 空间的表达。
+
+---
+
+#### Step 2：生成 AdaLN 调制参数
+
+```python
+shift_msa, scale_msa, gate_msa = self.poseLN_modulation(module_input).chunk(3, dim=-1)
+```
+
+`poseLN_modulation` 是 `SiLU -> Linear(2048, 3*2048)`，把条件输入变成三组参数：
+- `shift_msa [B,S,2048]`：对特征做平移
+- `scale_msa [B,S,2048]`：对特征做缩放
+- `gate_msa  [B,S,2048]`：控制调制后特征的强度
+
+---
+
+#### Step 3：用 AdaLN 调制 pose token
+
+```python
+pose_tokens_modulated = gate_msa * modulate(self.adaln_norm(pose_tokens), shift_msa, scale_msa)
+pose_tokens_modulated = pose_tokens_modulated + pose_tokens
+```
+
+展开来看：
+
+1. `self.adaln_norm(pose_tokens)` — 先做 LayerNorm
+2. `modulate(x, shift, scale)` 即 `x * (1 + scale) + shift` — 用当前相机估计来自适应地缩放和偏移特征
+3. 再乘 `gate_msa` — 控制"调制信号"的强度
+4. 最后加上原始 `pose_tokens` 作为残差连接
+
+第 1 轮时条件接近零向量，调制几乎不生效，trunk 看到的近乎原始 token；后续轮次，条件越来越准，调制越来越有针对性。
+
+---
+
+#### Step 4：通过 Transformer Trunk 提炼
+
+```python
+pose_tokens_modulated = self.trunk(pose_tokens_modulated)
+```
+
+`self.trunk` 是 4 层 `Block`（标准 Transformer block，含 self-attention + FFN）。输入形状 `[B,S,2048]`，S 个帧之间互相 attend。
+
+这一步让不同帧的相机估计互相参考——比如"如果第 1 帧朝左，第 2 帧应该朝右"这类跨帧几何约束，在这里被隐式建模。
+
+---
+
+#### Step 5：预测增量并累加
+
+```python
+pred_pose_enc_delta = self.pose_branch(self.trunk_norm(pose_tokens_modulated))
+
+if pred_pose_enc is None:
+    pred_pose_enc = pred_pose_enc_delta
+else:
+    pred_pose_enc = pred_pose_enc + pred_pose_enc_delta
+```
+
+`pose_branch` 是 `MLP(2048 -> 1024 -> 9)`，把 trunk 输出映射回 9D 相机编码空间。
+
+关键：输出的是`pred_pose_enc_delta`增量而非绝对值。
+网络每次输出的只是"修正量"。
+
+---
+
+#### Step 6：激活并收集
+
+```python
+activated_pose = activate_pose(
+    pred_pose_enc, trans_act=self.trans_act, quat_act=self.quat_act, fl_act=self.fl_act
+)
+pred_pose_enc_list.append(activated_pose)
+```
+
+对 9D 参数的三个部分分别施加激活：
+- `T[:3]` — `linear`（平移无约束）
+- `quat[3:7]` — `linear`（四元数无约束，后续转矩阵时会归一化）
+- `FoV[7:9]` — `relu`（视场角必须为正）
+
+每一轮的 `activated_pose` 都被记录，训练时可以对所有轮次施加监督（deep supervision），推理时取最后一轮。
