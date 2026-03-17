@@ -573,3 +573,130 @@ pred_pose_enc_list.append(activated_pose)
 - `FoV[7:9]` — `relu`（视场角必须为正）
 
 每一轮的 `activated_pose` 都被记录，训练时可以对所有轮次施加监督（deep supervision），推理时取最后一轮。
+
+## `DPTHead` 结构解析
+
+`point_head`和`depth_head`都是`DPTHead`，只是输出通道数不一样。
+
+DPT（Dense Prediction Transformer）源自论文 *"Vision Transformers for Dense Prediction"*（Ranftl et al., 2021）。核心思想：**从 Transformer 不同深度抽取多尺度特征，用类似 FPN 的逐级融合恢复到像素级分辨率**。
+
+VGGT 的 `DPTHead` 就是在这个框架上做的，但输入不是普通 ViT 特征，而是 Aggregator 产出的**跨帧聚合 token**。
+
+---
+
+### 第 1 步：从多层 token 中选 4 层
+
+```python
+    intermediate_layer_idx: List[int] = [4, 11, 17, 23],
+```
+
+从 Aggregator 的 24 层输出中选第 **4、11、17、23** 层——分别代表浅层、中层、深层、最深层的特征。每层 token 形状为 `[B, S, P, 2C]`，去掉特殊 token 后只保留 patch token。
+
+### 第 2 步：投影 + reshape 成 2D 特征图
+
+```python
+        for layer_idx in self.intermediate_layer_idx:
+            x = aggregated_tokens_list[layer_idx][:, :, patch_start_idx:]
+            // ...
+            x = x.reshape(B * S, -1, x.shape[-1])
+            x = self.norm(x)
+            x = x.permute(0, 2, 1).reshape((x.shape[0], x.shape[-1], patch_h, patch_w))
+            x = self.projects[dpt_idx](x)
+            if self.pos_embed:
+                x = self._apply_pos_embed(x, W, H)
+            x = self.resize_layers[dpt_idx](x)
+            out.append(x)
+```
+
+对每层：
+1. **LayerNorm** 归一化
+2. reshape 成 `[B*S, 2C, patch_h, patch_w]`（恢复空间结构）
+3. **1x1 Conv** 投影到各自的通道数 `[256, 512, 1024, 1024]`
+4. 可选加入**位置编码**（UV 正弦余弦嵌入）
+5. **resize** 到不同空间尺度：
+   - 第 0 层：`ConvTranspose2d stride=4`（放大 4x）
+   - 第 1 层：`ConvTranspose2d stride=2`（放大 2x）
+   - 第 2 层：`Identity`（不变）
+   - 第 3 层：`Conv2d stride=2`（缩小 2x）
+
+这样就得到 4 张**不同尺度**的特征图。
+
+### 第 3 步：自底向上逐级融合（RefineNet 风格）
+
+```python
+    def scratch_forward(self, features: List[torch.Tensor]) -> torch.Tensor:
+        layer_1, layer_2, layer_3, layer_4 = features
+
+        layer_1_rn = self.scratch.layer1_rn(layer_1)
+        layer_2_rn = self.scratch.layer2_rn(layer_2)
+        layer_3_rn = self.scratch.layer3_rn(layer_3)
+        layer_4_rn = self.scratch.layer4_rn(layer_4)
+
+        out = self.scratch.refinenet4(layer_4_rn, size=layer_3_rn.shape[2:])
+        // ...
+        out = self.scratch.refinenet3(out, layer_3_rn, size=layer_2_rn.shape[2:])
+        // ...
+        out = self.scratch.refinenet2(out, layer_2_rn, size=layer_1_rn.shape[2:])
+        // ...
+        out = self.scratch.refinenet1(out, layer_1_rn)
+        // ...
+        out = self.scratch.output_conv1(out)
+        return out
+```
+
+- 先对 4 层各做 **3x3 Conv**（`layer_rn`）统一到 256 通道
+- 然后从**最深层到最浅层**逐级融合：
+  - `refinenet4` → 上采样 → 加 `layer_3` → `refinenet3` → ... → `refinenet1`
+- 每个 `FeatureFusionBlock` 内部是：
+
+```python
+class FeatureFusionBlock(nn.Module):
+    // ...
+    def forward(self, *xs, size=None):
+        output = xs[0]
+        if self.has_residual:
+            res = self.resConfUnit1(xs[1])
+            output = self.skip_add.add(output, res)
+        output = self.resConfUnit2(output)
+        // ... bilinear upsample ...
+        output = self.out_conv(output)
+        return output
+```
+
+即：上一级输出 + 残差卷积处理当前级 → 残差卷积 → 双线性上采样 → 1x1 Conv。
+
+这个过程和 U-Net / FPN 类似，但全部用**残差卷积单元**（`ResidualConvUnit`：两层 3x3 Conv + skip connection）。
+
+### 第 4 步：恢复到原始像素分辨率
+
+```python
+        out = custom_interpolate(
+            out,
+            (int(patch_h * self.patch_size / self.down_ratio), int(patch_w * self.patch_size / self.down_ratio)),
+            mode="bilinear",
+            align_corners=True,
+        )
+```
+
+融合后的特征图再做一次双线性插值，恢复到 `H x W`（或 `H/2 x W/2`，取决于 `down_ratio`）。
+
+### 第 5 步：最终卷积 + 激活分离
+
+```python
+        out = self.scratch.output_conv2(out)
+        preds, conf = activate_head(out, activation=self.activation, conf_activation=self.conf_activation)
+```
+
+- `output_conv2`：`3x3 Conv → ReLU → 1x1 Conv`，输出 `output_dim` 个通道
+- `activate_head` 把最后一个通道分出来当 **置信度**，其余通道当**预测值**：
+
+| 任务头 | output_dim | 预测值 | 激活 | 置信度激活 |
+|--------|-----------|--------|------|-----------|
+| DepthHead | 2 | 1 通道（深度） | `exp`（保证正） | `1 + exp(x)` |
+| PointHead | 4 | 3 通道（xyz） | `inv_log`（保符号大范围） | `1 + exp(x)` |
+
+---
+
+### 一句话总结
+
+DPTHead = **多层 token 恢复为多尺度 2D 特征图** → **自底向上残差融合**（像 FPN）→ **上采样到像素级** → **分离出预测值和置信度**。它本质上是把 Transformer 的"扁平 token 序列"重新恢复成"空间金字塔"，然后用类 U-Net 的逐级融合做稠密预测。
