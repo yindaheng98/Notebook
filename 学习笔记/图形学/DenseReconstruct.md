@@ -252,4 +252,4 @@ VGGT的结构大道至简，由一堆Transformer构成：
 
 ### CVPR2025 Oral Paper 《VGG-T³: Offline Feed-Forward 3D Reconstruction at Scale》:返祖-RNN思想+TTT代替VGGT全局注意力
 
-![](./i/VGGT3.avif)
+![](./i/VGGT3.png)
