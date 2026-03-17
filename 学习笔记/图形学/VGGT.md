@@ -700,3 +700,77 @@ class FeatureFusionBlock(nn.Module):
 ### 一句话总结
 
 DPTHead = **多层 token 恢复为多尺度 2D 特征图** → **自底向上残差融合**（像 FPN）→ **上采样到像素级** → **分离出预测值和置信度**。它本质上是把 Transformer 的"扁平 token 序列"重新恢复成"空间金字塔"，然后用类 U-Net 的逐级融合做稠密预测。
+
+## `TrackHead`结构解析
+
+`TrackHead` 的核心原理是**基于特征相关性（Correlation）和时空 Transformer 的迭代式点轨迹细化（Iterative Refinement）**。它的设计深受 [Co-Tracker](https://github.com/facebookresearch/co-tracker) 和 [VGGSfM](https://github.com/facebookresearch/vggsfm) 的启发。
+
+简单来说，它的工作流程是：**提取稠密特征图 -> 在参考帧采特征 -> 粗略猜测轨迹 -> 局部搜索匹配（算相关性） -> Transformer 预测修正量 -> 循环细化**。
+
+其由`DPTHead`和Tracker模块两个部分组成：
+
+```python
+# Feature extractor based on DPT architecture
+# Processes tokens into feature maps for tracking
+self.feature_extractor = DPTHead(
+    dim_in=dim_in,
+    patch_size=patch_size,
+    features=features,
+    feature_only=True,  # Only output features, no activation
+    down_ratio=2,  # Reduces spatial dimensions by factor of 2
+    pos_embed=False,
+)
+
+# Tracker module that predicts point trajectories
+# Takes feature maps and predicts coordinates and visibility
+self.tracker = BaseTrackerPredictor(
+    latent_dim=features,  # Match the output_dim of feature extractor
+    predict_conf=predict_conf,
+    stride=stride,
+    corr_levels=corr_levels,
+    corr_radius=corr_radius,
+    hidden_size=hidden_size,
+)
+```
+
+这里 `down_ratio=2` 意味着输出的特征图分辨率是原图的一半（例如输入 518x518，特征图就是 259x259），这在保证跟踪精度的同时大幅节省了显存。
+
+推断时先用这个`DPTHead`提取稠密特征，再用Tracker模块输出最终结果：
+
+```python
+def forward(self, aggregated_tokens_list, images, patch_start_idx, query_points=None, iters=None):
+    """
+    Forward pass of the TrackHead.
+
+    Args:
+        aggregated_tokens_list (list): List of aggregated tokens from the backbone.
+        images (torch.Tensor): Input images of shape (B, S, C, H, W) where:
+                                B = batch size, S = sequence length.
+        patch_start_idx (int): Starting index for patch tokens.
+        query_points (torch.Tensor, optional): Initial query points to track.
+                                                If None, points are initialized by the tracker.
+        iters (int, optional): Number of refinement iterations. If None, uses self.iters.
+
+    Returns:
+        tuple:
+            - coord_preds (torch.Tensor): Predicted coordinates for tracked points.
+            - vis_scores (torch.Tensor): Visibility scores for tracked points.
+            - conf_scores (torch.Tensor): Confidence scores for tracked points (if predict_conf=True).
+    """
+    B, S, _, H, W = images.shape
+
+    # Extract features from tokens
+    # feature_maps has shape (B, S, C, H//2, W//2) due to down_ratio=2
+    feature_maps = self.feature_extractor(aggregated_tokens_list, images, patch_start_idx)
+
+    # Use default iterations if not specified
+    if iters is None:
+        iters = self.iters
+
+    # Perform tracking using the extracted features
+    coord_preds, vis_scores, conf_scores = self.tracker(query_points=query_points, fmaps=feature_maps, iters=iters)
+
+    return coord_preds, vis_scores, conf_scores
+```
+
+这个Tracker模块是`TrackHead`的核心，它的原理来自 CoTracker / RAFT 家族：基于相关性的迭代坐标细化。
