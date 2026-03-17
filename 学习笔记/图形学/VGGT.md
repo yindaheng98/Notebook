@@ -201,4 +201,220 @@ nn.init.normal_(self.camera_token, std=1e-6)
 nn.init.normal_(self.register_token, std=1e-6)
 ```
 
-所以，这两个`camera_token`和`register_token`就是把可训练的两个token拼接在图片的`patch_embed`后面输入给transformer，每张图片后面的。
+所以，这两个`camera_token`和`register_token`就是把可训练的两个token拼接在图片的`patch_embed`后面输入给transformer，每张图片后面都拼了一个相同的token。
+
+### patch位置信息
+
+接下来获取patch的位置信息：
+
+```python
+pos = None
+if self.rope is not None:
+    pos = self.position_getter(B * S, H // self.patch_size, W // self.patch_size, device=images.device)
+
+if self.patch_start_idx > 0:
+    # do not use position embedding for special tokens (camera and register tokens)
+    # so set pos to 0 for the special tokens
+    pos = pos + 1
+    pos_special = torch.zeros(B * S, self.patch_start_idx, 2).to(images.device).to(pos.dtype)
+    pos = torch.cat([pos_special, pos], dim=1)
+```
+
+其实就是每个patch在图像上的坐标：
+
+```python
+class PositionGetter:
+    """Generates and caches 2D spatial positions for patches in a grid.
+
+    This class efficiently manages the generation of spatial coordinates for patches
+    in a 2D grid, caching results to avoid redundant computations.
+
+    Attributes:
+        position_cache: Dictionary storing precomputed position tensors for different
+            grid dimensions.
+    """
+
+    def __init__(self):
+        """Initializes the position generator with an empty cache."""
+        self.position_cache: Dict[Tuple[int, int], torch.Tensor] = {}
+
+    def __call__(self, batch_size: int, height: int, width: int, device: torch.device) -> torch.Tensor:
+        """Generates spatial positions for a batch of patches.
+
+        Args:
+            batch_size: Number of samples in the batch.
+            height: Height of the grid in patches.
+            width: Width of the grid in patches.
+            device: Target device for the position tensor.
+
+        Returns:
+            Tensor of shape (batch_size, height*width, 2) containing y,x coordinates
+            for each position in the grid, repeated for each batch item.
+        """
+        if (height, width) not in self.position_cache:
+            y_coords = torch.arange(height, device=device)
+            x_coords = torch.arange(width, device=device)
+            positions = torch.cartesian_prod(y_coords, x_coords)
+            self.position_cache[height, width] = positions
+
+        cached_positions = self.position_cache[height, width]
+        return cached_positions.view(1, height * width, 2).expand(batch_size, -1, -1).clone()
+```
+
+### Attention计算
+
+经过多个Attention模块，每个Attention模块里都有几个全局attention和帧内attention子模块，根据`aa_order`决定是全局attention还是帧内attention：
+
+```python
+# update P because we added special tokens
+_, P, C = tokens.shape
+
+frame_idx = 0
+global_idx = 0
+output_list = []
+
+for _ in range(self.aa_block_num):
+    for attn_type in self.aa_order:
+        if attn_type == "frame":
+            tokens, frame_idx, frame_intermediates = self._process_frame_attention(
+                tokens, B, S, P, C, frame_idx, pos=pos
+            )
+        elif attn_type == "global":
+            tokens, global_idx, global_intermediates = self._process_global_attention(
+                tokens, B, S, P, C, global_idx, pos=pos
+            )
+        else:
+            raise ValueError(f"Unknown attention type: {attn_type}")
+
+    for i in range(len(frame_intermediates)):
+        # concat frame and global intermediates, [B x S x P x 2C]
+        concat_inter = torch.cat([frame_intermediates[i], global_intermediates[i]], dim=-1)
+        output_list.append(concat_inter)
+
+del concat_inter
+del frame_intermediates
+del global_intermediates
+return output_list, self.patch_start_idx
+```
+
+默认值为一个帧内加一个全局Attention：
+
+```python
+aa_order=["frame", "global"]
+```
+
+帧内Attention和全局Attention模型结构都一样：
+
+```python
+self.frame_blocks = nn.ModuleList(
+    [
+        block_fn(
+            dim=embed_dim,
+            num_heads=num_heads,
+            mlp_ratio=mlp_ratio,
+            qkv_bias=qkv_bias,
+            proj_bias=proj_bias,
+            ffn_bias=ffn_bias,
+            init_values=init_values,
+            qk_norm=qk_norm,
+            rope=self.rope,
+        )
+        for _ in range(depth)
+    ]
+)
+
+self.global_blocks = nn.ModuleList(
+    [
+        block_fn(
+            dim=embed_dim,
+            num_heads=num_heads,
+            mlp_ratio=mlp_ratio,
+            qkv_bias=qkv_bias,
+            proj_bias=proj_bias,
+            ffn_bias=ffn_bias,
+            init_values=init_values,
+            qk_norm=qk_norm,
+            rope=self.rope,
+        )
+        for _ in range(depth)
+    ]
+)
+```
+
+区别在于推断时`token`的重排方式不一样：
+
+```python
+def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None):
+    """
+    Process frame attention blocks. We keep tokens in shape (B*S, P, C).
+    """
+    # If needed, reshape tokens or positions:
+    if tokens.shape != (B * S, P, C):
+        tokens = tokens.view(B, S, P, C).view(B * S, P, C)
+
+    if pos is not None and pos.shape != (B * S, P, 2):
+        pos = pos.view(B, S, P, 2).view(B * S, P, 2)
+
+    intermediates = []
+
+    # by default, self.aa_block_size=1, which processes one block at a time
+    for _ in range(self.aa_block_size):
+        if self.training:
+            tokens = checkpoint(self.frame_blocks[frame_idx], tokens, pos, use_reentrant=self.use_reentrant)
+        else:
+            tokens = self.frame_blocks[frame_idx](tokens, pos=pos)
+        frame_idx += 1
+        intermediates.append(tokens.view(B, S, P, C))
+
+    return tokens, frame_idx, intermediates
+
+def _process_global_attention(self, tokens, B, S, P, C, global_idx, pos=None):
+    """
+    Process global attention blocks. We keep tokens in shape (B, S*P, C).
+    """
+    if tokens.shape != (B, S * P, C):
+        tokens = tokens.view(B, S, P, C).view(B, S * P, C)
+
+    if pos is not None and pos.shape != (B, S * P, 2):
+        pos = pos.view(B, S, P, 2).view(B, S * P, 2)
+
+    intermediates = []
+
+    # by default, self.aa_block_size=1, which processes one block at a time
+    for _ in range(self.aa_block_size):
+        if self.training:
+            tokens = checkpoint(self.global_blocks[global_idx], tokens, pos, use_reentrant=self.use_reentrant)
+        else:
+            tokens = self.global_blocks[global_idx](tokens, pos=pos)
+        global_idx += 1
+        intermediates.append(tokens.view(B, S, P, C))
+
+    return tokens, global_idx, intermediates
+```
+
+注意这两个函数唯一的区别在于开头几行：
+
+```python
+def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None):
+    ......
+    if tokens.shape != (B * S, P, C):
+        tokens = tokens.view(B, S, P, C).view(B * S, P, C)
+
+    if pos is not None and pos.shape != (B * S, P, 2):
+        pos = pos.view(B, S, P, 2).view(B * S, P, 2)
+
+    ......
+
+def _process_global_attention(self, tokens, B, S, P, C, global_idx, pos=None):
+    ......
+    if tokens.shape != (B, S * P, C):
+        tokens = tokens.view(B, S, P, C).view(B, S * P, C)
+
+    if pos is not None and pos.shape != (B, S * P, 2):
+        pos = pos.view(B, S, P, 2).view(B, S * P, 2)
+
+    ......
+```
+
+帧内Attention的batch维是`B*S`，序列长度是`P`（单帧内部token），因此每个batch是在同一帧内计算attention。
+全局Attention的batch 维是`B`，序列长度是`S*P`（所有帧token串起来），因此每个batch是在所有帧的所有token间计算attention。
