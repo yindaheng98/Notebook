@@ -263,7 +263,7 @@ class PositionGetter:
 
 ### Attention计算
 
-经过多个Attention模块，每个Attention模块里都有几个全局attention和帧内attention子模块，根据`aa_order`决定是全局attention还是帧内attention：
+经过多个Attention模块，每个Attention模块里都有几个全局attention和帧内attention子模块，根据`aa_order`决定是全局attention还是帧内attention，最后`output_list`输出attention后的所有token：
 
 ```python
 # update P because we added special tokens
