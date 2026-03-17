@@ -1006,7 +1006,47 @@ def get_2d_embedding(xy: torch.Tensor, C: int, cat_coords: bool = True) -> torch
 
 #### 操作 ③：Update Transformer
 
-把**运动信息 (`flows_emb`)**、**局部匹配度 (`fcorrs_`)** 和 **当前特征 (`track_feats_`)** 拼接起来，送入 `EfficientUpdateFormer`。这个 Transformer 会在时间（帧与帧之间）和空间（点与点之间）进行注意力交互，从而输出坐标的修正量 `delta_coords` 和特征的修正量 `delta_feats`。
+把**运动信息 (`flows_emb`)**、**局部匹配度 (`fcorrs_`)** 和 **当前特征 (`track_feats_`)** 拼接起来：
+
+
+```python
+# Concatenate them as the input for the transformers
+transformer_input = torch.cat([flows_emb, fcorrs_, track_feats_], dim=2)
+```
+
+获取位置编码：
+
+```python
+# 2D positional embed
+# TODO: this can be much simplified
+pos_embed = get_2d_sincos_pos_embed(self.transformer_dim, grid_size=(HH, WW)).to(query_points.device)
+sampled_pos_emb = sample_features4d(pos_embed.expand(B, -1, -1, -1), coords[:, 0])
+
+sampled_pos_emb = rearrange(sampled_pos_emb, "b n c -> (b n) c").unsqueeze(1)
+```
+
+其中`get_2d_sincos_pos_embed`计算整张图的位置编码，`sample_features4d`根据待track的点在第一帧上的位置`coords[:, 0]`获取位置编码。
+相当于用transformer能听懂的语言告诉"这个点从哪出发"。
+
+相加后送入 `EfficientUpdateFormer`：
+
+```python
+x = transformer_input + sampled_pos_emb
+
+# Add the query ref token to the track feats
+query_ref_token = torch.cat(
+    [self.query_ref_token[:, 0:1], self.query_ref_token[:, 1:2].expand(-1, S - 1, -1)], dim=1
+)
+x = x + query_ref_token.to(x.device).to(x.dtype)
+
+# B, N, S, C
+x = rearrange(x, "(b n) s d -> b n s d", b=B)
+
+# Compute the delta coordinates and delta track features
+delta, _ = self.updateformer(x)
+```
+
+这个 Transformer 会在时间（帧与帧之间）和空间（点与点之间）计算Attention，从而输出坐标的修正量 `delta_coords` 和特征的修正量 `delta_feats`：
 
 ```python
 class EfficientUpdateFormer(nn.Module):
@@ -1031,8 +1071,28 @@ class EfficientUpdateFormer(nn.Module):
 **两种注意力交替**：
 
 - **Time Attention**：把每个点的 S 帧 token 当一条序列做自注意力。让同一个点在不同帧之间交流，理解"这个点的时间轨迹应该是怎样的"
-- **Space Attention**：把同一帧中所有 N 个点当一条序列做注意力。让同帧的不同点互相交流，利用"刚性运动约束"——如果周围点都往右移，那我大概也该往右
+- **Space Attention**：把同一帧中所有 N 个点当一条序列做注意力。让同帧的不同点互相交流（比如可能会学习到利用"刚性运动约束"——如果周围点都往右移，那我大概也该往右）。
 
 空间注意力用了 **虚拟 token 瓶颈**（64 个 virtual tracks）来避免 O(N^2) 的开销：先 point→virtual（cross-attn），再 virtual self-attn，最后 virtual→point（cross-attn）。
 
 输出：每个点每帧的 `delta`（坐标增量 + 特征增量）。
+
+#### 操作 ④：更新
+
+将算出的 $\Delta$ 加到当前的坐标和特征上：
+
+```python
+            # Update the track features
+            track_feats_ = self.ffeat_updater(self.ffeat_norm(delta_feats_)) + track_feats_
+
+            track_feats = track_feats_.reshape(B, N, S, self.latent_dim).permute(0, 2, 1, 3)  # BxSxNxC
+
+            # B x S x N x 2
+            coords = coords + delta_coords_.reshape(B, N, S, 2).permute(0, 2, 1, 3)
+
+            # Force coord0 as query
+            # because we assume the query points should not be changed
+            coords[:, 0] = coords_backup[:, 0]
+```
+
+注意，第一帧（参考帧）的坐标被强制重置为初始值，因为它是不应该变的。
