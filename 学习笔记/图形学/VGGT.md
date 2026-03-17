@@ -940,10 +940,66 @@ def corr_sample(self, targets, coords):
 #### 操作 ②：位移编码
 
 计算当前点相对于初始位置移动了多远，并将其编码。
-具体来说，其先将输出的`fcorrs`（`out_pyramid`）维度进行修改，然后将每个9x9x7的金字塔特征经过一个MLP，把 567 维的原始相关性向量压缩到 128 维，提取出"匹配信号的摘要"：
+具体来说，其先将输出的`fcorrs`（`out_pyramid`）维度进行修改，然后将每个9x9x7的金字塔特征经过一个MLP，把 567 维的原始相关性向量压缩到 128 维：
 
 ```python
             corr_dim = fcorrs.shape[3]  # 567
             fcorrs_ = fcorrs.permute(0, 2, 1, 3).reshape(B * N, S, corr_dim)  # [B,S,N,567] → [B,N,S,567] → [B*N, S, 567]
             fcorrs_ = self.corr_mlp(fcorrs_)  # [B*N, S, 567] → [B*N, S, 128]
 ```
+
+这一步MLP压缩提取出"匹配信号的摘要"。
+因为原始 567 维太大且冗余（大部分位置不相关），MLP 学习从中提取有用的匹配模式。
+
+然后把"当前帧坐标相对于 query 帧的偏移量"编码成正弦余弦 embedding，再拼上归一化后的原始位移值：
+
+```python
+            # Movement of current coords relative to query points
+            flows = (coords - coords[:, 0:1]).permute(0, 2, 1, 3).reshape(B * N, S, 2)
+
+            flows_emb = get_2d_embedding(flows, self.flows_emb_dim, cat_coords=False)
+
+            # (In my trials, it is also okay to just add the flows_emb instead of concat)
+            flows_emb = torch.cat([flows_emb, flows / self.max_scale, flows / self.max_scale], dim=-1)
+```
+
+`coords[:, 0:1]`是要 track 的像素在第一帧的坐标，和`coords`相减得到每一帧track到的坐标相对于第一帧的位移。
+
+`get_2d_embedding`把 2D 位移 (dx, dy) 用正弦/余弦编码到高维空间，和 Transformer 的位置编码原理一样——让网络能区分不同尺度的位移（小偏移 vs 大偏移）：
+
+```python
+def get_2d_embedding(xy: torch.Tensor, C: int, cat_coords: bool = True) -> torch.Tensor:
+    """
+    This function generates a 2D positional embedding from given coordinates using sine and cosine functions.
+
+    Args:
+    - xy: The coordinates to generate the embedding from.
+    - C: The size of the embedding.
+    - cat_coords: A flag to indicate whether to concatenate the original coordinates to the embedding.
+
+    Returns:
+    - pe: The generated 2D positional embedding.
+    """
+    B, N, D = xy.shape
+    assert D == 2
+
+    x = xy[:, :, 0:1]
+    y = xy[:, :, 1:2]
+    div_term = (torch.arange(0, C, 2, device=xy.device, dtype=torch.float32) * (1000.0 / C)).reshape(1, 1, int(C / 2))
+
+    pe_x = torch.zeros(B, N, C, device=xy.device, dtype=torch.float32)
+    pe_y = torch.zeros(B, N, C, device=xy.device, dtype=torch.float32)
+
+    pe_x[:, :, 0::2] = torch.sin(x * div_term)
+    pe_x[:, :, 1::2] = torch.cos(x * div_term)
+
+    pe_y[:, :, 0::2] = torch.sin(y * div_term)
+    pe_y[:, :, 1::2] = torch.cos(y * div_term)
+
+    pe = torch.cat([pe_x, pe_y], dim=2)  # (B, N, C*3)
+    if cat_coords:
+        pe = torch.cat([xy, pe], dim=2)  # (B, N, C*3+3)
+    return pe
+```
+
+这是用transformer能听懂的语言告诉"这个点已经偏移了多远"。
