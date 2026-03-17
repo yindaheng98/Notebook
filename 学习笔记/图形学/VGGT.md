@@ -825,3 +825,30 @@ class CorrBlock:
 
 这相当于建立了 `num_levels` 层特征金字塔，越往上分辨率越低但是每个像素包含越大邻近区域的信息。
 基于这个特征金字塔，后续操作让 tracker 能同时看到大范围（粗粒度）和精细（细粒度）的匹配信息。
+
+### 迭代细化 (Iterative Refinement)
+
+这是 TrackHead 最核心的机制。模型会循环 `iters`（默认 4 或 6）次，每次都在当前坐标附近“看一看”，然后预测一个偏移量（$\Delta x, \Delta y$）来修正坐标。
+每次迭代有四个关键操作：
+
+```python
+        for _ in range(iters):
+            coords = coords.detach()
+
+            # ① 相关性采样
+            fcorrs = fcorr_fn.corr_sample(track_feats, coords)
+
+            # ② 位移编码
+            flows = (coords - coords[:, 0:1]).permute(...)
+            flows_emb = get_2d_embedding(flows, self.flows_emb_dim, cat_coords=False)
+            flows_emb = torch.cat([flows_emb, flows / self.max_scale, flows / self.max_scale], dim=-1)
+
+            # ③ Update Transformer
+            transformer_input = torch.cat([flows_emb, fcorrs_, track_feats_], dim=2)
+            // ...
+            delta, _ = self.updateformer(x)
+
+            # ④ 更新坐标和特征
+            coords = coords + delta_coords_
+            track_feats_ = self.ffeat_updater(self.ffeat_norm(delta_feats_)) + track_feats_
+```
