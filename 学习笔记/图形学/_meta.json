@@ -110,8 +110,8 @@
     "DenseReconstruct.md": {
         "title": "从 Bundle Adjustment 到 VGGT - Brief History of Dense Reconstruction in Multi View Stereo (MVS)",
         "created": "2024-08-22 00:23:46",
-        "updated": "2026-03-07 07:16:19",
-        "date": "2026-03-07 07:16:19",
+        "updated": "2026-03-15 05:35:35",
+        "date": "2026-03-15 05:35:35",
         "tags": [
             "图形学",
             "3D重建"
@@ -336,6 +336,19 @@
         "categories": [
             "图形学"
         ]
+    },
+    "VGGT.md": {
+        "title": "VGGT 原理解析",
+        "created": "2026-03-16 23:27:00",
+        "updated": "2026-03-17 06:21:39",
+        "date": "2026-03-17 06:21:39",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/./i/vggt.png"
     },
     "体渲染.md": {
         "title": "【摘抄】Nerf基础知识：体渲染",
