@@ -934,4 +934,16 @@ def corr_sample(self, targets, coords):
 ```
 
 于是这里的`out_pyramid`就是当前点的 track 特征在特征金字塔的每一层的当前点附近的`self.radius`范围内的像素特征的相似度。
+输出`out_pyramid`的形状 [B, S, N, L]，对 N 个跟踪点，在 S 帧的每一帧上，在当前预估坐标 coords 周围9x9（`self.radius=9`）的窗口内，在7层金字塔上分别采样局部相关性值，N=9x9x7=567。
 之后的操作就基于该相似度指标确定track点的移动方向和距离。
+
+#### 操作 ②：位移编码
+
+计算当前点相对于初始位置移动了多远，并将其编码。
+具体来说，其先将输出的`fcorrs`（`out_pyramid`）维度进行修改，然后将每个9x9x7的金字塔特征经过一个MLP，把 567 维的原始相关性向量压缩到 128 维，提取出"匹配信号的摘要"：
+
+```python
+            corr_dim = fcorrs.shape[3]  # 567
+            fcorrs_ = fcorrs.permute(0, 2, 1, 3).reshape(B * N, S, corr_dim)  # [B,S,N,567] → [B,N,S,567] → [B*N, S, 567]
+            fcorrs_ = self.corr_mlp(fcorrs_)  # [B*N, S, 567] → [B*N, S, 128]
+```
