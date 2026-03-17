@@ -1079,7 +1079,7 @@ class EfficientUpdateFormer(nn.Module):
 
 #### 操作 ④：更新
 
-将算出的 $\Delta$ 加到当前的坐标和特征上：
+将算出的坐标delta加到当前的坐标上、特征delta经过一个`ffeat_updater`加到特征上：
 
 ```python
             # Update the track features
@@ -1096,3 +1096,25 @@ class EfficientUpdateFormer(nn.Module):
 ```
 
 注意，第一帧（参考帧）的坐标被强制重置为初始值，因为它是不应该变的。
+
+### 预测可见性与置信度 (Visibility & Confidence)
+
+在所有迭代结束后，点在每一帧的最终特征 `track_feats` 已经融合了时空信息。模型直接用两个简单的线性层（Linear + Sigmoid）来判断这个点在当前帧是否可见（比如被遮挡、移出画面），以及预测的置信度。
+
+```python
+        # B, S, N
+        vis_e = self.vis_predictor(track_feats.reshape(B * S * N, self.latent_dim)).reshape(B, S, N)
+        if apply_sigmoid:
+            vis_e = torch.sigmoid(vis_e)
+
+        if self.predict_conf:
+            conf_e = self.conf_predictor(track_feats.reshape(B * S * N, self.latent_dim)).reshape(B, S, N)
+            if apply_sigmoid:
+                conf_e = torch.sigmoid(conf_e)
+```
+
+### 总结
+
+TrackHead 放弃了传统光流那种一次性回归整张图位移的做法，而是采用了**稀疏点追踪（Sparse Point Tracking）**的范式：
+先提特征 -> 猜个位置 -> 看看周围像不像 -> Transformer 综合上下文给出修正建议 -> 挪动位置 -> 再看周围像不像... 如此循环。
+这种方法对长视频、大位移和遮挡具有极强的鲁棒性。
