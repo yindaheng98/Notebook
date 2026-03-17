@@ -852,3 +852,86 @@ class CorrBlock:
             coords = coords + delta_coords_
             track_feats_ = self.ffeat_updater(self.ffeat_norm(delta_feats_)) + track_feats_
 ```
+
+逐步解释：
+
+#### 操作 ①：局部相关性采样 `CorrBlock.corr_sample`
+
+这个函数在`CorrBlock`中，基于`CorrBlock.__init__`中建立的特征金字塔进行操作。
+
+```python
+def corr_sample(self, targets, coords):
+    """
+    Instead of storing the entire correlation pyramid, we compute each level's correlation
+    volume, sample it immediately, then discard it. This saves GPU memory.
+
+    Args:
+        targets: Tensor (B, S, N, C) — features for the current targets.
+        coords: Tensor (B, S, N, 2) — coordinates at full resolution.
+
+    Returns:
+        Tensor (B, S, N, L) where L = num_levels * (2*radius+1)**2 (concatenated sampled correlations)
+    """
+    B, S, N, C = targets.shape
+
+    # If you have multiple track features, split them per level.
+    if self.multiple_track_feats:
+        targets_split = torch.split(targets, C // self.num_levels, dim=-1)
+
+```
+
+在每一层金字塔上：
+
+```python
+    out_pyramid = []
+    for i, fmaps in enumerate(self.fmaps_pyramid):
+        # Get current spatial resolution H, W for this pyramid level.
+        B, S, C, H, W = fmaps.shape
+```
+
+先用当前点的 track 特征与该层金字塔上的所有像素的特征计算 dot-product（相关性）：
+
+```python
+        # Reshape feature maps for correlation computation:
+        # fmap2s: (B, S, C, H*W)
+        fmap2s = fmaps.view(B, S, C, H * W)
+        # Choose appropriate target features.
+        fmap1 = targets_split[i] if self.multiple_track_feats else targets  # shape: (B, S, N, C)
+
+        # Compute correlation directly
+        corrs = compute_corr_level(fmap1, fmap2s, C)
+        corrs = corrs.view(B, S, N, H, W)
+```
+
+然后在当前预测的 `coords` 位置，提取周围一个局部窗口（`self.radius`）内的特征图，与当前的 `track_feats` 计算内积（相似度）：
+
+```python
+        # Prepare sampling grid:
+        # Scale down the coordinates for the current level.
+        centroid_lvl = coords.reshape(B * S * N, 1, 1, 2) / (2**i)
+        # Make sure our precomputed delta grid is on the same device/dtype.
+        delta_lvl = self.delta.to(coords.device).to(coords.dtype)
+        # Now the grid for grid_sample is:
+        # coords_lvl = centroid_lvl + delta_lvl   (broadcasted over grid)
+        coords_lvl = centroid_lvl + delta_lvl.view(1, 2 * self.radius + 1, 2 * self.radius + 1, 2)
+
+        # Sample from the correlation volume using bilinear interpolation.
+        # We reshape corrs to (B * S * N, 1, H, W) so grid_sample acts over each target.
+        corrs_sampled = bilinear_sampler(
+            corrs.reshape(B * S * N, 1, H, W), coords_lvl, padding_mode=self.padding_mode
+        )
+        # The sampled output is (B * S * N, 1, 2r+1, 2r+1). Flatten the last two dims.
+        corrs_sampled = corrs_sampled.view(B, S, N, -1)  # Now shape: (B, S, N, (2r+1)^2)
+        out_pyramid.append(corrs_sampled)
+```
+
+最后聚合输出：
+
+```python
+    # Concatenate all levels along the last dimension.
+    out = torch.cat(out_pyramid, dim=-1).contiguous()
+    return out
+```
+
+于是这里的`out_pyramid`就是当前点的 track 特征在特征金字塔的每一层的当前点附近的`self.radius`范围内的像素特征的相似度。
+之后的操作就基于该相似度指标确定track点的移动方向和距离。
