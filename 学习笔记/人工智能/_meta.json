@@ -68,10 +68,22 @@
             "转载"
         ],
         "categories": [
-            "人工智能",
-            "转载"
+            "人工智能"
         ],
-        "cover": "/人工智能/转载/./images/image-1-image-and-graph.png"
+        "cover": "/人工智能/./images/image-1-image-and-graph.png"
+    },
+    "GNN简介.md": {
+        "title": "ChatGPT老师教你学图神经网络",
+        "created": "2026-03-18 05:57:43",
+        "updated": "2026-03-18 05:57:43",
+        "date": "2026-03-18 05:57:43",
+        "tags": [
+            "人工智能",
+            "图神经网络"
+        ],
+        "categories": [
+            "人工智能"
+        ]
     },
     "GraphRAG源码解读.md": {
         "title": "【转载】微软GraphRAG框架源码解读",
