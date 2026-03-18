@@ -57,6 +57,22 @@
         ],
         "cover": "/人工智能/112_document-ai/ocr.png"
     },
+    "GNN.md": {
+        "title": "(转载) 从图(Graph)到图卷积(Graph Convolution): 漫谈图神经网络",
+        "created": "2026-03-18 05:46:23",
+        "updated": "2026-03-18 05:46:23",
+        "date": "2026-03-18 05:46:23",
+        "tags": [
+            "人工智能",
+            "图神经网络",
+            "转载"
+        ],
+        "categories": [
+            "人工智能",
+            "转载"
+        ],
+        "cover": "/人工智能/转载/./images/image-1-image-and-graph.png"
+    },
     "GraphRAG源码解读.md": {
         "title": "【转载】微软GraphRAG框架源码解读",
         "created": "2024-08-14 18:12:38",
