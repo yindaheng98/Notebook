@@ -940,7 +940,7 @@ def corr_sample(self, targets, coords):
 #### 操作 ②：位移编码
 
 计算当前点相对于初始位置移动了多远，并将其编码。
-具体来说，其先将输出的`fcorrs`（`out_pyramid`）维度进行修改，然后将每个9x9x7的金字塔特征经过一个MLP，把 567 维的原始相关性向量压缩到 128 维：
+具体来说，其先将输出的`fcorrs`（`out_pyramid`）维度进行修改，然后将每个query点的9x9x7的金字塔特征经过一个MLP，把 567 维的原始相关性向量压缩到 128 维：
 
 ```python
             corr_dim = fcorrs.shape[3]  # 567
