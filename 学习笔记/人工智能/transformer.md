@@ -185,7 +185,19 @@ MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t&=softmax\left(\left[\frac{Q_tK^{\top}
 
 每当来一个新的 token，只需要按照这个公式计算新的一行即可，之前的行全不变。
 
+如果用同样的符号写出 full attention：
+
+$$Attention(Q_{1:T},K_{1:T},V_{1:T})_t=\sum_{i=1}^{T}softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_T}{\sqrt{d_k}}\right]\right)_iV_i$$
+
+可以看出，每加一个 token $Q_T,K_T,V_T$不仅需要计算新的一行，还需要对之前的所有行都进行更新。
+其中，对于第$t$行：
+由于增加了一列$\frac{Q_tK^{\top}_T}{\sqrt{d_k}}$，从softmax这里就要重新计算$softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_T}{\sqrt{d_k}}\right]\right)$，之后的求和也得重新计算，并且求和这里还多加一项$softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_T}{\sqrt{d_k}}\right]\right)_TV_T$。
+
+所以如果对已有计算结果做缓存，那 masked self-attention 会比 full attention 少很多计算量。
+
 masked self-attention 还有一个很优美的性质：已知$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})$这里面每一行都是下一层 masked self-attention 的一个输入 token，每次加一个 token 都只需要加新的一行$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t$，而不改变之前的行$MaskedAttention(Q_{1:t-1},K_{1:t-1},V_{1:t-1})$，那在下一层看来就是之前的 token 输入全没变，只多加了一个新的 token，那这个 masked self-attention 也只需要加新的一行，而不改变之前的行，依此类推，串联的所有 masked self-attention 层都只需要计算新的一行，而不改变之前的行。
+
+而 full attention 每次加一个 token 都要更新输出中的所有 token，这就改变了 full attention 的输入，所以下一层就得整个重新计算，难以优化。
 
 masked self-attention 的这些独特性质带来一种新的加速方式：KV Cache。
 
