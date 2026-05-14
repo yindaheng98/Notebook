@@ -50,11 +50,11 @@ Encoder单元内部长这样：
 
 ## 深入运行过程：Transformer中的三种Attention
 
-需要注意，在这张图中，encoder和decoder虽然画的一样，但其内部计算attention的过程并不相同。
+Encoder 和 Decoder 虽然长的一样，但其内部计算 attention 的过程并不相同。
 
-![](./i/transformer_decoding_1.gif)
+![](./i/cd1f4e6298107d114c5369cccc0c9481.png)
 
-### Encoder: self-attention 自注意力, 又称 full-attention
+### Encoder: self-attention 自注意力, 又称 full attention
 
 self-attention 是最基本最容易理解的 attention，在[《机器学习中的Attention机制》](Attention.md)中就讲的很清楚了，就是由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得到$K$、$Q$、$V$，即：
 $$
@@ -84,9 +84,7 @@ $$
 
 ### Encoder 输出进入 Decoder 输入: cross-attention
 
-cross-attention 也可以看成是一种 full-attention，和 self-attention 唯一的区别在于其$K$、$V$和$Q$来源于不同的计算过程。在Transformer中，$K$、$V$是Encoder的输出，$Q$是Decoder的输入经过一个masked self-attention计算得到：
-
-![](./i/Transformer-official.png)
+cross-attention 和 self-attention 唯一的区别在于其$K$、$V$和$Q$来源于不同的计算过程。在Transformer中，$K$、$V$是Encoder的输出，$Q$是Decoder的输入经过一个masked self-attention计算得到。
 
 其计算过程和 self-attention 完全一样：
 $$
@@ -106,6 +104,55 @@ $$
 
 ### Decoder: masked self-attention 掩码自注意力, 又称 casual-attention 因果注意力
 
-在Transformer论文原图中，有标注
+在原版 Transformer 中，masked self-attention 是 Decoder 中在 cross-attention 前对输入计算的 Attention。
+Transformer 论文原图中在 Decoder 处的 Attention 标注为 Masked MultiHead Attention，说的就是 masked self-attention：
 
 ![](./i/Transformer-official.png)
+
+full attention 让输入的所有 token 之间都计算 attention，而 masked self-attention 和它相对，其的核心思想是让 token 只与其之前的 token 计算 attention。
+
+![](./i/1_8xqD4AYTwn6mQXNw0uhDCg.gif)
+
+为什么要设计 masked self-attention ？网上的教程通常会说：
+
+>模型通常需要基于已经生成的词来预测下一个词。这种特性要求模型在训练时不能“看到”未来的信息。
+
+但是下一个 token 本就是输出，在输入的时候下一个 token 还不存在呢，怎么“看到”未来的信息？
+
+这些教程的表述给人一种感觉，会让人以为 masked self-attention 是为了提升训练效果而设计的。但实际上，这个 masked self-attention 主要是为了提升训练速度而设计的。
+
+Encoder 的 full attention 每次输入一句话的所有 token 而输出一个 token 用于 cross-attention，因此对于 Encoder 来说，每个训练样本只需要一次前向和反向传播。
+Decoder 当然也可以是一个 full attention，每次推理都对输入的所有 token 做 full attention 而输出下一个 token，问题在于 Decoder 的运行模式是多次运行出多个 token 拼成一句话，在训练时，这种运行模式就会导致一个训练样本中的每一个单词都要执行一次前向和反向传播，训练成本很高。
+
+masked self-attention 就能解决这个问题。具体来说，
+
+为了高效训练，我们**不想每次只拿一个 token 训练**，而是希望像 Encoder 那样**一次性把整段 token 送进去执行一次前向和反向传播就完成训练**。
+这就需要模型在每个位置都产生一个 next-token prediction，并且这同时输出的每个位置的 prediction 得是和一个个输出的 prediction 是等价的才行。
+这就是 masked self-attention 的设计目标。这个设计目标用公式表示为：
+
+$$\forall t\leq T\quad Attention(Q_{1:T},K_{1:T},V_{1:T})_t=Attention(Q_{1:t},K_{1:t},V_{1:t})_t$$
+
+用人话说就是：**一次性输入整段所有 token $Q_{1:T},K_{1:T},V_{1:T}$ 算 masked self-attention 得到的第 $t$ 个位置输出的 Attention 向量 $Attention(Q_{1:T},K_{1:T},V_{1:T})_t$ 等于只输入前缀 token $Q_{1:t},K_{1:t},V_{1:t}$ 算 masked self-attention 得到的最后位置的 Attention 向量 $Attention(Q_{1:t},K_{1:t},V_{1:t})_t$，对所有 $t\in T$ 成立。**
+
+masked self-attention 的运行流程如下：
+
+第一步，对于第一个 token，Q,K,V 都是向量，等价于 full attention 只输入一个 token 时的特殊情况：
+
+$$Attention(Q_{1:1},K_{1:1},V_{1:1})=softmax(Q_1K_1^\top)V_1$$
+
+对于后续的 token，Q,K,V成为矩阵。从第二个 token 开始：
+
+$$\begin{aligned}
+Attention(Q_{1:2},K_{1:2},V_{1:2})&=softmax\left(\begin{bmatrix} Q_1K^{\top}_1 & -\infty \\ Q_2K^{\top}_1 & Q_2K^{\top}_2 \end{bmatrix}\right)\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
+&=\begin{bmatrix} softmax(Q_1K^{\top}_1) & 0 \\softmax(Q_2K^{\top}_1) & softmax(Q_2K^{\top}_2) \end{bmatrix}\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
+&=\left[\begin{aligned}&softmax(Q_1K^{\top}_1)V_1 \\&softmax(Q_2K^{\top}_1) V_1 + softmax(Q_2K^{\top}_2) V_2\end{aligned}\right]
+\end{aligned}$$
+
+于是，每一步的计算公式可以写成：
+
+$$\begin{aligned}
+Attention(Q_{1:1},K_{1:1},V_{1:1})&=softmax(Q_1K^{\top}_1)V_1\\
+Attention(Q_{1:2},K_{1:2},V_{1:2})&=softmax(Q_2K^{\top}_1) V_1 + softmax(Q_2K^{\top}_2) V_2\\
+\dots\\
+Attention(Q_{1:T},K_{1:T},V_{1:T})&=\sum_{t=1}^nsoftmax(Q_TK^{\top}_t) V_t
+\end{aligned}$$
