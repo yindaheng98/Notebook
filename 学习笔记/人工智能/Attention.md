@@ -313,3 +313,5 @@ self.position_embeddings = nn.Parameter(torch.zeros(1, num_patches + 1, config.h
 * [继续学习位置编码](./位置编码.md)
 
 * [学习相对位置编码](./相对位置编码.md)
+
+* [学习Transformer](./transformer.md)
