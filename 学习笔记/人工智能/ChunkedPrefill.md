@@ -18,21 +18,21 @@ prefill 阶段由于可以并行处理整个输入，**往往延迟较高但能�
 
 下图展示了使用 Static Batching 完成 4 个推理请求的过程。在第一轮（图左），每个请求根据提示词（黄色）生成一个 token（蓝色）。经过多轮迭代后（图右），每个请求的生成长度不同，因为它们在不同轮次生成了结束标记（红色）。尽管请求 3 在第二轮就已完成，Static Batching 仍要求整个 batch 等待最慢的请求完成（此例中为第六轮的请求 2），这导致 GPU 在后续迭代中无法被充分利用。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052031934.png)
+![](./i/202507052031934.png)
 
 下面这张动图可以更清晰地展示 Static Batching 的基本原理：
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052037008.webp)
+![](./i/202507052037008.webp)
 
 Static Batching 采用的是固定的调度流程：调度器（Scheduler）每次从请求队列中取出一组请求（例如图中的 x1 和 x2），组成一个新的 batch，并交由执行引擎（Execution Engine）统一进行推理。只有当执行引擎完成该 batch 中所有请求的推理后，调度器才会开始处理下一轮 batch。由于 batch 中的所有请求必须一起行动，我们管这种调度策略叫 **request-level schedule。**
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052043204.png)
+![](./i/202507052043204.png)
 
 [图片来源：Orca: A Distributed Serving System for Transformer-Based Generative Models](https://www.usenix.org/system/files/osdi22-yu.pdf)
 
 以下是 Static Batching 的伪代码实现：
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052058111.png)
+![](./i/202507052058111.png)
 
 [图片来源：Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310)
 
@@ -46,11 +46,11 @@ Static Batching 采用的是固定的调度流程：调度器（Scheduler）每�
 
 下图展示了使用 Continuous Batching 完成 7 个推理请求的过程。左图展示的是第一轮迭代后的 batch，右图展示的是多轮迭代后的情况。一旦某个请求生成了结束标记（EOS token），就将其替换为一个新的请求（例如 S5、S6 和 S7）。这种方式避免了等待所有请求完成后再处理新请求的情况，因此能显著提升 GPU 的利用率。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052120170.png)
+![](./i/202507052120170.png)
 
 下面这张动图可以更清晰地展示 Continuous Batching 的基本原理：
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052136736.webp)
+![](./i/202507052136736.webp)
 
 #### 2.2.1 Iteration-Level Scheduling
 
@@ -63,7 +63,7 @@ Static Batching 采用的是固定的调度流程：调度器（Scheduler）每�
 
 一旦某个请求完成推理，请求池会移除该请求，并通知终端返回响应。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507052136287.png)
+![](./i/202507052136287.png)
 
 [图片来源：Orca: A Distributed Serving System for Transformer-Based Generative Models](https://www.usenix.org/system/files/osdi22-yu.pdf)
 
@@ -90,7 +90,7 @@ Static Batching 采用的是固定的调度流程：调度器（Scheduler）每�
 - 对于 `preproj`、`postproj`、`FFN1` 和 `FFN2` 这类线性变换或归一化操作，它们的计算与序列长度无关，只是在 hidden_size 维度上做线性转换，并且都需要从显存读取权重。**因此，可以将 batch 内所有 token 拉平成一个二维张量**，例如 x₃ 和 x₄ 的输入张量可以合并为一个形状为 $[∑L, H] = [5, H]$ 的二维张量，一次性完成所有相关计算。这样不仅简化了操作，还能显著提升权重加载的利用率，降低 IO 次数，提高整体执行效率。
 - 对于 Attention 操作，由于每个请求的 mask、KV cache 和 token 位置可能不同，导致其张量形状不一致，无法直接合并处理。Selective Batching 会在进入 Attention 之前将 batch 拆分，逐个请求单独计算 Attention 分数，完成后再将结果合并回统一的张量，以便继续执行后续操作。**Attention 分数的计算并不依赖显存中的模型权重，只需使用之前生成的 Q、K、V 向量即可，因此拆分处理不会带来额外的 IO 开销。**
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507060933382.png)
+![](./i/202507060933382.png)
 
 [图片来源：Orca: A Distributed Serving System for Transformer-Based Generative Models](https://www.usenix.org/system/files/osdi22-yu.pdf)
 
@@ -108,7 +108,7 @@ Static Batching 采用的是固定的调度流程：调度器（Scheduler）每�
 
 下展示了吞吐量随 batch size 变化的趋势。可以观察到：**对于 decode 阶段，吞吐量几乎呈线性随 batch size 增长**；而 prefill 阶段即便只处理一个请求，其吞吐量也已接近饱和，进一步增大 batch size 效果有限。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061144040.png)
+![](./i/202507061144040.png)
 
 [图片来源：Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310)
 
@@ -116,7 +116,7 @@ prefill 和 decode 阶段在吞吐量扩展性上的差异，源于它们所执�
 
 下图展示了 prefill 和 decode 阶段中各个操作的算术强度（arithmetic intensity）。如下图所示，在 prefill 阶段，**即使 batch size 为 1，所有操作的算术强度依然很高**。而在 decode 阶段，这些操作的算术强度下降了两个数量级以上，**只有在 batch size 达到 256 这种极大值时，decode 阶段才开始变得计算密集**。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061434305.png)
+![](./i/202507061434305.png)
 
 **然而，将 batch size 扩展到如此之高在实际中几乎无法实现，因为每条请求的 KV cache 占用非常大。** 例如，在 LLaMA-13B 模型上，使用 A6000 GPU，在序列长度为 1K 的情况下，最多只能容纳 18 条请求的 batch。**因此，在当前可行的 batch size 范围内，decode 阶段仍然是内存瓶颈（memory-bound）**。
 
@@ -138,7 +138,7 @@ Orca 系统尝试通过 **迭代级调度（iteration-level scheduling）** 来�
 - **PB2：prefill 阶段和 decode 阶段计算负载差异大**。PB2 类型气泡出现在 prefill 和 decode 阶段相继执行时。以 Ad1 和 Bd1 为例，它们的 decode 阶段每次仅处理一个 token，计算时间极短；而此时 GPU2 正在处理 Cp 和 Dp 的 prefill，涉及多个 token，耗时较长，导致 GPU1 无法及时执行后续任务，资源被浪费，形成 PB2 气泡。
 - **PB3：decode 阶段上下文长度差异导致计算时间不均**。decode 阶段的计算开销受上下文长度（即 KV cache 长度）影响较大。不同 micro-batch 中请求的上下文长度不一，导致 decode 阶段耗时不同，从而在流水线上产生等待，形成 PB3 类型气泡。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061505954.png)
+![](./i/202507061505954.png)
 
 [图片来源：SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked-Prefills](https://arxiv.org/abs/2308.16369)
 
@@ -158,7 +158,7 @@ Sarathi-Serve 建立在 iteration-level batching 的基础上，但有一个重�
 
 **此外，Sarathi-Serve 构建的混合批次（包含 prefill 和 decode token）具有近似均衡的计算需求**。结合流水线并行（pipeline-parallelism），这使我们能够创建基于微批处理（micro-batching）的均衡调度，从而显著减少流水线气泡（pipeline bubbles），提升 GPU 利用率，实现高效且可扩展的部署。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061639315.png)
+![](./i/202507061639315.png)
 
 [图片来源：SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked-Prefills](https://arxiv.org/abs/2308.16369)
 
@@ -166,7 +166,7 @@ Sarathi-Serve 建立在 iteration-level batching 的基础上，但有一个重�
 
 **系统会确保当前调度轮次中 decode 和 prefill 的 token 总数不超过预设的 chunk size。**
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507081058888.png)
+![](./i/202507081058888.png)
 
 > 注：论文中提到了两个相关概念：
 >
@@ -198,7 +198,7 @@ Sarathi-Serve 建立在 iteration-level batching 的基础上，但有一个重�
 
 - Sarathi-Serve 同样支持 prefill 和 decode 的并行执行，但相比 Orca，**它通过精细控制每个 batch 中 prefill token 的数量，确保 decode 几乎不受影响**。与 FasterTransformer 相比，Sarathi 的 decode 时间只略有延长（把 Sarathi-Serve 的绿色块和 FasterTransformer 的红色块相比，可以发现绿色块只长了一点），却显著提升了吞吐量，**实现了低延迟与高吞吐的兼得**。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507120922906.png)
+![](./i/202507120922906.png)
 
 [图片来源：Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310)
 
@@ -214,7 +214,7 @@ Sarathi-Serve 建立在 iteration-level batching 的基础上，但有一个重�
 
 **结果表明，混合 batch 能将每个 token 的解码时间显著降低一个数量级，大幅提升整体推理效率；同时，prefill 阶段的耗时几乎没有变化。**
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061626435.png)
+![](./i/202507061626435.png)
 
 [图片来源：SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked-Prefills](https://arxiv.org/abs/2308.16369)
 
@@ -224,13 +224,13 @@ chunked-prefills 的开销主要来自两个方面：
 
 - 第一，**当 chunk size 变小时，chunked-prefills 的算术强度会下降，进而降低 GPU 利用率，从而影响 prefill 阶段的效率**。下图展示了在 Yi-34B 模型中，chunking 操作对整体 prefill 时延带来的影响。如预期所示，chunk 的划分越细（例如 size 为 512），带来的开销越大；**但整体来看，开销的增长始终控制在 1.25 倍以内，属于可接受的范围**。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061648369.png)
+![](./i/202507061648369.png)
 
 [图片来源：Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310)
 
 - 第二，**chunked-prefills 会对 Attention 计算造成轻微开销，因为每个 chunk 在执行 Attention 时需要重复从 GPU 内存中读取该请求之前所有 chunk 的 KV cache**。如下图所示，在 prompt 的前向传递结束前，所有 chunked-prefills 操作的 FFN 计算量是相同的，但从第二个 chunk 开始，每一个 Attention kernel 都必须重新读取之前所有 token 的 KV 对。例如，如果将一个 prefill 序列切分为 N 个 chunk，则第一个 chunk 的 KV cache 会被读取 N 次，第二个读取 N−1 次，依此类推。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061642730.png)
+![](./i/202507061642730.png)
 
 [图片来源：SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked-Prefills](https://arxiv.org/abs/2308.16369)
 
@@ -238,7 +238,7 @@ chunked-prefills 的开销主要来自两个方面：
 
 下图将 prefill 和 decode 阶段的计算时间细分为线性操作（linear）、注意力机制（Attention）以及其他部分，并展示了它们各自的耗时占比。可以看出，线性操作占据了绝大部分的执行时间。尽管 Attention 的开销会随序列长度呈平方增长，但即使在较长的序列下，**线性操作仍占据超过 80% 的总耗时**。因此，优化线性操作对于提升大模型推理效率至关重要。**而我们前面提到，像 preproj、postproj、FFN1 和 FFN2 这类线性操作，恰恰是可以通过批处理来提升效率的。**
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507061215253.png)
+![](./i/202507061215253.png)
 
 [图片来源：Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve](https://arxiv.org/abs/2403.02310)
 
@@ -262,7 +262,7 @@ GPU 执行矩阵乘法时通常采用 tile 分块机制（例如 tile size = 128
 
 如果 chunk size 刚好超过 tile size 的倍数（例如 257），就会导致 thread blocks 内部部分线程空闲或执行无效计算，即“空转”，从而引发突发性的计算时间激增。下图展示了这一现象：**当序列长度从 256 增加到 257，仅增加 1 个 token，延迟却从 69.8ms 飙升至 92.33ms，涨幅高达 32%**。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507122057905.png)
+![](./i/202507122057905.png)
 
 [图片来源：SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked-Prefills](https://arxiv.org/abs/2308.16369)
 
@@ -360,7 +360,7 @@ Total num output tokens:  198343
 $$
 \text{Latency} = \text{TTFT} + (\text{TPOT} \times \text{生成 token 数})
 $$
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507131705925.png)
+![](./i/202507131705925.png)
 
 ### 5.2 Batch 机制
 
@@ -420,11 +420,11 @@ $$
 
 - **张量并行（Tensor Parallelism，TP）** 将每一层的权重切分到多个 GPU 上，各 GPU 协同完成每一层的计算，KV cache 也被均匀分配。但这种方式每层都需要执行两次 All Reduce 操作（Attention 和 FFN 各一次），通信量大、延迟高，只适合在同节点内、如 NVLink 连接的高带宽环境下使用。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507131810335.png)
+![](./i/202507131810335.png)
 
 - **流水线并行（Pipeline Parallelism，PP）** 则将整个模型按层切分，每个 GPU 负责一部分连续的层，多个 micro-batch 像“流水线”一样依次通过每个 GPU。相较 TP，PP 只需要在层与层之间做一次激活值的通信，通信开销更小，尤其适合集群间带宽有限的环境。PP 的另一个优势是能释放部分 GPU 显存，支持更大的 batch size，从而提升 decode 阶段的吞吐效率。
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202507131811658.png)
+![](./i/202507131811658.png)
 
 因此，在缺乏高速互联（如 NVLink）的跨节点部署中，PP 是唯一可行且高效的模型并行方式，能将每节点的最大 batch size 提高 2–3 倍，大幅增强推理吞吐。
 
@@ -452,4 +452,4 @@ $$
 
 ## 欢迎关注
 
-![](https://chengzw258.oss-cn-beijing.aliyuncs.com/Article/202503222156941.png)
+![](./i/202503222156941.png)
