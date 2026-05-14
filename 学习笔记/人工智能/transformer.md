@@ -138,21 +138,21 @@ masked self-attention 的运行流程如下：
 
 第一步，对于第一个 token，Q,K,V 都是向量，等价于 full attention 只输入一个 token 时的特殊情况：
 
-$$Attention(Q_{1:1},K_{1:1},V_{1:1})=softmax(Q_1K_1^\top)V_1$$
+$$Attention(Q_{1:1},K_{1:1},V_{1:1})=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1$$
 
 对于后续的 token，Q,K,V成为矩阵。从第二个 token 开始：
 
 $$\begin{aligned}
-Attention(Q_{1:2},K_{1:2},V_{1:2})&=softmax\left(\frac{\begin{bmatrix} Q_1K^{\top}_1 & -\infty \\ Q_2K^{\top}_1 & Q_2K^{\top}_2 \end{bmatrix}}{\sqrt{d_k}}\right)\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
-&=\begin{bmatrix}&softmax_{row}(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}) & 0 \\&softmax_{row}(\frac{Q_2K^{\top}_1}{\sqrt{d_k}}) & softmax_{row}(\frac{Q_2K^{\top}_2}{\sqrt{d_k}}) \end{bmatrix}\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
-&=\left[\begin{aligned}&softmax_{row}(\frac{Q_1K^{\top}_1}{\sqrt{d_k}})V_1 \\&softmax_{row}(\frac{Q_2K^{\top}_1}{\sqrt{d_k}})V_1 + softmax_{row}(\frac{Q_2K^{\top}_2}{\sqrt{d_k}})V_2\end{aligned}\right]
+Attention(Q_{1:2},K_{1:2},V_{1:2})&=softmax\left(\begin{bmatrix}\frac{Q_1K^{\top}_1}{\sqrt{d_k}} & 0 \\\frac{Q_2K^{\top}_1}{\sqrt{d_k}} & \frac{Q_2K^{\top}_2}{\sqrt{d_k}} \end{bmatrix}\right)\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
+&=\left[\begin{aligned}&softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1 \\&softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\end{aligned}\right]
 \end{aligned}$$
 
-其中$softmax_{row}$为对矩阵按行进行softmax。于是，每一行的计算公式可以写成：
+其中$softmax$为按行进行softmax。于是，每一行的计算公式可以写成：
 
 $$\begin{aligned}
-Attention(Q_{1:1},K_{1:1},V_{1:1})_1&=softmax_{row}(\frac{Q_1K^{\top}_1}{\sqrt{d_k}})V_1\\
-Attention(Q_{1:2},K_{1:2},V_{1:2})_2&=softmax_{row}(\frac{Q_2K^{\top}_1}{\sqrt{d_k}})V_1 + softmax_{row}(\frac{Q_2K^{\top}_2}{\sqrt{d_k}})V_2\\
+Attention(Q_{1:1},K_{1:1},V_{1:1})_1&=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1=1\cdot V_1\\
+Attention(Q_{1:2},K_{1:2},V_{1:2})_2&=softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\\
+&=softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)_1V_1+softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)_2V_2\\
 \dots\\
-Attention(Q_{1:T},K_{1:T},V_{1:T})&=\sum_{t=1}^nsoftmax_{row}(\frac{Q_TK^{\top}_t}{\sqrt{d_k}}) V_t
+Attention(Q_{1:t},K_{1:t},V_{1:t})_t&=\sum_{i=1}^tsoftmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)_tV_t
 \end{aligned}$$
