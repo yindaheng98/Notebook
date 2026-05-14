@@ -130,29 +130,60 @@ masked self-attention 就能解决这个问题。具体来说，
 这就需要模型在每个位置都产生一个 next-token prediction，并且这同时输出的每个位置的 prediction 得是和一个个输出的 prediction 是等价的才行。
 这就是 masked self-attention 的设计目标。这个设计目标用公式表示为：
 
-$$\forall t\leq T\quad Attention(Q_{1:T},K_{1:T},V_{1:T})_t=Attention(Q_{1:t},K_{1:t},V_{1:t})_t$$
+$$\forall t\leq T\quad MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_t=MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t\tag{1}$$
 
-用人话说就是：**一次性输入整段所有 token $Q_{1:T},K_{1:T},V_{1:T}$ 算 masked self-attention 得到的第 $t$ 个位置输出的 Attention 向量 $Attention(Q_{1:T},K_{1:T},V_{1:T})_t$ 等于只输入前缀 token $Q_{1:t},K_{1:t},V_{1:t}$ 算 masked self-attention 得到的最后位置的 Attention 向量 $Attention(Q_{1:t},K_{1:t},V_{1:t})_t$，对所有 $t\in T$ 成立。**
+用人话说就是：**一次性输入整段所有 token $Q_{1:T},K_{1:T},V_{1:T}$ 算 masked self-attention 得到的第 $t$ 个位置输出的 Attention 向量 $MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_t$ 等于只输入前缀 token $Q_{1:t},K_{1:t},V_{1:t}$ 算 masked self-attention 得到的最后位置的 Attention 向量 $MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t$，对所有 $t\in T$ 成立。**
 
 masked self-attention 的运行流程如下：
 
 第一步，对于第一个 token，Q,K,V 都是向量，等价于 full attention 只输入一个 token 时的特殊情况：
 
-$$Attention(Q_{1:1},K_{1:1},V_{1:1})=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1$$
+$$MaskedAttention(Q_{1:1},K_{1:1},V_{1:1})=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1$$
 
 对于后续的 token，Q,K,V成为矩阵。从第二个 token 开始：
 
 $$\begin{aligned}
-Attention(Q_{1:2},K_{1:2},V_{1:2})&=softmax\left(\begin{bmatrix}\frac{Q_1K^{\top}_1}{\sqrt{d_k}} & 0 \\\frac{Q_2K^{\top}_1}{\sqrt{d_k}} & \frac{Q_2K^{\top}_2}{\sqrt{d_k}} \end{bmatrix}\right)\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
+MaskedAttention(Q_{1:2},K_{1:2},V_{1:2})&=softmax\left(\begin{bmatrix}\frac{Q_1K^{\top}_1}{\sqrt{d_k}} & 0 \\\frac{Q_2K^{\top}_1}{\sqrt{d_k}} & \frac{Q_2K^{\top}_2}{\sqrt{d_k}} \end{bmatrix}\right)\begin{bmatrix} V_1 \\ V_2 \end{bmatrix}\\
 &=\left[\begin{aligned}&softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1 \\&softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\end{aligned}\right]
 \end{aligned}$$
 
-其中$softmax$为按行进行softmax。于是，每一行的计算公式可以写成：
+其中$softmax$为按行进行softmax。以此类推：
 
 $$\begin{aligned}
-Attention(Q_{1:1},K_{1:1},V_{1:1})_1&=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1=1\cdot V_1\\
-Attention(Q_{1:2},K_{1:2},V_{1:2})_2&=softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\\
+MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})&=softmax\left(\begin{bmatrix}\frac{Q_1K^{\top}_1}{\sqrt{d_k}} & 0 & \cdots & 0 \\\frac{Q_2K^{\top}_1}{\sqrt{d_k}} & \frac{Q_2K^{\top}_2}{\sqrt{d_k}} & \cdots & 0 \\\vdots & \vdots & \ddots & \vdots \\\frac{Q_tK^{\top}_1}{\sqrt{d_k}} & \frac{Q_tK^{\top}_2}{\sqrt{d_k}} & \cdots & \frac{Q_tK^{\top}_t}{\sqrt{d_k}} \end{bmatrix}\right)\begin{bmatrix}V_1\\V_2\\\vdots\\V_t\end{bmatrix}\\&=\left[\begin{aligned}&softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1 \\&softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\\&\cdots\\&softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\\\vdots\\V_t\end{bmatrix}\end{aligned}\right]
+\end{aligned}$$
+
+可以看出，输入更多的 token 并不影响$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})$中$Q_{1:t}K_{1:t}^\top$之前的行，因为在上三角部分的那些新输入的$Q_t,K_t,V_t$有关的矩阵元素都被mask掉了。
+这一性质用公式可以表达为：
+
+$$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_{1:t-1}=MaskedAttention(Q_{1:t-1},K_{1:t-1},V_{1:t-1})$$
+
+于是带入$t=T$推导：
+
+$$\begin{aligned}
+MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_{1:T-1}&=MaskedAttention(Q_{1:T-1},K_{1:T-1},V_{1:T-1})\\
+MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_{1:T-2}&=\left(MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_{1:T-1}\right)_{1:T-2}\\&=MaskedAttention(Q_{1:T-1},K_{1:T-1},V_{1:T-1})_{1:T-2}\\&=MaskedAttention(Q_{1:T-2},K_{1:T-2},V_{1:T-2})\\
+\cdots\\
+MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_{1:T-i}&=MaskedAttention(Q_{1:T-i},K_{1:T-i},V_{1:T-i}) & 0\leq i\leq T
+\end{aligned}$$
+
+最后带入$t=T-i$即得：
+
+$$MaskedAttention(Q_{1:T},K_{1:T},V_{1:T})_{1:t}=MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})$$
+
+公式$(1)$得证，设计目标达成。
+
+此外，还可以推导出每次新增一个 token 后，输出矩阵中的新增行$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t$的计算公式：
+
+$$\begin{aligned}
+MaskedAttention(Q_{1:1},K_{1:1},V_{1:1})_1&=softmax\left(\frac{Q_1K^{\top}_1}{\sqrt{d_k}}\right)V_1=1\cdot V_1\\
+MaskedAttention(Q_{1:2},K_{1:2},V_{1:2})_2&=softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\end{bmatrix}\\
 &=softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)_1V_1+softmax\left(\left[\frac{Q_2K^{\top}_1}{\sqrt{d_k}},\frac{Q_2K^{\top}_2}{\sqrt{d_k}}\right]\right)_2V_2\\
 \dots\\
-Attention(Q_{1:t},K_{1:t},V_{1:t})_t&=\sum_{i=1}^tsoftmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)_tV_t
+MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t&=softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\\\vdots\\V_t\end{bmatrix}\\&=\sum_{i=1}^tsoftmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)_iV_i
 \end{aligned}$$
+
+每当来一个新的 token，只需要按照这个公式计算新的一行即可，而 full attention 每加一个 token 不仅需要计算新的一行，还需要再计算新的一列。所以 masked self-attention 的计算量大概是 full attention 的一半。
+并且 masked self-attention 的这种计算模式还带来一种新的加速方式，即 KV Cache。
+
+继续学习：[《KV Cache 原理》](./KVCache.md)
