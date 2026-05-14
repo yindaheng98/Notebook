@@ -1,27 +1,16 @@
 {
-    "AI.md": {
-        "title": "人工智能课程总结",
-        "created": "2021-03-28 07:15:04",
-        "updated": "2021-03-28 07:15:04",
-        "date": "2021-03-28 07:15:04",
-        "tags": [
-            "人工智能"
-        ],
-        "categories": [
-            "人工智能"
-        ]
-    },
     "Attention.md": {
         "title": "机器学习中的Attention机制",
         "created": "2021-03-24 08:14:29",
-        "updated": "2024-04-20 23:52:20",
-        "date": "2024-04-20 23:52:20",
+        "updated": "2026-05-14 06:05:23",
+        "date": "2026-05-14 06:05:23",
         "tags": [
             "人工智能",
             "LSTM",
             "Transformer",
             "神经网络",
-            "注意力机制"
+            "注意力机制",
+            "大模型"
         ],
         "categories": [
             "人工智能"
@@ -115,6 +104,24 @@
             "人工智能"
         ],
         "cover": "/人工智能/i/KD1.jpg"
+    },
+    "KVCache.md": {
+        "title": "KV Cache 原理",
+        "created": "2026-05-14 18:21:29",
+        "updated": "2026-05-14 19:00:22",
+        "date": "2026-05-14 19:00:22",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "神经网络",
+            "注意力机制",
+            "KV Cache",
+            "大模型"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/./i/0__wkGO1660kIWEV1M.gif"
     },
     "LoRA.md": {
         "title": "【摘录】LoRA（Low-Rank Adaptation）和PEFT （Parameter-Efficient Fine-Tuning）",
@@ -313,13 +320,14 @@
     "transformer.md": {
         "title": "Transformer结构",
         "created": "2021-11-23 11:43:15",
-        "updated": "2022-06-08 14:04:06",
-        "date": "2022-06-08 14:04:06",
+        "updated": "2026-05-14 18:11:24",
+        "date": "2026-05-14 18:11:24",
         "tags": [
             "人工智能",
             "Transformer",
             "神经网络",
-            "注意力机制"
+            "注意力机制",
+            "大模型"
         ],
         "categories": [
             "人工智能"
