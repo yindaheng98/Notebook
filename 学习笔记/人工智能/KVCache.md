@@ -41,10 +41,9 @@ $$
 
 ![](./i/0__wkGO1660kIWEV1M.gif)
 
-## KV Cache 的优化
+## KV Cache 的内存占用优化
 
 那有了 KV Cache 用$O(n)$的内存占用增长换走了$O(n)$的计算复杂度，那之后的优化就都是围绕着内存占用来的了。
-
 
 ### 主要优化对象：多头注意力 MHA (Multi-Head Attention)
 
@@ -78,3 +77,9 @@ GQA 的模型包括 LLAMA2-70B，以及 LLAMA3 全系列，此外使用 GQA 的�
 其效果也介于原始 MHA 和 MQA 之间：
 
 ![](./i/ScreenShot_2026-05-14_115933_185.png)
+
+## KV Cache 的计算性能优化
+
+除了内存占用，KV Cache 当然还有性能层面的优化。作为一种 Cache，最重要的性能指标当然是访存性能，要低延迟与高吞吐，也是让各种古老的内存优化技巧焕发第二春。
+
+继续学习性能优化：[《Chunked-Prefills 分块预填充机制详解》](./ChunkedPrefill.md)
