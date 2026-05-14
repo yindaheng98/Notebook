@@ -30,6 +30,24 @@
         ],
         "cover": "/人工智能/zhimg/v2-2f4e0469fbb15ab3791888e5eba66cb4_r.jpg"
     },
+    "ChunkedPrefill.md": {
+        "title": "【纯转载】Chunked-Prefills 分块预填充机制详解",
+        "created": "2026-05-14 23:26:48",
+        "updated": "2026-05-14 23:34:39",
+        "date": "2026-05-14 23:34:39",
+        "tags": [
+            "人工智能",
+            "Transformer",
+            "神经网络",
+            "注意力机制",
+            "KV Cache",
+            "大模型"
+        ],
+        "categories": [
+            "人工智能"
+        ],
+        "cover": "/人工智能/./i/202507052031934.png"
+    },
     "document-ai.md": {
         "title": "【转载】加速 Document AI (文档智能) 发展",
         "created": "2024-08-17 04:48:39",
@@ -108,8 +126,8 @@
     "KVCache.md": {
         "title": "KV Cache 原理",
         "created": "2026-05-14 18:21:29",
-        "updated": "2026-05-14 19:00:22",
-        "date": "2026-05-14 19:00:22",
+        "updated": "2026-05-14 23:30:58",
+        "date": "2026-05-14 23:30:58",
         "tags": [
             "人工智能",
             "Transformer",
@@ -320,8 +338,8 @@
     "transformer.md": {
         "title": "Transformer结构",
         "created": "2021-11-23 11:43:15",
-        "updated": "2026-05-14 18:11:24",
-        "date": "2026-05-14 18:11:24",
+        "updated": "2026-05-14 19:46:59",
+        "date": "2026-05-14 19:46:59",
         "tags": [
             "人工智能",
             "Transformer",
