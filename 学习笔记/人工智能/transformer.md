@@ -183,7 +183,10 @@ MaskedAttention(Q_{1:2},K_{1:2},V_{1:2})_2&=softmax\left(\left[\frac{Q_2K^{\top}
 MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t&=softmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)\begin{bmatrix}V_1\\V_2\\\vdots\\V_t\end{bmatrix}\\&=\sum_{i=1}^tsoftmax\left(\left[\frac{Q_tK^{\top}_1}{\sqrt{d_k}},\frac{Q_tK^{\top}_2}{\sqrt{d_k}},\cdots,\frac{Q_tK^{\top}_t}{\sqrt{d_k}}\right]\right)_iV_i
 \end{aligned}$$
 
-每当来一个新的 token，只需要按照这个公式计算新的一行即可，而 full attention 每加一个 token 不仅需要计算新的一行，还需要再计算新的一列。所以 masked self-attention 的计算量大概是 full attention 的一半。
-并且 masked self-attention 的这种计算模式还带来一种新的加速方式，即 KV Cache。
+每当来一个新的 token，只需要按照这个公式计算新的一行即可，之前的行全不变。
+
+masked self-attention 还有一个很优美的性质：已知$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})$这里面每一行都是下一层 masked self-attention 的一个输入 token，每次加一个 token 都只需要加新的一行$MaskedAttention(Q_{1:t},K_{1:t},V_{1:t})_t$，而不改变之前的行$MaskedAttention(Q_{1:t-1},K_{1:t-1},V_{1:t-1})$，那在下一层看来就是之前的 token 输入全没变，只多加了一个新的 token，那这个 masked self-attention 也只需要加新的一行，而不改变之前的行，依此类推，串联的所有 masked self-attention 层都只需要计算新的一行，而不改变之前的行。
+
+masked self-attention 的这些独特性质带来一种新的加速方式：KV Cache。
 
 继续学习：[《KV Cache 原理》](./KVCache.md)
