@@ -58,3 +58,49 @@ Encoder单元内部长这样：
 * 所以解码器输出矩阵和输入$Q$的矩阵大小相同
 
 ![](./i/self-attention-matrix-calculation-2.png)
+
+## 深入运行过程：Transformer中的三种Attention
+
+需要注意，在这张图中，encoder和decoder虽然画的一样，但其内部计算attention的过程并不相同。
+
+![](./i/transformer_decoding_1.gif)
+
+### Encoder: self-attention 自注意力, 又称 full-attention
+
+self-attention 是最基本最容易理解的 attention，在[《机器学习中的Attention机制》](Attention.md)中就讲的很清楚了，就是由输入的词向量$s_i$乘上3个矩阵$W^Q$、$W^K$、$W^V$得到$K$、$Q$、$V$，即：
+$$
+\begin{aligned}
+Q_i=s_iW^Q\\
+K_i=s_iW^K\\
+V_i=s_iW^V\\
+\end{aligned}
+$$
+
+于是可以用矩阵运算一次算出一个句子里所有词的$K_i$、$Q_i$、$V_i$：
+
+![](./i/self-attention-matrix-calculation.png)
+
+（图中的X表示所有的词向量$s_i$组成的矩阵）
+
+最后，直接用矩阵计算出输出Attention值：
+$$
+Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+其中，$d_k$是$K_i$、$Q_i$、$V_i$的维度，除以$\sqrt{d_k}$是为了保证训练时梯度的稳定。
+
+矩阵图示为：
+
+![](./i/self-attention-matrix-calculation-2.png)
+
+### Encoder 输出进入 Decoder 输入: cross-attention
+
+cross-attention 也可以看成是一种 full-attention，和 self-attention 唯一的区别在于其$K$、$V$和$Q$来源于不同的计算过程。在Transformer中，$K$、$V$是Encoder的输出，$Q$是Decoder的输入经过一个masked self-attention计算得到：
+
+![](./i/Transformer-official.png)
+
+### Decoder: masked self-attention 掩码自注意力, 又称 casual-attention 因果注意力
+
+在Transformer论文原图中，有标注
+
+![](./i/Transformer-official.png)
