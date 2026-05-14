@@ -48,17 +48,6 @@ Encoder单元内部长这样：
 
 ![](./i/transformer_decoding_2.gif)
 
-~~疑问：~~
-* ~~如果按照上面几张图的Decoder结构，Decoder模块的输出向量数量应该和输入的一样多，即输到最后的Linear+Softmax的矩阵大小是不断增长的不可能由一个固定的Linear+Softmax完成，是我漏看了什么吗？~~
-
-解答：
-* 编码器输入到解码器中的两个矩阵是作为$K$和$V$的，解码器生成的序列作为$Q$，它们的特征维数都相同。
-* 于是在$Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V$中，$QK^T$计算得到的矩阵长宽分别为$Q$的样本数（$Q$的行数）和$K$的样本数（$K^T$的列数）。
-* 而$K$的样本数和$V$的样本数相同，所以再乘上一个$V$之后的长宽就是$Q$的样本数和$V$的特征维数（等于$Q$的特征维数）。
-* 所以解码器输出矩阵和输入$Q$的矩阵大小相同
-
-![](./i/self-attention-matrix-calculation-2.png)
-
 ## 深入运行过程：Transformer中的三种Attention
 
 需要注意，在这张图中，encoder和decoder虽然画的一样，但其内部计算attention的过程并不相同。
@@ -98,6 +87,22 @@ $$
 cross-attention 也可以看成是一种 full-attention，和 self-attention 唯一的区别在于其$K$、$V$和$Q$来源于不同的计算过程。在Transformer中，$K$、$V$是Encoder的输出，$Q$是Decoder的输入经过一个masked self-attention计算得到：
 
 ![](./i/Transformer-official.png)
+
+其计算过程和 self-attention 完全一样：
+$$
+Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$
+
+~~疑问：~~
+* ~~如果按照上面几张图的Decoder结构，Decoder模块的输出向量数量应该和输入的一样多，即输到最后的Linear+Softmax的矩阵大小是不断增长的不可能由一个固定的Linear+Softmax完成，是我漏看了什么吗？~~
+
+解答：
+* 编码器输入到解码器中的两个矩阵是作为$K$和$V$的，解码器生成的序列作为$Q$，它们的特征维数都相同。
+* 于是在$Attention(Q,K,V)=softmax(\frac{QK^T}{\sqrt{d_k}})V$中，$QK^T$计算得到的矩阵长宽分别为$Q$的样本数（$Q$的行数）和$K$的样本数（$K^T$的列数）。
+* 而$K$的样本数和$V$的样本数相同，所以再乘上一个$V$之后的长宽就是$Q$的样本数和$V$的特征维数（等于$Q$的特征维数）。
+* 所以解码器输出矩阵和输入$Q$的矩阵大小相同
+
+![](./i/self-attention-matrix-calculation-2.png)
 
 ### Decoder: masked self-attention 掩码自注意力, 又称 casual-attention 因果注意力
 
