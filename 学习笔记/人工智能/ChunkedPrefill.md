@@ -22,7 +22,7 @@ prefill 阶段由于可以并行处理整个输入，**往往延迟较高但能�
 
 下面这张动图可以更清晰地展示 Static Batching 的基本原理：
 
-![](./i/202507052037008.webp)
+![](i/202507052037008.webp)
 
 Static Batching 采用的是固定的调度流程：调度器（Scheduler）每次从请求队列中取出一组请求（例如图中的 x1 和 x2），组成一个新的 batch，并交由执行引擎（Execution Engine）统一进行推理。只有当执行引擎完成该 batch 中所有请求的推理后，调度器才会开始处理下一轮 batch。由于 batch 中的所有请求必须一起行动，我们管这种调度策略叫 **request-level schedule。**
 
@@ -50,7 +50,7 @@ Static Batching 采用的是固定的调度流程：调度器（Scheduler）每�
 
 下面这张动图可以更清晰地展示 Continuous Batching 的基本原理：
 
-![](./i/202507052136736.webp)
+![](i/202507052136736.webp)
 
 #### 2.2.1 Iteration-Level Scheduling
 

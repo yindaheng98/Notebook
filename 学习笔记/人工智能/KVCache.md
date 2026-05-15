@@ -52,7 +52,7 @@ $$
 多头注意力是 Transformer 中的标准 Attention 形式。在数学上，多头注意力 MHA 就是多个独立的单头注意力的拼接，也就是多个独立的$Attention(Q,K,V)$模块，每个模块都有自己的$W^Q$、$W^K$、$W^V$，分别独立训练独立推理，然后拼接输出。
 这样，每个 Head 的 $Q,K,V$ 都不一样，所有都得有自己的一份 KV Cache，内存占用很高。
 
-![](./i/1_F7BHPq-FnKrv8Rw_gmGtOA.webp)
+![](i/1_F7BHPq-FnKrv8Rw_gmGtOA.webp)
 
 于是，这里最简单直接的优化思想是让多个 Head 共用同一份 KV Cache，也即每个 Head 有自己的$W^Q$，但 $W^K$、$W^V$ 和其他 Head 共用。
 
