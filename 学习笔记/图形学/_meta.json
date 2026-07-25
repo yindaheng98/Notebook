@@ -201,6 +201,19 @@
         ],
         "cover": "/图形学/i/marchingcude.png"
     },
+    "MarchingTetrahedra.md": {
+        "title": "Marching Tetrahedra 算法",
+        "created": "2026-07-25 06:14:16",
+        "updated": "2026-07-25 06:14:16",
+        "date": "2026-07-25 06:14:16",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/marchingtetrahedra.png"
+    },
     "MobileNeRF.md": {
         "title": "【转载】MobileNeRF论文解析",
         "created": "2024-03-22 23:24:23",
