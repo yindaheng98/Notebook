@@ -24,7 +24,7 @@ Marching Cube 算法开始前，先要在三维标量场的网格顶点采样形
 
 ![](i/marchingcude.png)
 
-最后把它们拼上就完事了：
+最后把它们拼上就完事了（注意虽然这个视频里展示的过程是串行的，但是实际上每个cube的surface结构不依赖其他cube，所以是完全并行的）：
 
 <video poster="" id="toast" autoplay="" controls="" muted="" loop="" playsinline="" width="100%"><source src="./i/marchingcube.mp4" type="video/mp4"></video>
 </div>
