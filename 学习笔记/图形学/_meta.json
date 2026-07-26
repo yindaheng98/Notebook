@@ -107,6 +107,19 @@
         ],
         "cover": "/图形学/i/v2-ddb7d2e1cc719b6d39bf06996aa0b07a_r.jpg"
     },
+    "DelaunayTetrahedralization.md": {
+        "title": "Delaunay Triangulation 和 Delaunay Tetrahedralization",
+        "created": "2026-07-26 04:58:12",
+        "updated": "2026-07-26 04:58:12",
+        "date": "2026-07-26 04:58:12",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/Delaunay3D.png"
+    },
     "DenseReconstruct.md": {
         "title": "从 Bundle Adjustment 到 VGGT - Brief History of Dense Reconstruction in Multi View Stereo (MVS)",
         "created": "2024-08-22 00:23:46",
@@ -191,8 +204,8 @@
     "MarchingCube.md": {
         "title": "Marching Cube 算法",
         "created": "2026-07-25 05:59:02",
-        "updated": "2026-07-25 05:59:02",
-        "date": "2026-07-25 05:59:02",
+        "updated": "2026-07-26 04:23:59",
+        "date": "2026-07-26 04:23:59",
         "tags": [
             "图形学"
         ],
@@ -350,6 +363,19 @@
         "categories": [
             "图形学"
         ]
+    },
+    "TSDF.md": {
+        "title": "TSDF (Truncated Signed Distance Function) 和 TSDF Fusion",
+        "created": "2026-07-26 04:50:25",
+        "updated": "2026-07-26 04:50:25",
+        "date": "2026-07-26 04:50:25",
+        "tags": [
+            "图形学"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/TSDF.jpg"
     },
     "UnityGaussianSplatting.md": {
         "title": "`aras-p/UnityGaussianSplatting` Runtime 源码浅析",
