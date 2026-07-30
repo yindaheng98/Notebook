@@ -25,6 +25,20 @@
             "图形学"
         ]
     },
+    "3D高斯SDF联合优化.md": {
+        "title": "3DGS转Mesh方法汇总 - 3DGS+SDF/UDF联合优化",
+        "created": "2026-07-30 06:10:01",
+        "updated": "2026-07-30 06:10:01",
+        "date": "2026-07-30 06:10:01",
+        "tags": [
+            "图形学",
+            "3D Gaussian Splatting"
+        ],
+        "categories": [
+            "图形学"
+        ],
+        "cover": "/图形学/i/NeuGSLoss1.png"
+    },
     "3D高斯代码解析.md": {
         "title": "详解3D Gaussian Splatting CUDA Kernel：前向传播",
         "created": "2024-10-09 21:55:30",
@@ -97,8 +111,8 @@
     "3D高斯深度渲染.md": {
         "title": "3DGS转Mesh方法汇总 - 把3DGS作为深度测量的手段，然后应用多视角深度融合方法",
         "created": "2026-07-27 04:25:44",
-        "updated": "2026-07-29 22:58:17",
-        "date": "2026-07-29 22:58:17",
+        "updated": "2026-07-30 00:03:52",
+        "date": "2026-07-30 00:03:52",
         "tags": [
             "图形学",
             "3D Gaussian Splatting"
