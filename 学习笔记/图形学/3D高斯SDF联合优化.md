@@ -11,7 +11,7 @@ NeuSG是3DGS和一种Implicit Surfaces方法NeuS的结合。
 和[PGSR](3D高斯深度渲染.md)一样，NeuSG也设置了一个loss强制拉低最短轴长并以最短轴长作为法线方向。
 ![](i/NeuGSLoss1.png)
 ![](i/NeuGSNormal.png)
-并且使用SDF的梯度方向约束法线方向。
+并且使用SDF的梯度方向约束3DGS渲染的法线方向。
 ![](i/NeuGSLoss2.png)
 另外，还用3DGS中点位置约束SDF，使其在这些位置处值为0，其实就是把3DGS约束在NeuS的表面上。
 ![](i/NeuGSLoss3.png)
@@ -26,7 +26,28 @@ NeuS和3DGS的RGB loss是分开算了加在一起的。
 
 虽然简单但是已经能体现处联合优化Mesh质量的思想。
 
-## (NeurIPS 2024) GSDF
+## (NeurIPS 2024) GSDF：让 3DGS 提供细节，让 SDF 提供连续表面和法线
+
+相比于 NeuSG 只加两个loss，GSDF 更近一步让 3DGS 和 SDF 紧密结合，让 3DGS 和 SDF 互相参与对方的训练流程。
+
+**Depth-guided Sampling**：
+GSDF 观察到，SDF 的采样是渲染过程的性能瓶颈，而 3DGS 恰好可以提供“何处有实体”的信息。
+所以，GSDF 直接将 SDF 渲染的采样过程限制在 3DGS 附近，降低采样范围从而节约 SDF 渲染计算量。
+
+**Geometry-aware Density Control**：
+SDF 还能在 3DGS Densify 过程中减少飞点。
+因为 SDF 能提供表明信息，所以可以直接看 3DGS 中心的 SDF 值就知道它距离表面的距离，越远越有可能是飞点，则不应该在 3DGS Densify 过程中被 split，甚至应该被删除。
+
+![](i/GSDF.png)
+
+**Mutual Geometry Supervision**：
+两个loss，一个要求3DGS和SDF渲染出的法线一致，一个要求其深度一致。
+
+![](i/GSDFLoss.png)
+
+注意 GSDF 虽然也是取短轴方向作为法线方向，但是并没有加loss把 3DGS 压扁。
+
+GSDF 提出的 Mutual Geometry Supervision 是后来 GS+SDF 几乎都沿用的框架。
 
 ## (SIGGRAPH Asia 2024, ACM TOG) 3DGSR
 
