@@ -49,7 +49,27 @@ SDF 还能在 3DGS Densify 过程中减少飞点。
 
 GSDF 提出的 Mutual Geometry Supervision 是后来 GS+SDF 几乎都沿用的框架。
 
-## (SIGGRAPH Asia 2024, ACM TOG) 3DGSR
+## (SIGGRAPH Asia 2024, ACM TOG) 3DGSR 把 SDF 真正嵌入到 Gaussian 里面
+
+GSDF 里面 GS 和 SDF 还是两套比较独立的表示，它们之间联系太松了。有没有办法把 SDF 真正嵌入到 Gaussian 里面？
+
+### Differentiable SDF-to-opacity transformation
+
+一句话：用3DGS 中心点处的 SDF 值作为 3DGS 的透明度值。
+
+![](i/3DGSRalpha.png)
+
+### uses surface derived from SDF to constrain the distribution of Gaussians
+
+一样的取3DGS短轴方向作为法线方向，一样的要求3DGS和SDF渲染出的法线一致。
+
+![](i/3DGSRloss1.png)
+
+### Regularization with Volumetric Rendering
+
+Differentiable SDF-to-opacity transformation 是把一个点上的SDF值转换成 3DGS 的透明度，这也就意味着 SDF 只有这个点上的值得到了训练。
+而 3DGS 又是稀疏的，所以造成 sparse supervisory signals。
+为了解决这个问题，还得把原来 SDF 原装的整个 Volumetric Rendering 过程搬过来做训练。
 
 ## (CVPR 2025 Highlight) GaussianUDF
 
