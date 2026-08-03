@@ -71,6 +71,14 @@ Differentiable SDF-to-opacity transformation 是把一个点上的SDF值转换�
 而 3DGS 又是稀疏的，所以造成 sparse supervisory signals。
 为了解决这个问题，还得把原来 SDF 原装的整个 Volumetric Rendering 过程搬过来做训练。
 
+这里作者就直接用 SDF 经过 Volumetric Rendering 出来的深度和法向量和 3DGS 的深度和法向量算 loss。
+
+![](i/3DGSRloss2.png)
+
+作者特地分析了不用 SDF 渲染颜色而只要深度的原因：
+* 运算速度更快
+* 收敛速度更快
+
 ## (CVPR 2025 Highlight) GaussianUDF
 
 ## (CVPR 2024) SuGaR: 先得到 mesh，再把 Gaussian 粘到三角面上
